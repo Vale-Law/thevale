@@ -1,0 +1,16 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "default": "user"
+    },
+    "preferredLanguage": {
+      "type": "string"
+    },
+    "requiresSpanishAttorney": {
+      "type": "boolean"
+    }
+  }
+}

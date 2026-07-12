@@ -1,0 +1,71 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "client_name": {
+      "type": "string"
+    },
+    "client_email": {
+      "type": "string"
+    },
+    "client_phone": {
+      "type": "string"
+    },
+    "attorney_id": {
+      "type": "string"
+    },
+    "attorney_name": {
+      "type": "string"
+    },
+    "slot": {
+      "type": "string"
+    },
+    "urgency": {
+      "type": "string",
+      "enum": [
+        "Urgent",
+        "Soon",
+        "Just exploring"
+      ],
+      "default": "Soon"
+    },
+    "issue_description": {
+      "type": "string"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "full",
+        "klarna",
+        "affirm",
+        "lawfi"
+      ],
+      "default": "full"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "completed",
+        "declined"
+      ],
+      "default": "pending"
+    },
+    "case_summary": {
+      "type": "string"
+    },
+    "sub_area": {
+      "type": "string"
+    },
+    "language_preference": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_name",
+    "client_email",
+    "attorney_id",
+    "slot"
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "name": "Attorney",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "practice_area": {
+      "type": "string",
+      "enum": [
+        "Family Law",
+        "Immigration",
+        "Business Formation",
+        "Personal Injury"
+      ]
+    },
+    "photo": {
+      "type": "string"
+    },
+    "consult_fee": {
+      "type": "number"
+    },
+    "typical_retainer": {
+      "type": "number"
+    },
+    "location": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "distance": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "number"
+    },
+    "review_count": {
+      "type": "number"
+    },
+    "years_experience": {
+      "type": "number"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "languages_spoken": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "spanish_speaker": {
+      "type": "boolean"
+    },
+    "bilingual_staff": {
+      "type": "boolean"
+    },
+    "interpreter_available": {
+      "type": "boolean"
+    },
+    "translated_documents": {
+      "type": "boolean"
+    },
+    "verified": {
+      "type": "boolean"
+    },
+    "board_certified": {
+      "type": "boolean"
+    },
+    "education": {
+      "type": "string"
+    },
+    "bar_admission": {
+      "type": "string"
+    },
+    "specialties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bio": {
+      "type": "string"
+    },
+    "available_slots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "practice_area"
+  ]
+}

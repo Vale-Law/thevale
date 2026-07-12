@@ -29,6 +29,7 @@ This is a **V1 in progress**, currently focused on data collection (client intak
    ```
    npm install
    ```
+   Note: `package-lock.json` isn't committed to this repo (it was omitted during the initial import — see below), so `npm install` will generate a fresh one from `package.json` on first run. Commit the generated lockfile afterward so installs stay reproducible.
 2. Create a `.env.local` file (gitignored) with your Base44 app credentials:
    ```
    VITE_BASE44_APP_ID=your_app_id
@@ -52,3 +53,4 @@ Full details in [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md). Highlights:
 - [ ] Apply `ProtectedRoute` to routes that need auth (attorney dashboard, at minimum)
 - [ ] Scope the attorney dashboard to the logged-in attorney's own record, and verify Base44's server-side permissions independently enforce this
 - [ ] Decide on practice-area scope (immigration-only vs. multi-vertical) and trim the data model / content accordingly
+- [ ] Commit a fresh `package-lock.json` (see "Running locally" above)

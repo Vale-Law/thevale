@@ -1,6 +1,22 @@
 # Migrating off Base44: Vercel + Supabase Plan
 
-Written: 2026-07-26. This app is currently 100% dependent on Base44's hosted backend — there is no code in this repo that talks to a database, auth provider, file store, email sender, or LLM directly. Every one of those goes through `src/api/base44Client.js` → `@base44/sdk` → Base44's servers. Making the app "publicly accessible on our own infrastructure" means replacing that one client with real services, everywhere the SDK is called. This doc inventories exactly what that touches and lays out a phased path onto **Vercel (hosting) + Supabase (auth/DB/storage)**, which is the natural swap given how the schema is already shaped.
+Written: 2026-07-26. Updated same day — **Phase 1 (Supabase project + schema) is done**, see status below.
+
+This app is currently 100% dependent on Base44's hosted backend — there is no code in this repo that talks to a database, auth provider, file store, email sender, or LLM directly. Every one of those goes through `src/api/base44Client.js` → `@base44/sdk` → Base44's servers. Making the app "publicly accessible on our own infrastructure" means replacing that one client with real services, everywhere the SDK is called. This doc inventories exactly what that touches and lays out a phased path onto **Vercel (hosting) + Supabase (auth/DB/storage)**, which is the natural swap given how the schema is already shaped.
+
+## Status (2026-07-26)
+
+**Done, via the Supabase MCP:**
+- New Supabase project created: `the-vale` (ref `gzmdsyuqhegcesoekuoo`), org `studio-faaji's Org`, region `us-east-1`, Postgres 17. Deliberately a **separate project** from the org's existing one (`studio-faaji's Project`), which already runs an unrelated live app (a mood-board/creative-scraping tool) — kept isolated rather than mixing schemas or sharing `auth.users` between two unrelated products. This costs **$10/month** on the org's Pro plan.
+- Full schema applied — six tables (`profiles`, `attorneys`, `bookings`, `case_summaries`, `waitlist`, `reviews`) translated directly from `base44/entities/*.jsonc`, with RLS enabled and policies on every table. Migration SQL is checked into `supabase/migrations/` in this repo.
+- `public.profiles` mirrors Base44's `User` entity (`role`, `account_type`, etc.) with a trigger that auto-creates a profile row on signup — this is the standard Supabase pattern for extending `auth.users`.
+- Ran `get_advisors` (security + performance) and fixed everything it flagged except two low-risk items below: consolidated redundant RLS policies, wrapped `auth.uid()` calls per Supabase's performance guidance, added the one missing FK index.
+- Project URL: `https://gzmdsyuqhegcesoekuoo.supabase.co`. Publishable (anon) key is safe to put client-side (that's what RLS is for) — ask for it again via the Supabase dashboard (Project Settings → API) or MCP `get_publishable_keys` when wiring up `.env.local`; not repeating it verbatim here since docs get copied around.
+
+**Not done yet:**
+- **Two pending security-hardening statements**, drafted but not yet applied (the Supabase MCP connection dropped mid-session before I could run them): revoke public EXECUTE on the two `SECURITY DEFINER` trigger functions (`handle_new_user`, `protect_attorney_verification_fields`) so they can't be invoked directly as RPC endpoints, only via their triggers. Low severity — no policy is bypassed either way, since the functions don't take attacker-controlled input — but worth closing. The exact SQL is in this repo's history/`docs/MIGRATION.md` git blame, or just re-run `get_advisors(type: "security")` and it'll surface the same two findings with remediation links.
+- **Auth providers are not configured.** The MCP tools available don't include auth-provider configuration — enabling email/password (on by default) is fine, but Google (and Apple, if wanted) OAuth client IDs/secrets have to be set up in the Supabase dashboard under Authentication → Providers, by hand.
+- **The app itself hasn't been switched over.** This is backend provisioning only — `src/api/base44Client.js` is still what the frontend calls. Phase 2 below (swapping the client) hasn't started.
 
 ## Why Supabase specifically
 

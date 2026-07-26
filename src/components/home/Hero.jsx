@@ -165,7 +165,7 @@ export default function Hero({ onSearch }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
           <button
             onClick={() => navigate('/areas-of-help')}
-            className="px-8 py-4 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-all duration-300 hover:scale-[1.02] min-w-[180px]"
+            className="px-8 py-4 bg-white text-[#111418] text-sm font-medium hover:bg-[#0a5dc2] hover:text-white transition-all duration-300 hover:scale-[1.02] min-w-[180px]"
           >
             {t('hero.bookConsultation')}
           </button>

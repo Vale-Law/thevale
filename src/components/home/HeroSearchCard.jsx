@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { US_STATES, getCitiesForState } from '@/lib/usLocations';
 import { Search, MapPin, ChevronDown, ArrowRight, Briefcase } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
+import { detectPracticeArea } from '@/lib/conciergeUtils';
 
 const PRACTICE_AREAS = ['Family Law', 'Personal Injury', 'Immigration', 'Criminal Defense', 'Business & Tax', 'Estate & Wills'];
 const AREA_LABEL_KEYS = {
@@ -25,7 +26,10 @@ export default function HeroSearchCard({ onSearch }) {
   const cities = getCitiesForState(stateCode);
 
   const handleSearch = () => {
-    onSearch(area, stateCode, city);
+    // Typed text counts too: "immigration" in the box goes straight to
+    // Immigration instead of being ignored in favor of the pill selector.
+    const resolved = area || detectPracticeArea(searchText);
+    onSearch(resolved, stateCode, city, searchText.trim());
   };
 
   return (

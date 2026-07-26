@@ -4,7 +4,6 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import { OnboardingProvider } from './lib/onboardingContext';
 import { LanguageProvider } from './lib/i18n';
@@ -54,19 +53,14 @@ import AdminUsersPage from '@/pages/admin/AdminUsers';
 // Add page imports here
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth } = useAuth();
 
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  if (isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[#FAF9F7]">
         <div className="w-6 h-6 border-2 border-[#E5E2DC] border-t-[#111418] rounded-full animate-spin" />
       </div>
     );
-  }
-
-  if (authError) {
-    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
-    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
   }
 
   return (

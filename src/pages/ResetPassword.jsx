@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,24 @@ import { Lock, Loader2, AlertTriangle } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get("token");
+  // Supabase authenticates the user via the recovery link itself — clicking
+  // it establishes a session client-side (no ?token= query param like
+  // Base44's flow used). So instead of gating on a token param, this checks
+  // whether that recovery session actually landed.
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then((ok) => {
+      setHasSession(ok);
+      setCheckingSession(false);
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +36,7 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      await base44.auth.resetPassword({ resetToken, newPassword });
+      await base44.auth.resetPassword({ newPassword });
       window.location.href = "/login";
     } catch (err) {
       setError(err.message || "Failed to reset password");
@@ -34,7 +45,15 @@ export default function ResetPassword() {
     }
   };
 
-  if (!resetToken) {
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!hasSession) {
     return (
       <AuthLayout
         icon={AlertTriangle}

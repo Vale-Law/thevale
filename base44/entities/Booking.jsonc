@@ -60,6 +60,25 @@
     },
     "language_preference": {
       "type": "string"
+    },
+    "description_consent": {
+      "type": "boolean",
+      "description": "Client consented to Brief transmitting their description to the booked attorney"
+    },
+    "description_consent_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "description_skipped": {
+      "type": "boolean",
+      "default": false
+    },
+    "description_purged": {
+      "type": "boolean",
+      "default": false
+    },
+    "declined_reason": {
+      "type": "string"
     }
   },
   "required": [

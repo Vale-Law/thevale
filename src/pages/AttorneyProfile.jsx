@@ -1,22 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import BookingWidget from '@/components/attorney/BookingWidget';
-import { ShieldCheck, MapPin, ArrowLeft, Loader2, Star, Languages } from 'lucide-react';
-import { format } from 'date-fns';
+import { ArrowLeft, Loader2, X } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
+import ProfileHeader from '@/components/attorney/ProfileHeader';
+import RatingCard from '@/components/attorney/RatingCard';
+import ProfileTabs from '@/components/attorney/ProfileTabs';
+import Highlights from '@/components/attorney/Highlights';
+import AboutSection from '@/components/attorney/AboutSection';
+import PracticeAreasSection from '@/components/attorney/PracticeAreasSection';
+import OfficeLocation from '@/components/attorney/OfficeLocation';
+import ClientReviews from '@/components/attorney/ClientReviews';
+import FaqSection from '@/components/attorney/FaqSection';
+import MiniHeader from '@/components/attorney/MiniHeader';
+import BookingPanel from '@/components/attorney/BookingPanel';
+import { nextAvailableLabel } from '@/components/attorney/profileUtils';
 
-function StarRow({ rating }) {
-  return (
-    <div className="flex gap-0.5">
-      {[1,2,3,4,5].map(i => (
-        <Star key={i} className={`w-4 h-4 ${i <= Math.round(rating) ? 'fill-[#111418] text-[#111418]' : 'text-[#E5E2DC] fill-[#E5E2DC]'}`} />
-      ))}
-    </div>
-  );
-}
+const SECTION_IDS = ['highlights', 'about', 'practice-areas', 'location', 'reviews', 'faqs'];
 
 export default function AttorneyProfile() {
   const { id } = useParams();
@@ -24,6 +26,9 @@ export default function AttorneyProfile() {
   const [attorney, setAttorney] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState('highlights');
+  const [miniVisible, setMiniVisible] = useState(false);
+  const [mobileSheet, setMobileSheet] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -36,163 +41,164 @@ export default function AttorneyProfile() {
     });
   }, [id]);
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#FAF9F7]">
-      <Header />
-      <div className="flex items-center justify-center py-32">
-        <Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" />
+  useEffect(() => {
+    const onScroll = () => setMiniVisible(window.scrollY > 360);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+        });
+      },
+      { rootMargin: '-30% 0px -60% 0px', threshold: 0 }
+    );
+    SECTION_IDS.forEach((sid) => {
+      const el = document.getElementById(sid);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [attorney]);
+
+  const scrollTo = useCallback((sid) => {
+    const el = document.getElementById(sid);
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 120;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+    setActive(sid);
+  }, []);
+
+  const handleBook = useCallback(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      const el = document.getElementById('booking');
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 120;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    } else {
+      setMobileSheet(true);
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F7]">
+        <Header />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" />
+        </div>
+        <Footer />
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (!attorney) return (
-    <div className="min-h-screen bg-[#FAF9F7]">
-      <Header />
-      <div className="text-center py-32 text-[#8A8578] font-body">{t('profile.notFound')}</div>
-    </div>
-  );
+  if (!attorney) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F7]">
+        <Header />
+        <div className="text-center py-32 text-[#8A8578] font-body">{t('profile.notFound')}</div>
+        <Footer />
+      </div>
+    );
+  }
 
-  const speaksSpanish = attorney.spanish_speaker || (attorney.languages || []).some(l => l.toLowerCase().includes('spanish'));
+  const nextLabel = nextAvailableLabel(attorney);
 
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
       <Header />
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-10">
+      <MiniHeader attorney={attorney} visible={miniVisible} onBook={handleBook} />
+
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8 lg:py-10 pb-28 lg:pb-10">
         <Link to="/?browse=1" className="inline-flex items-center gap-1.5 text-sm text-[#8A8578] hover:text-[#0a5dc2] mb-8 transition-colors font-body">
           <ArrowLeft className="w-4 h-4" />
           {t('profile.backToResults')}
         </Link>
 
-        <div className="flex flex-col lg:flex-row gap-12">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12">
           {/* Left column */}
-          <div className="flex-1 space-y-8 min-w-0">
+          <div className="flex-1 min-w-0">
+            <ProfileHeader attorney={attorney} />
+            <RatingCard attorney={attorney} reviews={reviews} onSeeAll={() => scrollTo('reviews')} />
 
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row gap-6 pb-8 border-b border-[#E5E2DC]">
-              <img
-                src={attorney.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(attorney.name)}&background=EAF2FB&color=0a5dc2&size=120`}
-                alt={attorney.name}
-                className="w-28 h-28 object-cover flex-shrink-0"
-              />
-              <div>
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h1 className="font-serif text-[32px] lg:text-[40px] text-[#111418] leading-[1.05]">
-                    {attorney.name}
-                  </h1>
-                  {attorney.verified && <ShieldCheck className="w-5 h-5 text-[#0a5dc2]" />}
-                  {attorney.board_certified && (
-                    <span className="text-[10px] uppercase tracking-[0.08em] border border-[#0a5dc2]/30 text-[#0a5dc2] px-2 py-0.5 font-body">
-                      {t('card.boardCertified')}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[#8A8578] font-body mb-3">
-                  {attorney.practice_area} · {attorney.years_experience} {t('profile.yearsExperience')}
-                </p>
-                <div className="flex items-center gap-2 mb-3">
-                  <StarRow rating={attorney.rating} />
-                  <span className="text-sm font-medium text-[#111418] font-body">{attorney.rating}</span>
-                  <span className="text-sm text-[#8A8578] font-body">({attorney.review_count} {t('profile.reviews')})</span>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-[#8A8578] font-body">
-                  <MapPin className="w-4 h-4" />
-                  {attorney.location}
-                  {attorney.distance && <span className="ml-1">· {attorney.distance}</span>}
-                </div>
-
-                {/* Language badges */}
-                {(speaksSpanish || attorney.bilingual_staff || attorney.interpreter_available) && (
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {speaksSpanish && (
-                      <span className="inline-flex items-center gap-1 text-xs border border-[#0a5dc2]/30 text-[#0a5dc2] px-3 py-1 font-body bg-[#EAF2FB]/50">
-                        🗣️ {t('badge.speaksSpanish')}
-                      </span>
-                    )}
-                    {attorney.bilingual_staff && (
-                      <span className="inline-flex items-center gap-1 text-xs border border-[#0a5dc2]/30 text-[#0a5dc2] px-3 py-1 font-body bg-[#EAF2FB]/50">
-                        🗣️ {t('badge.bilingualStaff')}
-                      </span>
-                    )}
-                    {attorney.interpreter_available && (
-                      <span className="inline-flex items-center gap-1 text-xs border border-[#0a5dc2]/30 text-[#0a5dc2] px-3 py-1 font-body bg-[#EAF2FB]/50">
-                        🗣️ {t('badge.translationAvail')}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
+            <div className="mt-6">
+              <ProfileTabs active={active} onSelect={scrollTo} />
             </div>
 
-            {/* About */}
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">{t('profile.about')}</p>
-              <p className="text-[#111418] leading-relaxed text-[17px] font-body mb-6">{attorney.bio}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-[#E5E2DC] pt-6">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] mb-1 font-body">{t('profile.education')}</p>
-                  <p className="text-sm text-[#111418] font-body">{attorney.education}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] mb-1 font-body">{t('profile.barAdmission')}</p>
-                  <p className="text-sm text-[#111418] font-body">{attorney.bar_admission}</p>
-                </div>
-                {attorney.languages && (
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] mb-1 font-body">{t('profile.languages')}</p>
-                    <p className="text-sm text-[#111418] font-body">{attorney.languages.join(', ')}</p>
-                  </div>
-                )}
-              </div>
+            <div className="space-y-10 mt-8">
+              <section id="highlights" className="scroll-mt-40">
+                <h2 className="font-serif text-xl text-[#111418] mb-4">Highlights</h2>
+                <Highlights attorney={attorney} />
+              </section>
+
+              <section id="about" className="scroll-mt-40">
+                <AboutSection attorney={attorney} />
+              </section>
+
+              <section id="practice-areas" className="scroll-mt-40">
+                <PracticeAreasSection attorney={attorney} />
+              </section>
+
+              <section id="location" className="scroll-mt-40">
+                <OfficeLocation attorney={attorney} />
+              </section>
+
+              <section id="reviews" className="scroll-mt-40">
+                <ClientReviews attorney={attorney} reviews={reviews} />
+              </section>
+
+              <section id="faqs" className="scroll-mt-40">
+                <FaqSection attorney={attorney} />
+              </section>
             </div>
 
-            {/* Specialties */}
-            {attorney.specialties && attorney.specialties.length > 0 && (
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">{t('profile.specialties')}</p>
-                <div className="flex flex-wrap gap-2">
-                  {attorney.specialties.map(s => (
-                    <span key={s} className="px-3 py-1.5 border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] transition-colors">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Reviews */}
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-6 font-body">
-                {t('profile.reviews')} ({reviews.length})
-              </p>
-              {reviews.length === 0 ? (
-                <p className="text-sm text-[#8A8578] font-body">{t('profile.noReviews')}</p>
-              ) : (
-                <div className="space-y-8">
-                  {reviews.map(r => (
-                    <div key={r.id} className="border-b border-[#E5E2DC] last:border-0 pb-8 last:pb-0">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-serif text-lg text-[#111418]">{r.reviewer_name}</span>
-                        <span className="text-xs text-[#8A8578] font-body">
-                          {r.date ? format(new Date(r.date), 'MMM d, yyyy') : ''}
-                        </span>
-                      </div>
-                      <StarRow rating={r.rating} />
-                      <blockquote className="font-serif italic text-[17px] text-[#111418] mt-3 leading-relaxed">
-                        "{r.review_text}"
-                      </blockquote>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <p className="text-xs text-[#8A8578] font-body mt-10 leading-relaxed">
+              Attorneys pay a flat fee to be listed on Brief. Brief does not recommend or endorse any attorney and does not give legal advice.
+            </p>
           </div>
 
-          {/* Right column */}
-          <div className="lg:w-80 flex-shrink-0">
-            <BookingWidget attorney={attorney} />
+          {/* Right column — sticky booking panel (desktop) */}
+          <div id="booking" className="hidden lg:block lg:w-[380px] shrink-0">
+            <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto no-scrollbar">
+              <BookingPanel attorney={attorney} />
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile fixed bottom bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-[#E5E2DC] safe-pb">
+        <div className="px-5 py-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs text-[#8A8578] font-body">Consultation</p>
+            <p className="text-sm font-medium text-[#111418] font-body">${attorney.consult_fee}{nextLabel ? ` · Next available ${nextLabel}` : ''}</p>
+          </div>
+          <button onClick={() => setMobileSheet(true)} className="px-5 py-3 rounded-lg bg-[#0a5dc2] hover:bg-[#084a9e] text-white text-sm font-medium font-body transition-colors shrink-0">
+            Book online
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile booking sheet */}
+      {mobileSheet && (
+        <div className="lg:hidden fixed inset-0 z-50 flex items-end">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSheet(false)} />
+          <div className="relative w-full max-h-[92vh] bg-[#FAF9F7] rounded-t-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E2DC]">
+              <p className="font-serif text-lg text-[#111418]">Book a consultation</p>
+              <button onClick={() => setMobileSheet(false)} className="w-9 h-9 flex items-center justify-center text-[#111418]"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="overflow-y-auto p-5">
+              <BookingPanel attorney={attorney} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );

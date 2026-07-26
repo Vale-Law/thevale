@@ -6,6 +6,21 @@ import FloatingPanel from '@/components/ui/FloatingPanel';
 
 const PRACTICE_AREAS = ['Family Law', 'Immigration', 'Business Formation', 'Personal Injury'];
 const LANGUAGES = ['English', 'Spanish', 'French', 'Mandarin', 'Vietnamese', 'Arabic', 'Portuguese'];
+const AREA_LABEL_KEYS = {
+  'Family Law': 'area.familyLaw',
+  'Immigration': 'area.immigration',
+  'Business Formation': 'area.businessFormation',
+  'Personal Injury': 'area.personalInjury',
+};
+const LANG_LABEL_KEYS = {
+  'English': 'lang.English',
+  'Spanish': 'lang.Spanish',
+  'French': 'lang.French',
+  'Mandarin': 'lang.Mandarin',
+  'Vietnamese': 'lang.Vietnamese',
+  'Arabic': 'lang.Arabic',
+  'Portuguese': 'lang.Portuguese',
+};
 
 function Pill({ label, active, badge, onClick, children }) {
   return (
@@ -141,8 +156,7 @@ export default function SearchFilterBar({ filters, onChange, attorneys }) {
 
   return (
     <div
-      className="sticky z-40 bg-[#F5F0E8]/90 backdrop-blur-md border-b border-[#E5E2DC]"
-      style={{ top: 'var(--header-height, 104px)' }}
+      className="filter-bar-sticky sticky z-40 border-b border-[#E5E2DC]"
     >
       <div className="px-6 lg:px-8 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
         {/* Location dropdown */}
@@ -178,7 +192,7 @@ export default function SearchFilterBar({ filters, onChange, attorneys }) {
             {PRACTICE_AREAS.map(area => (
               <label key={area} className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer rounded hover:bg-[#FAF9F7] transition-colors">
                 <input type="checkbox" checked={(filters.areas || []).includes(area)} onChange={() => toggleArea(area)} className="accent-[#111418]" />
-                <span className="text-sm font-body text-[#111418]">{area}</span>
+                <span className="text-sm font-body text-[#111418]">{t(AREA_LABEL_KEYS[area] || area)}</span>
               </label>
             ))}
           </div>
@@ -191,11 +205,11 @@ export default function SearchFilterBar({ filters, onChange, attorneys }) {
             {LANGUAGES.map(lang => (
               <label key={lang} className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer rounded hover:bg-[#FAF9F7] transition-colors">
                 <input type="checkbox" checked={(filters.languages || []).includes(lang)} onChange={() => toggleLang(lang)} className="accent-[#111418]" />
-                <span className="text-sm font-body text-[#111418]">{lang}</span>
+                <span className="text-sm font-body text-[#111418]">{t(LANG_LABEL_KEYS[lang] || lang)}</span>
               </label>
             ))}
             <div className="border-t border-[#E5E2DC] my-1" />
-            <p className="text-[10px] uppercase tracking-[0.08em] text-[#8A8578] font-body px-2 pt-1 pb-0.5">Español</p>
+            <p className="text-[10px] uppercase tracking-[0.08em] text-[#8A8578] font-body px-2 pt-1 pb-0.5">{t('filter.spanish')}</p>
             <label className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer rounded hover:bg-[#FAF9F7] transition-colors">
               <input type="checkbox" checked={!!filters.speaksSpanish} onChange={() => onChange({ ...filters, speaksSpanish: !filters.speaksSpanish })} className="accent-[#111418]" />
               <span className="text-sm font-body text-[#111418]">{t('filter.speaksSpanish')}</span>

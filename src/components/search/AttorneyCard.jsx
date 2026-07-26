@@ -1,145 +1,101 @@
 import { useNavigate } from 'react-router-dom';
-import { format, addDays, startOfDay } from 'date-fns';
-import { ShieldCheck, MapPin, Star, Languages } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
+import { format, startOfDay, addDays } from 'date-fns';
 import { base44 } from '@/api/base44Client';
-import { useOnboarding } from '@/lib/onboardingContext';
 import { useLanguage } from '@/lib/i18n';
 
-function getDisplaySlots(slots) {
-  if (!slots || slots.length === 0) return [];
-  return slots.slice(0, 6).map(s => {
-    const d = new Date(s);
-    const today = startOfDay(new Date());
-    const tomorrow = addDays(today, 1);
-    const slotDay = startOfDay(d);
-    let prefix = format(d, 'EEE');
-    if (slotDay.getTime() === today.getTime()) prefix = 'Today';
-    else if (slotDay.getTime() === tomorrow.getTime()) prefix = 'Tmrw';
-    return { label: `${prefix} ${format(d, 'h:mm a')}`, value: s };
-  });
+function getInitials(name) {
+  return name ? name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() : '?';
 }
 
-function LanguageBadges({ attorney, t }) {
-  const badges = [];
-  const speaksSpanish = attorney.spanish_speaker || (attorney.languages || []).some(l => l.toLowerCase().includes('spanish'));
-  if (speaksSpanish) {
-    badges.push({ icon: '🗯️', label: t('badge.speaksSpanish') });
-  }
-  if (attorney.bilingual_staff) {
-    badges.push({ icon: '🗯️', label: t('badge.bilingualStaff') });
-  }
-  if (attorney.interpreter_available) {
-    badges.push({ icon: '🗯️', label: t('badge.translationAvail') });
-  }
-
-  if (badges.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-1.5 mb-3">
-      {badges.map((b, i) => (
-        <span key={i} className="inline-flex items-center gap-1 text-[10px] border border-[#0a5dc2]/20 text-[#0a5dc2] px-2 py-0.5 font-body bg-[#EAF2FB]/50">
-          {b.icon} {b.label}
-        </span>
-      ))}
-    </div>
-  );
+function nextAvailable(attorney) {
+  const slots = attorney.available_slots || [];
+  if (!slots.length) return null;
+  const d = new Date(slots[0]);
+  const today = startOfDay(new Date());
+  const tomorrow = addDays(today, 1);
+  const day = startOfDay(d);
+  if (day.getTime() === today.getTime()) return 'today';
+  if (day.getTime() === tomorrow.getTime()) return 'tomorrow';
+  return format(d, 'EEE, MMM d');
 }
 
 export default function AttorneyCard({ attorney }) {
   const navigate = useNavigate();
-  const { openOnboarding } = useOnboarding();
   const { t } = useLanguage();
-  const slots = getDisplaySlots(attorney.available_slots);
-  const monthlyAffirm = attorney.typical_retainer ? Math.round(attorney.typical_retainer / 12) : null;
+  const next = nextAvailable(attorney);
+  const location = attorney.city && attorney.state ? `${attorney.city}, ${attorney.state}` : attorney.location || 'Nationwide';
+  const tagline = attorney.board_certified ? 'Board certified · New client consultations' : 'New client consultations';
+  const areas = (attorney.practice_areas && attorney.practice_areas.length) ? attorney.practice_areas : (attorney.practice_area ? [attorney.practice_area] : []);
+  const pills = areas.length > 4 ? [...areas.slice(0, 3), `+${areas.length - 3} more`] : areas;
 
-  const handleSlot = async (slot) => {
-    const bookingUrl = `/booking?attorney=${attorney.id}&slot=${encodeURIComponent(slot)}`;
+  const book = () => {
     base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
-    const authed = await base44.auth.isAuthenticated();
-    if (authed) {
-      navigate(bookingUrl);
-    } else {
-      openOnboarding(bookingUrl);
-    }
+    navigate(`/attorney/${attorney.id}`);
   };
 
   return (
-    <div className="bg-white border border-[#E5E2DC] p-6 hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-300">
-      <div className="flex flex-col sm:flex-row gap-5">
-        <img
-          src={attorney.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(attorney.name)}&background=EAF2FB&color=0a5dc2&size=100`}
-          alt={attorney.name}
-          className="w-20 h-20 object-cover flex-shrink-0 cursor-pointer"
-          onClick={() => navigate(`/attorney/${attorney.id}`)}
-        />
-
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-start gap-2 mb-1">
-            <button
-              onClick={() => navigate(`/attorney/${attorney.id}`)}
-              className="font-serif text-xl text-[#111418] hover:text-[#0a5dc2] transition-colors leading-tight"
-            >
-              {attorney.name}
-            </button>
-            {attorney.verified && <ShieldCheck className="w-4 h-4 text-[#0a5dc2] flex-shrink-0 mt-1" />}
-            {attorney.board_certified && (
-              <span className="text-[10px] uppercase tracking-[0.08em] border border-[#0a5dc2]/30 text-[#0a5dc2] px-2 py-0.5 font-body">
-                {t('card.boardCertified')}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-[#8A8578] font-body mb-2">
-            {attorney.practice_area} · {attorney.years_experience} {t('card.yrsExp')}
-          </p>
-
-          {/* Language badges */}
-          <LanguageBadges attorney={attorney} t={t} />
-
-          <div className="flex flex-wrap items-center gap-3 text-sm text-[#8A8578] font-body mb-3">
-            <span className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-[#111418] text-[#111418]" />
-              <span className="text-[#111418] font-medium">{attorney.rating}</span>
-              <span className="text-[#8A8578]">({attorney.review_count})</span>
-            </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {attorney.location}
-            </span>
-            {attorney.languages && attorney.languages.length > 1 && (
-              <span className="flex items-center gap-1">
-                <Languages className="w-3.5 h-3.5" />
-                {attorney.languages.join(', ')}
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-baseline gap-2 mb-4">
-            <span className="font-serif text-2xl text-[#111418]">${attorney.consult_fee}</span>
-            <span className="text-sm text-[#8A8578] font-body">{t('card.consultation')}</span>
-            {monthlyAffirm && (
-              <span className="text-xs text-[#0a5dc2] font-body">
-                · {t('card.financeRetainer')} ${monthlyAffirm}{t('card.mo')}
-              </span>
-            )}
-          </div>
-
-          {slots.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {slots.map(({ label, value }) => (
-                <button
-                  key={value}
-                  onClick={() => handleSlot(value)}
-                  className="text-xs px-3 py-1.5 border border-[#E5E2DC] text-[#111418] hover:bg-[#111418] hover:text-white hover:border-[#111418] transition-all duration-200 font-body"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+    <div
+      className="bg-white border border-[#E5E2DC] rounded-xl flex flex-col p-5 w-full h-[300px] cursor-pointer"
+      style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
+      onClick={book}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && book()}
+      aria-label={`View ${attorney.name}'s profile`}
+    >
+      {/* Header row: circular photo + name/practice area */}
+      <div className="flex items-start gap-3">
+        <div className="w-[72px] h-[72px] rounded-full overflow-hidden shrink-0 bg-[#EAF2FB] flex items-center justify-center">
+          {attorney.photo ? (
+            <img src={attorney.photo} alt={attorney.name} loading="lazy" className="w-full h-full object-cover" />
           ) : (
-            <p className="text-xs text-[#8A8578] font-body">{t('card.noSlots')}</p>
+            <span className="font-serif text-[#0a5dc2] text-lg">{getInitials(attorney.name)}</span>
           )}
         </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-serif font-medium text-[20px] text-[#111418] leading-tight truncate">{attorney.name}</h3>
+          <p className="text-[13px] text-[#5A5A5A] font-body truncate">{attorney.practice_area}</p>
+          <div className="flex items-center gap-1 mt-1 text-[12px]">
+            <Star className="w-3 h-3 fill-[#FFC107] text-[#FFC107]" />
+            <span className="font-medium text-[#111418]">{attorney.rating || '—'}</span>
+            <span className="text-[#5A5A5A]">· {attorney.review_count || 0} reviews</span>
+          </div>
+        </div>
       </div>
+
+      {/* Location line */}
+      <div className="flex items-center gap-1 mt-3 text-[12px] text-[#5A5A5A] font-body">
+        <MapPin className="w-3 h-3 shrink-0" />
+        <span className="truncate">{location}</span>
+      </div>
+
+      {/* Tag line */}
+      <p className="text-[12px] text-[#5A5A5A] font-body mt-2 line-clamp-2 leading-snug">{tagline}</p>
+
+      {/* Availability line */}
+      <p className="text-[13px] font-medium text-[#111418] mt-3">
+        {next ? `Next available ${next}` : 'Contact for availability'}
+      </p>
+
+      {/* Practice areas pills */}
+      {pills.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3 mb-4">
+          {pills.map((p, i) => (
+            <span key={i} className="px-3 py-1.5 rounded-full border border-[#E5E2DC] bg-[#F1EEE8] text-[13px] text-[#111418] font-body">
+              {p}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Primary button pinned to bottom */}
+      <button
+        onClick={(e) => { e.stopPropagation(); book(); }}
+        className="mt-auto w-full h-12 rounded-lg bg-[#0a5dc2] hover:bg-[#084a9e] text-white text-[13px] font-medium font-body transition-colors"
+      >
+        Book online
+      </button>
     </div>
   );
 }

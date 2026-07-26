@@ -1,0 +1,60 @@
+{
+  "name": "CaseSummary",
+  "type": "object",
+  "properties": {
+    "practice_area_primary": {
+      "type": "string"
+    },
+    "practice_area_secondary": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "key_facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "state": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "urgency": {
+      "type": "string",
+      "enum": [
+        "Urgent",
+        "Soon",
+        "Just exploring"
+      ]
+    },
+    "budget_range": {
+      "type": "string"
+    },
+    "preferred_language": {
+      "type": "string"
+    },
+    "conversation_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "practice_area_primary",
+    "description"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {},
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

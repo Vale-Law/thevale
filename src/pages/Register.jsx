@@ -4,13 +4,14 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { toast } from "@/components/ui/use-toast";
 
 export default function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,6 +46,12 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
+      // Set the client account type (custom field — role is built-in and can't be set via updateMe)
+      try {
+        await base44.auth.updateMe({ account_type: "client" });
+      } catch (e) {
+        console.error("Failed to set account type:", e);
+      }
       window.location.href = "/";
     } catch (err) {
       setError(err.message || "Invalid verification code");
@@ -67,13 +74,12 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
+    base44.auth.loginWithProvider("google", "/auth/client-google");
   };
 
   if (showOtp) {
     return (
       <AuthLayout
-        icon={Mail}
         title="Verify your email"
         subtitle={`We sent a code to ${email}`}
       >
@@ -126,9 +132,8 @@ export default function Register() {
 
   return (
     <AuthLayout
-      icon={UserPlus}
       title="Create your account"
-      subtitle="Sign up to get started"
+      subtitle="Sign up to find the right lawyer for you"
       footer={
         <>
           Already have an account?{" "}
@@ -164,6 +169,23 @@ export default function Register() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
+          <Label htmlFor="name">Full name</Label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+            <Input
+              id="name"
+              type="text"
+              autoComplete="name"
+              autoFocus
+              placeholder="Jane Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="pl-10 h-12"
+              required
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
@@ -171,7 +193,6 @@ export default function Register() {
               id="email"
               type="email"
               autoComplete="email"
-              autoFocus
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

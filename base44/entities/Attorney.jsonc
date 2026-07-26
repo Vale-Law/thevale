@@ -14,6 +14,12 @@
         "Personal Injury"
       ]
     },
+    "practice_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "photo": {
       "type": "string"
     },
@@ -74,6 +80,22 @@
     "board_certified": {
       "type": "boolean"
     },
+    "board_cert_body": {
+      "type": "string",
+      "description": "Certifying body for board certification, e.g. Texas Board of Legal Specialization"
+    },
+    "board_cert_specialty": {
+      "type": "string",
+      "description": "Specialty area of board certification"
+    },
+    "board_cert_document": {
+      "type": "string",
+      "description": "Uploaded proof of board certification (private file uri)"
+    },
+    "board_cert_approved": {
+      "type": "boolean",
+      "default": false
+    },
     "education": {
       "type": "string"
     },
@@ -94,6 +116,51 @@
       "items": {
         "type": "string"
       }
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "bar_number": {
+      "type": "string"
+    },
+    "bar_state": {
+      "type": "string"
+    },
+    "office_location": {
+      "type": "string"
+    },
+    "phone_number": {
+      "type": "string"
+    },
+    "id_document": {
+      "type": "string"
+    },
+    "bar_card_document": {
+      "type": "string"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "profile_attestation": {
+      "type": "boolean",
+      "description": "Attorney attested they wrote their profile and it is accurate and compliant with their state's advertising rules"
+    },
+    "profile_attestation_date": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [

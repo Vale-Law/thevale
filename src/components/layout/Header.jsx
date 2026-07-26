@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import AnnouncementBar from './AnnouncementBar';
 import BrowseModal from '@/components/search/BrowseModal';
 import LanguageSwitcher from './LanguageSwitcher';
+import AccountMenu from './AccountMenu';
 import { useLanguage } from '@/lib/i18n';
 
 export default function Header() {
@@ -46,7 +47,7 @@ export default function Header() {
         <div className="fixed inset-0 bg-black/40 z-[1000]" onClick={closeMenu} aria-hidden="true" />
       )}
 
-      <div className="sticky top-0 z-[1100]">
+      <div className="sticky top-0 z-[1100] hidden lg:block">
         <AnnouncementBar />
         <header
           className={`bg-[#FAF9F7]/90 backdrop-blur-md transition-all duration-300 ${
@@ -76,10 +77,7 @@ export default function Header() {
                   <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </button>
-              <Link to="/financing" className="text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors">
-                {t('nav.financing')}
-              </Link>
-              <div className="relative" onMouseEnter={() => setLearnOpen(true)} onMouseLeave={() => setLearnOpen(false)}>
+  <div className="relative" onMouseEnter={() => setLearnOpen(true)} onMouseLeave={() => setLearnOpen(false)}>
                 <button className="text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors flex items-center gap-1">
                   {t('nav.learn')}
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="opacity-50">
@@ -103,12 +101,13 @@ export default function Header() {
               <Link to="/for-attorneys" className="text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors">
                 {t('nav.forAttorneys')}
               </Link>
+              <AccountMenu />
               <LanguageSwitcher />
             </nav>
 
             {/* Desktop CTA */}
             <Link
-              to="/?browse=1"
+              to="/areas-of-help"
               className="hidden md:inline-flex items-center px-5 py-2.5 border border-[#111418] text-[#111418] text-sm font-medium hover:bg-[#111418] hover:text-white transition-all duration-200 hover:scale-[1.02]"
             >
               {t('nav.bookConsultation')}
@@ -156,10 +155,6 @@ export default function Header() {
                 <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </button>
-            <Link to="/financing" onClick={closeMenu} className="py-3 text-base text-[#111418] hover:text-[#0a5dc2] transition-colors border-b border-[#E5E2DC]">
-              {t('nav.financing')}
-            </Link>
-
             <div className="border-b border-[#E5E2DC]">
               <button
                 onClick={() => setMobileLearnOpen(o => !o)}
@@ -188,8 +183,11 @@ export default function Header() {
             <Link to="/for-attorneys" onClick={closeMenu} className="py-3 text-base text-[#111418] hover:text-[#0a5dc2] transition-colors border-b border-[#E5E2DC]">
               {t('nav.forAttorneys')}
             </Link>
+            <Link to="/login" onClick={closeMenu} className="py-3 text-base text-[#111418] hover:text-[#0a5dc2] transition-colors border-b border-[#E5E2DC]">
+              Log in
+            </Link>
 
-            <Link to="/?browse=1" onClick={closeMenu} className="mt-4 py-3 px-5 border border-[#111418] text-[#111418] text-sm font-medium text-center hover:bg-[#111418] hover:text-white transition-all duration-200">
+            <Link to="/areas-of-help" onClick={closeMenu} className="mt-4 py-3 px-5 border border-[#111418] text-[#111418] text-sm font-medium text-center hover:bg-[#111418] hover:text-white transition-all duration-200">
               {t('nav.bookConsultation')}
             </Link>
           </nav>

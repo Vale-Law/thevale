@@ -30,7 +30,7 @@ export default function FinancingTeaser() {
             Justice Shouldn't Wait for Payday.
           </h2>
           <p className="text-[#8A8578] leading-relaxed mb-8 max-w-md">
-            Split your consultation fee into 4 interest-free payments with Klarna, or finance your full retainer over 12–24 months with Affirm or LawFi. No hard credit check with LawFi.
+            Soon, Brief will offer flexible financing options — so you can get the legal help you need now and pay over time. Stay tuned.
           </p>
           <button
             onClick={() => navigate('/financing')}

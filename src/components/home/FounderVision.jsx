@@ -1,6 +1,8 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useLanguage } from '@/lib/i18n';
 
 export default function FounderVision() {
+  const { t } = useLanguage();
   const ref = useScrollReveal();
 
   return (
@@ -28,7 +30,7 @@ export default function FounderVision() {
                 />
               </div>
               <h3 className="font-serif text-[18px] text-[#111418] mb-0.5">Ola Kuforiji</h3>
-              <p className="text-[10px] uppercase tracking-[0.12em] text-[#8A8578] font-body">Co-Founder</p>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-[#8A8578] font-body">{t('founder.coFounder')}</p>
             </div>
             <div className="flex flex-col items-center text-center">
               <div
@@ -49,29 +51,21 @@ export default function FounderVision() {
                 />
               </div>
               <h3 className="font-serif text-[18px] text-[#111418] mb-0.5">Timothy Ogunlowo</h3>
-              <p className="text-[10px] uppercase tracking-[0.12em] text-[#8A8578] font-body">Co-Founder</p>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-[#8A8578] font-body">{t('founder.coFounder')}</p>
             </div>
           </div>
         </div>
 
         {/* Text */}
         <div className="fade-up-child order-1 lg:order-2">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-5 font-body">Our vision</p>
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-5 font-body">{t('founder.vision')}</p>
           <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[#111418] leading-[1.1] mb-6">
-            Legal help should be for everyone.
+            {t('founder.heading')}
           </h2>
-          <p className="text-[#8A8578] leading-relaxed mb-4">
-            Brief connects everyday people with great lawyers — and removes the barriers that have kept good legal help out of reach for too long.
-          </p>
-          <p className="text-[#8A8578] leading-relaxed mb-4">
-            The legal system has never worked equally for everyone. Getting a good lawyer has come down to who you know and what you can afford. We don't think it should be that way.
-          </p>
-          <p className="text-[#8A8578] leading-relaxed mb-4">
-            So we built Brief to change it. Every attorney is licensed, vetted, and verified, with honest, upfront pricing — and with flexible financing.
-          </p>
-          <p className="text-[#8A8578] leading-relaxed">
-            The best attorneys, made accessible. Schedule today, and get the help you deserve.
-          </p>
+          <p className="text-[#8A8578] leading-relaxed mb-4">{t('founder.p1')}</p>
+          <p className="text-[#8A8578] leading-relaxed mb-4">{t('founder.p2')}</p>
+          <p className="text-[#8A8578] leading-relaxed mb-4">{t('founder.p3')}</p>
+          <p className="text-[#8A8578] leading-relaxed">{t('founder.p4')}</p>
         </div>
       </div>
     </section>

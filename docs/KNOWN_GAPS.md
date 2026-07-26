@@ -1,46 +1,36 @@
-# Known Gaps & Stubbed Functionality — V1 Codebase Review
+# Known Gaps & Stubbed Functionality — V2 Codebase Review
 
-Reviewed: 2026-07-12
-Scope: initial `pacto-legal-match` codebase as received from the cofounder, prior to any changes.
+Reviewed: 2026-07-26
+Scope: re-sync from the cofounder's latest Base44 export ("Brief" / working title "The Vale"), replacing the V1 snapshot reviewed 2026-07-12. Measured against `docs/` product definition in Notion ("The Vale — Canonical Product Definition") and the original V1 gap list below.
 
-This document scopes out what's real vs. stubbed/missing in the V1 codebase, measured against the product description (immigration-lawyer trust platform: educational client intake, vetted directory, booking, lawyer profile management, admin/vetting layer).
+## Architecture note (still true, read this first)
 
-## Architecture note (read this first)
+This is still a **frontend-only repository** as of this sync. Auth, database, file storage, transactional email, and even the AI matching agent all live on [Base44](https://base44.com)'s hosted platform, not in this repo. The `base44/*.jsonc` files (entities + the one agent config) are schema/config declarations mirroring the Base44 dashboard — editing them here doesn't change the live backend. See `docs/MIGRATION.md` for what it takes to move off Base44 onto Vercel + a real database.
 
-This is a **frontend-only repository**. It's built on [Base44](https://base44.com), a hosted no-code/low-code app platform — auth, database, and API logic all live on Base44's servers, not in this repo. The `base44/entities/*.jsonc` files are schema declarations mirroring the Base44 web builder config; they are not executable backend code. Any change to data model, permissions, or server-side validation has to happen in the Base44 dashboard, not just in this codebase.
+## What changed since V1 (2026-07-12)
 
-## What's functional (real, not stubbed)
+Resolved:
+- **Admin/vetting layer now exists.** Full route tree under `/admin` (`AdminEntry`, `AdminDashboard`, `AdminApplications`, `AdminApplicationDetail`, `AdminAttorneys`, `AdminBookings`, `AdminUsers`). Attorney applications carry a real `verification_status` (`pending` / `verified` / `rejected`) on the `Attorney` entity, with bar number/state, uploaded ID + bar card documents, and admin approve/reject actions that send email via `base44.integrations.Core.SendEmail`.
+- **Route protection is wired up.** `RoleRoute` + three shell components (`ClientShell`, `AttorneyShell`, `AdminShell`) gate every dashboard route by `effectiveRole` (derived from `User.role` / `User.account_type`) and by attorney verification status. Unverified attorneys are bounced to `/attorney-pending`; wrong-role users are bounced to their own home route.
+- **Attorney dashboard is now ownership-scoped.** `AuthContext` loads the `Attorney` record by `user_id` tied to the logged-in user (`Attorney.filter({ user_id })`), rather than listing every attorney in a dropdown. The V1 cross-account-edit issue is closed on the frontend (server-side RLS in Base44 still needs independent confirmation — see Open Decisions).
+- **Client intake now persists as its own record.** A new `CaseSummary` entity captures practice area, description, key facts, location, urgency, budget, and language independent of whether a booking happens — closes the V1 "intake data is lost if no booking" gap.
+- **Financing UI removed from the booking flow.** `StepPayment.jsx` now offers "pay in full" only; Klarna/Affirm/LawFi are gone from the live flow and demoted to a footer teaser, matching the product doc's "Post-MVP" scoping. Real payment capture is still not implemented (see below) — this was a UI-scope cut, not a Stripe integration.
+- **Mobile shell built.** New `MobileShell`, `MobileTabBar`, `MobileTopBar`, `MobileMenu`, `BottomSheet`, `useIsMobile` components deliver the "native app" mobile behavior called for in the product doc.
+- **AI matching concierge now exists**, implemented as a Base44 Agent (`base44/agents/legal_matching_concierge.jsonc`) plus `ConciergePanel`/`MatchConcierge` UI and `conciergeUtils.js`. It's scoped tightly: read-only access to the `Attorney` entity, hard-coded guardrails against naming/ranking attorneys or giving legal advice, stateless.
+- **New `Waitlist` entity** for capturing emails from users in states without live attorney coverage.
 
-- **Client intake questionnaire** (`src/components/search/QuestionnaireModal.jsx`, `src/lib/questionnaireData.js`) — branching multi-step question flow per practice area, generates a plain-language case summary. Genuine logic.
-- **Attorney directory browse/filter** (`src/components/search/*`) and **attorney profile pages** — wired to real Base44 entity reads (`Attorney.list()`, `Attorney.filter()`), not mock data.
-- **Booking flow** (info → details → payment-selection steps) — creates real `Booking` records via `base44.entities.Booking.create()`.
-- **Attorney-side dashboard** for editing profile fields and confirming/declining bookings — real reads/writes against `Attorney` and `Booking` entities (see access-control caveat below).
-- **i18n** (English/Spanish) via a hand-rolled translation dictionary — functional, not a stub.
-- **Auth** — delegated entirely to Base44's hosted auth (email/password, Google/Apple OAuth hooks present in `RegistrationStep.jsx`). No custom auth code to maintain, but also no custom logic controlling who can register as an "attorney" vs. a "client."
+Still open from V1 (confirmed still true in this export):
+- **No real payment processing.** `StepPayment.jsx` still only records which option a client picked as a string field on `Booking`; there's no Stripe Elements, no charge, no webhook. `@stripe/stripe-js`/`@stripe/react-stripe-js` remain unused dependencies. This is now *consistent* with the product doc, which explicitly defers platform payments post-MVP — but it means "clients pay attorneys directly" has no supporting mechanism in the app at all today (not even a manual invoice/receipt flow).
+- **No attorney intro video.** Still no upload field, storage wiring, or display component anywhere in `src/components/attorney/*` despite the product doc calling this out historically as a trust signal (it's not in the current canonical doc's MVP list either, so this may now be intentionally deferred — worth confirming it's not still assumed elsewhere).
+- **Practice-area scope still contradicts the canonical doc.** `Attorney.practice_area` enum and `LearnPersonalInjury.jsx` still include **Personal Injury**; the current product doc scopes the Houston launch to **Family Law, Immigration, and Business Formation only**. A new `practice_areas` (array) field was added alongside the old single-value `practice_area`, which suggests a migration is mid-flight but not finished — worth confirming which field the UI should read from going forward.
 
-## What's missing entirely
+New gaps found in this review (not called out in V1, because the features they attach to didn't exist yet):
 
-1. **Admin/vetting layer — does not exist.** No route, no page, no lawyer-approval workflow anywhere in the frontend. The `Attorney.verified` boolean exists on the schema but nothing in the UI reads it or gates search/directory visibility on it. Any `Attorney` record created (however it's created) appears to be immediately live in search.
-2. **Attorney intro video — does not exist.** The product description calls this out as the core trust signal on a lawyer's profile. There is no upload field, no storage wiring, no display component for it anywhere. Every occurrence of "video" in the codebase refers to the Zoom-style consult call itself, not a profile video.
-3. **Real payment processing — does not exist.** `StepPayment.jsx` presents four options (pay in full / Klarna / Affirm / "LawFi") but only records which one the user clicked as a string on the `Booking` record. No Stripe Elements integration, no charge, no financing-partner API calls — despite `@stripe/stripe-js` and `@stripe/react-stripe-js` sitting in `package.json` as unused dependencies.
-
-## Stubbed / partially built
-
-- **Route protection is not wired up.** `src/components/ProtectedRoute.jsx` is fully written but never imported or used in `App.jsx`. Every route, including `/attorney-dashboard`, is reachable by anyone regardless of auth state.
-- **No ownership scoping in the attorney dashboard.** `AttorneyDashboard.jsx` fetches *every* `Attorney` record (`Attorney.list()`) and presents them all in a plain dropdown — any user who lands on this page can select any attorney and edit that attorney's profile or confirm/decline that attorney's bookings. There is no check that ties the logged-in user to a specific attorney record. It is unverified whether Base44's server-side permissions independently reject cross-record writes — that needs to be confirmed in the Base44 dashboard directly, but the frontend itself provides no such restriction and would need one regardless (showing every competitor's editable profile in a dropdown is a problem on its own, separate from whether the write is ultimately rejected server-side).
-- **Client intake results aren't persisted as their own record.** The questionnaire generates a case summary that's carried through local component state into the booking flow (and saved onto the `Booking` record if a booking happens), but there's no standalone `Intake`/`Screening` entity — so a client's answers are lost if they don't complete a booking, and there's no way to look up "what did this client say happened" independent of a specific booking.
-
-## Contradicts the product description — needs your confirmation
-
-The codebase is **not immigration-only.** It looks like a generic multi-vertical legal-marketplace template rather than the focused, UPL-conscious immigration platform described:
-
-- `Attorney.practice_area` enum: `Family Law`, `Immigration`, `Business Formation`, `Personal Injury` (only one of four is immigration).
-- Dedicated marketing/education content exists for **personal injury** (`LearnPersonalInjury.jsx`) alongside immigration (`LearnImmigration.jsx`).
-- A standalone `Financing.jsx` page markets third-party consumer financing (Klarna, Affirm, and a "LawFi" partner) for legal fees — financing partnerships aren't mentioned in your product description and may carry their own regulatory/bar-rule considerations worth thinking through given the fee-sharing sensitivity you flagged.
-- `PracticeAreaIcons.jsx` lists still more areas not even present in the `Attorney` schema enum: `Criminal Defense`, `Business & Tax`, `Estate & Wills`.
-
-**Recommendation:** confirm with your cofounder whether this was a broader template that hasn't been trimmed down yet, or intentional scope you haven't mentioned. It affects the practice-area enum, what "Learn" content to keep, and whether the financing page belongs in an immigration-focused V1 at all.
+1. **No calendar sync at all — this is the biggest gap vs. the product vision.** The product doc's core differentiator is "attorneys never do data entry" / calendar-computed availability via Google Calendar + Microsoft Graph OAuth (free/busy scopes) and a DB-level double-booking constraint. The actual implementation (`src/pages/attorney/AttorneyAvailability.jsx`) is a fully manual add/remove list of ISO timestamps stored directly on the `Attorney` record — no OAuth, no external calendar read, no conflict detection beyond simple array membership. Every "Edge Function" and calendar integration described in the doc is unbuilt.
+2. **No "completed" transition on bookings — which is the billing trigger.** `Booking.status` includes `completed` in its enum and both `attorney/AttorneyBookings.jsx` and `admin/AdminBookings.jsx` render it as a filter/badge color, but neither page (nor any other file) contains code that actually *sets* a booking to `completed`. Since the flat $50 fee is charged "per completed consultation," there is currently no mechanism to trigger that charge — this matches the open decision Fable's own product-opinion section flags in the Notion doc, so it isn't new news, just confirmed still unbuilt in code.
+3. **Reviews are read-only and unpopulated.** `Review` entity and `AttorneyProfile.jsx` do real `Review.filter({ attorney_id })` reads (not mocked), but there is no write path anywhere — no post-consultation review-request flow, no submission form. The product doc lists "reviews strategy" as an explicit open decision; the code currently implements the read side only.
+4. **Orphaned dead pages removed during this sync.** The old flat `src/pages/AttorneyDashboard.jsx`, `AttorneyPending.jsx`, and `AdminVerification.jsx` existed in the Base44 export but were unreferenced by the app (superseded by the new `src/pages/attorney/*` and `src/pages/admin/*` role-scoped pages plus `RoleRoute`). Deleted here to avoid confusion; if Base44's dashboard still lists them as live pages, they should be archived there too so the two don't drift.
 
 ## Secrets / environment variables
 
-No hardcoded API keys, tokens, credentials, or connection strings were found anywhere in the source. Three env vars are read correctly via `import.meta.env` and need to be set locally in `.env.local` (not committed): `VITE_BASE44_APP_ID`, `VITE_BASE44_APP_BASE_URL`, `VITE_BASE44_FUNCTIONS_VERSION`. One non-secret identifier — the Base44 app ID `6a20eafdf3fbb0512c514d25` — is hardcoded into ~15 `media.base44.com` image URLs used for marketing content; not a credential, but means those images are pinned to that specific Base44 app instance.
+Same as V1: no hardcoded credentials found. Env vars read via `import.meta.env`: `VITE_BASE44_APP_ID`, `VITE_BASE44_APP_BASE_URL`, `VITE_BASE44_FUNCTIONS_VERSION`. The non-secret Base44 app ID (`6a20eafdf3fbb0512c514d25`) is still hardcoded into `media.base44.com` marketing image URLs and now also into `index.html`'s favicon/apple-touch-icon links — those break the day this app is detached from that specific Base44 instance (see `docs/MIGRATION.md`).

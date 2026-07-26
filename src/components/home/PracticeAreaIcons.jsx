@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Heart, Scale, Plane, Shield, Building, FileText } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 const cards = [
-{ label: 'Family Law', query: 'Family Law', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/978433de0_image.png', icon: Heart },
-{ label: 'Personal Injury', query: 'Personal Injury', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/fb1ab0966_image.png', icon: Scale },
-{ label: 'Immigration', query: 'Immigration', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/3cf9e299a_image.png', icon: Plane },
-{ label: 'Criminal Defense', query: 'Criminal Defense', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/0a4fd0c5f_image.png', icon: Shield },
-{ label: 'Business & Tax', query: 'Business & Tax', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/a3657b6ba_image.png', icon: Building },
-{ label: 'Estate & Wills', query: 'Estate & Wills', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/e5bf3e70f_image.png', icon: FileText }];
+{ key: 'familyLaw', query: 'Family Law', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/978433de0_image.png', icon: Heart },
+{ key: 'personalInjury', query: 'Personal Injury', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/fb1ab0966_image.png', icon: Scale },
+{ key: 'immigration', query: 'Immigration', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/3cf9e299a_image.png', icon: Plane },
+{ key: 'criminalDefense', query: 'Criminal Defense', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/0a4fd0c5f_image.png', icon: Shield },
+{ key: 'businessTax', query: 'Business & Tax', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/a3657b6ba_image.png', icon: Building },
+{ key: 'estateWills', query: 'Estate & Wills', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/e5bf3e70f_image.png', icon: FileText }];
 
 
 export default function PracticeAreaIcons({ onSelect }) {
+  const { t } = useLanguage();
   const ref = useScrollReveal();
   const [hovered, setHovered] = useState(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -26,12 +28,13 @@ export default function PracticeAreaIcons({ onSelect }) {
     <section className="py-20 lg:py-24 px-6 lg:px-8 bg-white" ref={ref}>
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 text-center">
-          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[#111418] leading-[1.1]">Every area of law</h2>
-          <p className="text-[#8A8578] font-body mt-2">Tap a practice area to find attorneys who handle it.</p>
+          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[#111418] leading-[1.1]">{t('practiceIcons.heading')}</h2>
+          <p className="text-[#8A8578] font-body mt-2">{t('practiceIcons.subheading')}</p>
         </div>
 
         {/* Quick-pick pills */}
         
+
 
 
 
@@ -49,13 +52,13 @@ export default function PracticeAreaIcons({ onSelect }) {
             const isHovered = hovered === i && !isTouchDevice;
             return (
               <button
-                key={card.label}
+                key={card.key}
                 onClick={() => onSelect(card.query)}
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
                 className="fade-up-child flex flex-col items-center gap-3 group"
                 style={{ transitionDelay: `${i * 60}ms` }}>
-                
+
                 <div
                   className="overflow-hidden transition-all duration-300"
                   style={{
@@ -66,10 +69,10 @@ export default function PracticeAreaIcons({ onSelect }) {
                     boxShadow: isHovered ? '0 12px 40px rgba(10,61,98,0.15)' : '0 4px 16px rgba(10,61,98,0.08)',
                     transform: isHovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)'
                   }}>
-                  
+
                   <img
                     src={card.image}
-                    alt={card.label}
+                    alt={t(`practiceIcons.${card.key}`)}
                     loading="lazy"
                     className="block"
                     style={{
@@ -85,8 +88,8 @@ export default function PracticeAreaIcons({ onSelect }) {
                 <span
                   className="font-serif font-medium text-[14px] lg:text-[15px] text-center transition-colors duration-200"
                   style={{ color: isHovered ? '#0a5dc2' : '#111418' }}>
-                  
-                  {card.label}
+
+                  {t(`practiceIcons.${card.key}`)}
                 </span>
               </button>);
 

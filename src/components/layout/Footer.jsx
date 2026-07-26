@@ -6,58 +6,64 @@ export default function Footer() {
 
   const cols = [
     {
-      heading: t('footer.browse'),
+      heading: t('footer.browseCol'),
       links: [
         { label: t('area.familyLaw'), to: '/?area=Family+Law' },
         { label: t('area.immigration'), to: '/?area=Immigration' },
-        { label: t('area.businessFormation'), to: '/?area=Business+Formation' },
         { label: t('area.personalInjury'), to: '/?area=Personal+Injury' },
-        { label: t('footer.allAttorneys'), to: '/?browse=1' },
+        { label: t('area.businessFormation'), to: '/?area=Business+Formation' },
+        { label: t('footer.allAttorneys'), to: '/areas-of-help' },
+        { label: t('footer.exploreAreas'), to: '/areas-of-help' },
       ],
     },
     {
-      heading: t('footer.financing'),
+      heading: t('footer.forAttorneysCol'),
       links: [
-        { label: t('footer.howItWorks'), to: '/financing' },
-        { label: 'Klarna', to: '/financing' },
-        { label: 'Affirm', to: '/financing' },
-        { label: 'LawFi', to: '/financing' },
+        { label: t('footer.listPractice'), to: '/for-attorneys' },
+        { label: t('footer.applyJoin'), to: '/signup/attorney' },
       ],
     },
     {
-      heading: t('footer.learn'),
+      heading: t('footer.learnCol'),
       links: [
         { label: t('learn.immigrationLaw'), to: '/learn/immigration-law' },
         { label: t('learn.personalInjuryLaw'), to: '/learn/personal-injury-law' },
-        { label: t('learn.familyLawSoon'), to: '/learn' },
-        { label: t('footer.allGuides'), to: '/learn' },
+        { label: t('footer.allGuidesCol'), to: '/learn' },
       ],
     },
     {
-      heading: t('footer.company'),
+      heading: t('footer.companyCol'),
       links: [
-        { label: t('nav.forAttorneys'), to: '/for-attorneys' },
-        { label: t('footer.attorneyDashboard'), to: '/attorney-dashboard' },
-        { label: t('footer.privacyPolicy'), to: '/' },
-        { label: t('footer.termsOfService'), to: '/' },
+        { label: t('footer.privacyPolicy'), to: '/privacy' },
+        { label: t('footer.termsOfService'), to: '/terms' },
+        { label: t('footer.financingSoon'), to: '/financing' },
       ],
     },
   ];
 
   return (
-    <footer className="bg-white text-[#111418]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-16 lg:py-20">
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
-          <div className="col-span-2 lg:col-span-1">
+    <footer className="bg-white text-[#111418] border-t border-[#E5E2DC] hidden lg:block">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-14 lg:py-16">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-14">
+          <div className="col-span-2 lg:col-span-2">
             <img
               src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG"
               alt="Brief"
-              className="h-20 w-auto object-contain mb-4"
+              className="h-16 w-auto object-contain mb-4"
             />
-            <p className="text-sm text-[#8A8578] leading-relaxed">
+            <p className="text-sm text-[#8A8578] leading-relaxed max-w-xs">
               {t('footer.tagline')}<br />
               {t('footer.nationwide')}
             </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-4">
+              <Link to="/" className="text-sm text-[#111418]/70 hover:text-[#111418] transition-colors">{t('footer.home')}</Link>
+              <span className="text-[#E5E2DC]">·</span>
+              <Link to="/" className="text-sm text-[#111418]/70 hover:text-[#111418] transition-colors">{t('footer.about')}</Link>
+              <span className="text-[#E5E2DC]">·</span>
+              <Link to="/" className="text-sm text-[#111418]/70 hover:text-[#111418] transition-colors">{t('footer.contact')}</Link>
+              <span className="text-[#E5E2DC]">·</span>
+              <Link to="/" className="text-sm text-[#111418]/70 hover:text-[#111418] transition-colors">{t('footer.help')}</Link>
+            </div>
           </div>
           {cols.map(col => (
             <div key={col.heading}>
@@ -74,9 +80,10 @@ export default function Footer() {
             </div>
           ))}
         </div>
-        <div className="border-t border-[#111418]/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-[#111418]/10 pt-6 flex flex-col gap-4">
+          <p className="text-xs text-[#8A8578] leading-relaxed max-w-3xl">Brief is an advertising platform, not a law firm and not a lawyer referral service. Attorneys pay a flat fee to be listed. Brief does not recommend or endorse any attorney and does not give legal advice.</p>
           <p className="text-xs text-[#8A8578]">{t('footer.copyright')}</p>
-          <p className="text-xs text-[#8A8578]">{t('footer.disclaimer')}</p>
+          <p className="text-xs text-[#8A8578] leading-relaxed max-w-3xl">{t('footer.disclaimerLong')}</p>
         </div>
       </div>
     </footer>

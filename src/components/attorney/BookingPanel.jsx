@@ -1,0 +1,143 @@
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { format, startOfDay, addDays, isSameDay } from 'date-fns';
+import { ChevronLeft, ChevronRight, Video, Building2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { useOnboarding } from '@/lib/onboardingContext';
+import { useLanguage } from '@/lib/i18n';
+
+export default function BookingPanel({ attorney }) {
+  const navigate = useNavigate();
+  const { openOnboarding } = useOnboarding();
+  const { t } = useLanguage();
+  const areas = (attorney.practice_areas && attorney.practice_areas.length)
+    ? attorney.practice_areas
+    : (attorney.practice_area ? [attorney.practice_area] : []);
+  const [reason, setReason] = useState(areas[0] || '');
+  const [consultType, setConsultType] = useState('in-person');
+  const [clientType, setClientType] = useState('new');
+  const [windowStart, setWindowStart] = useState(() => startOfDay(new Date()));
+  const [selectedDay, setSelectedDay] = useState(() => startOfDay(new Date()));
+
+  const monthlyAffirm = attorney.typical_retainer ? Math.round(attorney.typical_retainer / 12) : null;
+
+  const dayBuckets = useMemo(() => {
+    const byDay = new Map();
+    (attorney.available_slots || []).forEach((s) => {
+      const d = new Date(s);
+      if (isNaN(d)) return;
+      const key = startOfDay(d).getTime();
+      if (!byDay.has(key)) byDay.set(key, []);
+      byDay.get(key).push(s);
+    });
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const day = startOfDay(addDays(windowStart, i));
+      days.push({ day, slots: (byDay.get(day.getTime()) || []).sort((a, b) => new Date(a) - new Date(b)) });
+    }
+    return days;
+  }, [attorney.available_slots, windowStart]);
+
+  const selectedSlots = dayBuckets.find((d) => isSameDay(d.day, selectedDay))?.slots || [];
+
+  const handleSlot = async (slot) => {
+    const bookingUrl = `/booking?attorney=${attorney.id}&slot=${encodeURIComponent(slot)}`;
+    base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
+    const authed = await base44.auth.isAuthenticated();
+    if (authed) navigate(bookingUrl);
+    else openOnboarding(bookingUrl);
+  };
+
+  const shiftWindow = (dir) => setWindowStart((d) => addDays(d, dir * 7));
+
+  return (
+    <div className="bg-white border border-[#E5E2DC] rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] flex flex-col">
+      <div className="p-5 pb-4 border-b border-[#E5E2DC]">
+        <h2 className="font-serif text-lg text-[#111418] mb-3">Book a consultation</h2>
+        <div className="flex items-baseline gap-2">
+          <span className="font-serif text-3xl text-[#111418]">${attorney.consult_fee}</span>
+          <span className="text-sm text-[#8A8578] font-body">{t('booking.consultationFee')}</span>
+        </div>
+        {attorney.typical_retainer && (
+          <p className="text-sm text-[#8A8578] font-body mt-1">{t('booking.typicalRetainer')} <span className="text-[#111418]">${attorney.typical_retainer.toLocaleString()}</span></p>
+        )}
+        {monthlyAffirm && (
+          <p className="text-xs text-[#0a5dc2] mt-1 font-body">{t('booking.financeRetainer')} ${monthlyAffirm}{t('booking.moWithAffirm')}</p>
+        )}
+      </div>
+
+      <div className="p-5 space-y-5">
+        {areas.length > 0 && (
+          <div>
+            <label className="text-xs text-[#8A8578] font-body block mb-1.5">Consultation reason</label>
+            <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full h-11 border border-[#E5E2DC] bg-white px-3 text-sm rounded-lg outline-none focus:border-[#0a5dc2] font-body">
+              {areas.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+        )}
+
+        <div>
+          <label className="text-xs text-[#8A8578] font-body block mb-1.5">Consultation type</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setConsultType('in-person')} className={`h-10 rounded-lg border text-sm font-body flex items-center justify-center gap-1.5 transition-colors ${consultType === 'in-person' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>
+              <Building2 className="w-4 h-4" /> In person
+            </button>
+            <button onClick={() => setConsultType('video')} className={`h-10 rounded-lg border text-sm font-body flex items-center justify-center gap-1.5 transition-colors ${consultType === 'video' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>
+              <Video className="w-4 h-4" /> Video
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-xs text-[#8A8578] font-body block mb-1.5">New or returning client</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setClientType('new')} className={`h-10 rounded-lg border text-sm font-body transition-colors ${clientType === 'new' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>New client</button>
+            <button onClick={() => setClientType('returning')} className={`h-10 rounded-lg border text-sm font-body transition-colors ${clientType === 'returning' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>Returning client</button>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs text-[#8A8578] font-body">Available appointments</label>
+            <div className="flex gap-1">
+              <button onClick={() => shiftWindow(-1)} className="w-7 h-7 rounded-full border border-[#E5E2DC] flex items-center justify-center text-[#111418] hover:border-[#111418]"><ChevronLeft className="w-4 h-4" /></button>
+              <button onClick={() => shiftWindow(1)} className="w-7 h-7 rounded-full border border-[#E5E2DC] flex items-center justify-center text-[#111418] hover:border-[#111418]"><ChevronRight className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {dayBuckets.map((d, i) => {
+              const has = d.slots.length > 0;
+              const selected = isSameDay(d.day, selectedDay);
+              return (
+                <button key={i} disabled={!has} onClick={() => setSelectedDay(d.day)} className={`flex flex-col items-center py-2 rounded-lg border text-xs font-body transition-colors ${selected ? 'border-[#0a5dc2] bg-[#EAF2FB] text-[#0a5dc2]' : has ? 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]' : 'border-transparent text-[#E5E2DC] cursor-not-allowed'}`}>
+                  <span className="uppercase">{format(d.day, 'EEE')}</span>
+                  <span className="text-[11px] mt-0.5">{format(d.day, 'MMM d')}</span>
+                  <span className="mt-1">{has ? d.slots.length : '—'}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs text-[#8A8578] font-body mb-2">{format(selectedDay, 'EEEE, MMM d')}</p>
+          {selectedSlots.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {selectedSlots.map((s) => (
+                <button key={s} onClick={() => handleSlot(s)} className="h-10 rounded-lg border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] hover:bg-[#111418] hover:text-white transition-all">
+                  {format(new Date(s), 'h:mm a')}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-[#8A8578] font-body py-3 text-center">{t('booking.noSlots')}</p>
+          )}
+        </div>
+
+        <p className="text-xs text-[#8A8578] font-body leading-relaxed text-center">
+          Brief is not a law firm. Booking a consultation does not create an attorney-client relationship.
+        </p>
+      </div>
+    </div>
+  );
+}

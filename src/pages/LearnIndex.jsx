@@ -2,44 +2,46 @@ import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-
-const articles = [
-  {
-    slug: '/learn/immigration-law',
-    label: 'Immigration Law',
-    title: 'Immigration law, explained in plain English.',
-    desc: 'Visas, green cards, citizenship, and deportation defense — everything you need to know before your consultation.',
-    readTime: '12 min read',
-    available: true,
-  },
-  {
-    slug: '/learn/personal-injury-law',
-    label: 'Personal Injury Law',
-    title: 'How personal injury cases work — and what your case may be worth.',
-    desc: 'Contingency fees, case timelines, insurance adjusters, and red flags to watch for.',
-    readTime: '10 min read',
-    available: true,
-  },
-  {
-    slug: '/learn',
-    label: 'Family Law',
-    title: 'Divorce, custody, and family legal matters explained.',
-    desc: 'A plain-English guide to navigating family law in Texas.',
-    readTime: 'Coming soon',
-    available: false,
-  },
-  {
-    slug: '/learn',
-    label: 'Business Formation',
-    title: 'LLCs, contracts, and startup legal basics.',
-    desc: 'Everything a Texas entrepreneur needs to know before starting a business.',
-    readTime: 'Coming soon',
-    available: false,
-  },
-];
+import { useLanguage } from '@/lib/i18n';
 
 export default function LearnIndex() {
+  const { t } = useLanguage();
   const ref = useScrollReveal();
+
+  const articles = [
+    {
+      slug: '/learn/immigration-law',
+      label: t('learnIndex.immigrationLabel'),
+      title: t('learnIndex.immigrationTitle'),
+      desc: t('learnIndex.immigrationDesc'),
+      readTime: t('learnIndex.immigrationRead'),
+      available: true,
+    },
+    {
+      slug: '/learn/personal-injury-law',
+      label: t('learnIndex.injuryLabel'),
+      title: t('learnIndex.injuryTitle'),
+      desc: t('learnIndex.injuryDesc'),
+      readTime: t('learnIndex.injuryRead'),
+      available: true,
+    },
+    {
+      slug: '/learn',
+      label: t('learnIndex.familyLabel'),
+      title: t('learnIndex.familyTitle'),
+      desc: t('learnIndex.familyDesc'),
+      readTime: t('learnIndex.comingSoon'),
+      available: false,
+    },
+    {
+      slug: '/learn',
+      label: t('learnIndex.businessLabel'),
+      title: t('learnIndex.businessTitle'),
+      desc: t('learnIndex.businessDesc'),
+      readTime: t('learnIndex.comingSoon'),
+      available: false,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
@@ -47,12 +49,12 @@ export default function LearnIndex() {
 
       <section className="py-24 lg:py-32 px-6 lg:px-8">
         <div className="max-w-[1200px] mx-auto">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">Learn</p>
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">{t('learnIndex.label')}</p>
           <h1 className="font-serif text-[48px] lg:text-[64px] text-[#111418] leading-[1.02] mb-4 max-w-2xl">
-            Legal guides, in plain English.
+            {t('learnIndex.heading')}
           </h1>
           <p className="text-lg text-[#8A8578] font-body max-w-lg leading-relaxed mb-16">
-            Before you book a consultation, understand your situation. Our guides are written by attorneys and edited for clarity.
+            {t('learnIndex.desc')}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6" ref={ref}>
@@ -76,7 +78,7 @@ export default function LearnIndex() {
                     <h2 className="font-serif text-2xl text-[#111418] leading-[1.15] mb-3">{a.title}</h2>
                     <p className="text-sm text-[#8A8578] font-body leading-relaxed mb-4">{a.desc}</p>
                     <span className="inline-block text-[10px] uppercase tracking-[0.1em] border border-[#E5E2DC] text-[#8A8578] px-2 py-1 font-body">
-                      Coming soon
+                      {t('learnIndex.comingSoon')}
                     </span>
                   </div>
                 )}

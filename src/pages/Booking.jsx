@@ -52,6 +52,15 @@ export default function Booking() {
       sub_area: extractSubArea(screening?.answers),
       language_preference: extractLanguagePreference(screening?.answers),
     });
+    try {
+      await base44.integrations.Core.SendEmail({
+        to: info.email,
+        subject: 'Your consultation is booked',
+        body: `Hi ${info.name},\n\nYour consultation with ${attorney?.name} is booked.\n\nBrief is not a law firm. Booking a consultation through Brief does not create an attorney-client relationship. Any attorney-client relationship is formed only between you and the attorney, on terms you agree with them directly.\n\nThe Brief Team`,
+      });
+    } catch (e) {
+      console.error('Confirmation email failed:', e);
+    }
     setLoading(false);
     navigate(`/confirmation?bookingId=${booking.id}&email=${encodeURIComponent(info.email)}`);
   };

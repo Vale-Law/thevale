@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import MatchConcierge from '@/components/concierge/MatchConcierge';
 
 const CATEGORIES = [
   {
@@ -51,7 +52,7 @@ const CATEGORIES = [
     description: 'Standing up for yourself at work.',
     options: [
       'Wrongful Termination', 'Workplace Discrimination', 'Sexual Harassment',
-      'Wage Disputes', 'Workers’ Compensation', 'Social Security & Disability',
+      'Wage Disputes', 'Workers\u2019 Compensation', 'Social Security & Disability',
     ],
   },
   {
@@ -123,6 +124,15 @@ function CategorySection({ category, index }) {
 
 export default function AreasOfHelp() {
   const ref = useScrollReveal();
+  const navigate = useNavigate();
+
+  const handleSearch = (area, stateCode, city) => {
+    if (area) {
+      navigate(`/?area=${encodeURIComponent(area)}`);
+    } else {
+      navigate('/?browse=1');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
@@ -141,6 +151,9 @@ export default function AreasOfHelp() {
             <p className="font-body text-base lg:text-lg text-[#8A8578] leading-relaxed max-w-[640px]">
               Whatever you're facing, there's a lawyer for it. Find your situation below and we'll connect you with attorneys who handle it.
             </p>
+            <div className="mt-10 lg:mt-12">
+              <MatchConcierge onSearchFallback={handleSearch} />
+            </div>
           </div>
         </div>
       </section>
@@ -150,7 +163,7 @@ export default function AreasOfHelp() {
       </div>
 
       {/* Categories */}
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 pt-20 lg:pt-24">
+      <div id="areas-grid" className="max-w-[1200px] mx-auto px-6 lg:px-8 pt-20 lg:pt-24 scroll-mt-28">
         {CATEGORIES.map((cat, i) => (
           <CategorySection key={cat.heading} category={cat} index={i} />
         ))}

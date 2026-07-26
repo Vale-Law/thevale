@@ -8,19 +8,21 @@ Two sides:
 
 ## Current state
 
-This is a **V1 in progress**, currently focused on data collection (client intake) and structural scaffolding rather than a finished product. See [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md) for a detailed breakdown of what's functional vs. stubbed vs. missing, including:
+Re-synced 2026-07-26 from the cofounder's latest Base44 export. Admin/vetting, role-based route protection, a mobile shell, an AI matching concierge, and structured intake persistence (`CaseSummary`) are now built. See [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md) for the full breakdown of what's functional vs. stubbed vs. missing, including:
 
-- No admin/vetting layer yet (no approval workflow for lawyers before they go live)
-- No attorney intro-video feature (the intended core trust signal)
-- Payment selection UI exists but isn't wired to a real payment processor
-- Route protection (`ProtectedRoute`) is written but not applied to any route
-- The attorney dashboard doesn't scope profile edits to the logged-in attorney's own record
-- The practice-area model currently spans more verticals (Family Law, Personal Injury, Business Formation) than the immigration-only scope described for this product — needs a decision on whether to trim scope
+- No calendar sync (attorney availability is still a manually-managed slot list, not Google/Microsoft OAuth-backed)
+- No real payment processing (booking flow records a selection, doesn't charge)
+- No mechanism to transition a booking to "completed" — the event that's supposed to trigger the attorney's flat fee
+- Reviews are read-only (no submission flow yet)
+- Practice-area scope (still includes Personal Injury) contradicts the current 3-vertical product doc
+
+This is still a **frontend-only repository** hosted on Base44 — see [`docs/MIGRATION.md`](docs/MIGRATION.md) for the plan to move it onto our own infrastructure (Vercel + Supabase).
 
 ## Stack
 
 - **Frontend:** React 18, Vite 6, React Router, TanStack Query, Tailwind CSS, shadcn/ui (Radix primitives), react-hook-form + zod
-- **Backend:** [Base44](https://base44.com) — a hosted no-code/low-code platform providing auth, database, and API. This repo contains **frontend code only**; the data model, permissions, and server-side logic are configured in the Base44 dashboard. The `base44/entities/*.jsonc` files here are schema declarations that mirror that configuration — editing them doesn't change the live backend by itself.
+- **Backend (current):** [Base44](https://base44.com) — a hosted no-code/low-code platform providing auth, database, file storage, transactional email, and even the AI matching agent. This repo contains **frontend code only**; all of that is configured in the Base44 dashboard. The `base44/*.jsonc` files here are schema/config declarations that mirror that configuration — editing them doesn't change the live backend by itself.
+- **Backend (planned):** Vercel (hosting + serverless functions) + Supabase (Postgres/RLS, Auth, Storage). See [`docs/MIGRATION.md`](docs/MIGRATION.md).
 - **Payments (planned, not yet integrated):** Stripe (`@stripe/stripe-js`, `@stripe/react-stripe-js` are installed but unused)
 
 ## Running locally
@@ -29,7 +31,6 @@ This is a **V1 in progress**, currently focused on data collection (client intak
    ```
    npm install
    ```
-   Note: `package-lock.json` isn't committed to this repo (it was omitted during the initial import — see below), so `npm install` will generate a fresh one from `package.json` on first run. Commit the generated lockfile afterward so installs stay reproducible.
 2. Create a `.env.local` file (gitignored) with your Base44 app credentials:
    ```
    VITE_BASE44_APP_ID=your_app_id
@@ -47,10 +48,9 @@ Other useful scripts: `npm run build`, `npm run lint`, `npm run lint:fix`, `npm 
 
 Full details in [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md). Highlights:
 
-- [ ] Build the admin/vetting layer (lawyer approval before going live, gated on the existing but currently-unused `Attorney.verified` field)
-- [ ] Add attorney intro-video upload + display on profiles
+- [ ] Build real attorney calendar sync (Google Calendar + Microsoft Graph OAuth) — availability is currently a manual slot list
 - [ ] Wire real payment processing (Stripe) into the booking flow
-- [ ] Apply `ProtectedRoute` to routes that need auth (attorney dashboard, at minimum)
-- [ ] Scope the attorney dashboard to the logged-in attorney's own record, and verify Base44's server-side permissions independently enforce this
-- [ ] Decide on practice-area scope (immigration-only vs. multi-vertical) and trim the data model / content accordingly
-- [ ] Commit a fresh `package-lock.json` (see "Running locally" above)
+- [ ] Define and build the "completed consultation" transition that triggers the attorney's flat fee
+- [ ] Build a review-submission flow (reads already work, writes don't exist)
+- [ ] Decide on practice-area scope (the doc now says Family Law / Immigration / Business Formation only; the code still includes Personal Injury) and trim the data model / content accordingly
+- [ ] Plan the Base44 → Vercel + Supabase migration (see `docs/MIGRATION.md`)

@@ -5,22 +5,10 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-
-const paymentLabels = {
-  full: 'Pay in full',
-  klarna: 'Klarna (4 installments)',
-  affirm: 'Affirm financing',
-  lawfi: 'LawFi financing',
-};
-
-const nextSteps = [
-  'You\'ll receive a confirmation email with your secure video link.',
-  'Your attorney will confirm within 24 hours.',
-  'Join the call at your scheduled time.',
-  'Discuss next steps and retainer if you\'d like to proceed.',
-];
+import { useLanguage } from '@/lib/i18n';
 
 export default function Confirmation() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
   const bookingId = params.get('bookingId');
@@ -46,6 +34,13 @@ export default function Confirmation() {
   );
 
   const slotDate = booking?.slot ? new Date(booking.slot) : null;
+  const paymentLabels = {
+    full: t('confirmation.payFull'),
+    klarna: t('confirmation.payFull'),
+    affirm: t('confirmation.payFull'),
+    lawfi: t('confirmation.payFull'),
+  };
+  const nextSteps = [t('confirmation.step1'), t('confirmation.step2'), t('confirmation.step3'), t('confirmation.step4')];
 
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
@@ -69,38 +64,40 @@ export default function Confirmation() {
         </div>
 
         <h1 className="font-serif text-[48px] lg:text-[60px] text-[#111418] leading-[1.05] mb-3">
-          You're booked.
+          {t('confirmation.title')}
         </h1>
         <p className="text-[#8A8578] font-body mb-10">
-          Confirmation sent to <span className="text-[#111418]">{email || booking?.client_email}</span>
+          {t('confirmation.sentTo')} <span className="text-[#111418]">{email || booking?.client_email}</span>
         </p>
 
         {/* Summary */}
         <div className="bg-white border border-[#E5E2DC] p-6 text-left mb-6 space-y-3">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">Booking summary</p>
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">{t('confirmation.summary')}</p>
           <div className="flex justify-between text-sm pb-3 border-b border-[#E5E2DC]">
-            <span className="text-[#8A8578] font-body">Attorney</span>
+            <span className="text-[#8A8578] font-body">{t('confirmation.attorney')}</span>
             <span className="font-serif text-[#111418]">{booking?.attorney_name}</span>
           </div>
           <div className="flex justify-between text-sm pb-3 border-b border-[#E5E2DC]">
-            <span className="text-[#8A8578] font-body">When</span>
+            <span className="text-[#8A8578] font-body">{t('confirmation.when')}</span>
             <span className="text-sm text-[#111418] font-body">
               {slotDate ? `${format(slotDate, 'EEEE, MMMM d')} at ${format(slotDate, 'h:mm a')}` : '—'}
             </span>
           </div>
           <div className="flex justify-between text-sm pb-3 border-b border-[#E5E2DC]">
-            <span className="text-[#8A8578] font-body">Format</span>
-            <span className="text-sm text-[#111418] font-body">Secure video call</span>
+            <span className="text-[#8A8578] font-body">{t('confirmation.format')}</span>
+            <span className="text-sm text-[#111418] font-body">{t('confirmation.videoCall')}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#8A8578] font-body">Payment</span>
-            <span className="text-sm text-[#111418] font-body">{paymentLabels[booking?.payment_method] || '—'}</span>
+            <span className="text-[#8A8578] font-body">{t('confirmation.payment')}</span>
+            <span className="text-sm text-[#111418] font-body">{paymentLabels[booking?.payment_method] || t('confirmation.payFull')}</span>
           </div>
         </div>
 
+        <p className="text-xs text-[#8A8578] font-body mb-6 leading-relaxed">Brief is not a law firm. Booking a consultation through Brief does not create an attorney-client relationship. Any attorney-client relationship is formed only between you and the attorney, on terms you agree with them directly.</p>
+
         {/* Next steps */}
         <div className="bg-[#EAF2FB] border border-[#0a5dc2]/10 p-6 text-left mb-10">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">What happens next</p>
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">{t('confirmation.whatNext')}</p>
           <ol className="space-y-3">
             {nextSteps.map((step, i) => (
               <li key={i} className="flex items-start gap-3">
@@ -115,7 +112,7 @@ export default function Confirmation() {
           onClick={() => navigate('/')}
           className="px-8 py-4 border border-[#111418] text-[#111418] text-sm font-medium hover:bg-[#111418] hover:text-white transition-all duration-200 font-body"
         >
-          Back to home →
+          {t('confirmation.backHome')}
         </button>
       </div>
       <Footer />

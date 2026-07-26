@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
+import BottomSheet from '@/components/mobile/BottomSheet';
 
 const PRACTICE_AREAS = [
   'Family Law',
@@ -30,7 +32,36 @@ const SITUATIONS = [
   'Eviction',
 ];
 
+const AREA_LABELS = {
+  'Family Law': 'area.familyLaw',
+  'Immigration': 'area.immigration',
+  'Personal Injury': 'area.personalInjury',
+  'Business & Tax Law': 'practiceIcons.businessTax',
+  'Medical Malpractice': 'browseModal.medicalMalpractice',
+  'Criminal Defense': 'practiceIcons.criminalDefense',
+  'Estate Planning': 'browseModal.estatePlanning',
+  'Real Estate Law': 'browseModal.realEstate',
+  'Employment Law': 'browseModal.employment',
+  'Bankruptcy': 'browseModal.bankruptcy',
+};
+
+const SITUATION_LABELS = {
+  'Divorce': 'situation.divorce',
+  'Car Accident': 'situation.carAccident',
+  'Contract Review': 'browseModal.contractReview',
+  'Business Negotiation': 'browseModal.businessNegotiation',
+  'IP Dispute': 'browseModal.ipDispute',
+  'Child Custody': 'situation.childCustody',
+  'Green Card Application': 'situation.greenCard',
+  'Workplace Injury': 'browseModal.workplaceInjury',
+  'Starting a Business': 'browseModal.startingBusiness',
+  'Wrongful Termination': 'browseModal.wrongfulTermination',
+  'Slip and Fall': 'situation.slipFall',
+  'Eviction': 'browseModal.eviction',
+};
+
 export default function BrowseModal({ open, onClose }) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [tab, setTab] = useState('areas');
 
@@ -39,60 +70,42 @@ export default function BrowseModal({ open, onClose }) {
     navigate('/areas-of-help');
   };
 
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = ''; };
-    }
-  }, [open]);
-
-  useEffect(() => {
-    const onEsc = (e) => { if (e.key === 'Escape') onClose(); };
-    if (open) document.addEventListener('keydown', onEsc);
-    return () => document.removeEventListener('keydown', onEsc);
-  }, [open, onClose]);
-
-  if (!open) return null;
+  const labelFor = (item, map) => {
+    const key = map[item];
+    return key ? t(key) : item;
+  };
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black/40 z-[2000]" onClick={onClose} aria-hidden="true" />
-
-      <div
-        className="fixed left-1/2 top-20 -translate-x-1/2 z-[2100] bg-[#FAF9F7] w-[92vw] max-w-[680px] max-h-[80vh] flex flex-col"
-        style={{ borderRadius: 12, boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}
-      >
-        {/* Tabs + close */}
-        <div className="flex items-center justify-between px-6 border-b border-[#E5E2DC]">
-          <div className="flex gap-6">
-            <button
-              onClick={() => setTab('areas')}
-              className="pb-3 pt-4 text-sm font-body relative transition-colors"
-              style={{ color: tab === 'areas' ? '#111418' : '#8A8578' }}
-            >
-              Practice Areas
-              {tab === 'areas' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[#111418]" />}
-            </button>
-            <button
-              onClick={() => setTab('situations')}
-              className="pb-3 pt-4 text-sm font-body relative transition-colors"
-              style={{ color: tab === 'situations' ? '#111418' : '#8A8578' }}
-            >
-              Common Situations
-              {tab === 'situations' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[#111418]" />}
-            </button>
-          </div>
-          <button onClick={onClose} className="text-[#8A8578] hover:text-[#111418] transition-colors mb-3 mt-4" aria-label="Close">
-            <X className="w-5 h-5" />
+    <BottomSheet open={open} onClose={onClose} desktopMaxWidth={680}>
+      <div className="flex items-center justify-between px-6 border-b border-[#E5E2DC]">
+        <div className="flex gap-6">
+          <button
+            onClick={() => setTab('areas')}
+            className="pb-3 pt-4 text-sm font-body relative transition-colors"
+            style={{ color: tab === 'areas' ? '#111418' : '#8A8578' }}
+          >
+            {t('browseModal.practiceAreas')}
+            {tab === 'areas' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[#111418]" />}
+          </button>
+          <button
+            onClick={() => setTab('situations')}
+            className="pb-3 pt-4 text-sm font-body relative transition-colors"
+            style={{ color: tab === 'situations' ? '#111418' : '#8A8578' }}
+          >
+            {t('browseModal.commonSituations')}
+            {tab === 'situations' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[#111418]" />}
           </button>
         </div>
+        <button onClick={onClose} className="text-[#8A8578] hover:text-[#111418] transition-colors mb-3 mt-4 p-2 -mr-2" aria-label="Close">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto">
-          {tab === 'areas' ? (
-            <>
-              <h3 className="font-serif text-[22px] text-[#111418] mb-5">Browse Top Practice Areas</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+      <div className="p-6 overflow-y-auto">
+        {tab === 'areas' ? (
+          <>
+            <h3 className="font-serif text-[22px] text-[#111418] mb-5">{t('browseModal.browseAreas')}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
               {PRACTICE_AREAS.map(area => (
                 <Link
                   key={area}
@@ -100,23 +113,23 @@ export default function BrowseModal({ open, onClose }) {
                   onClick={onClose}
                   className="text-sm font-body text-[#111418] underline underline-offset-4 decoration-[#E5E2DC] hover:decoration-[#111418] transition-all"
                 >
-                  {area}
+                  {labelFor(area, AREA_LABELS)}
                 </Link>
               ))}
-              </div>
-              <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
+            </div>
+            <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
               <button
                 onClick={handleExplore}
                 className="text-sm font-body font-medium text-[#0a5dc2] hover:text-[#111418] transition-colors"
               >
-                Explore Areas of Help →
+                {t('browseModal.explore')}
               </button>
-              </div>
-              </>
-          ) : (
-            <>
-              <h3 className="font-serif text-[22px] text-[#111418] mb-5">Browse By Situation</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="font-serif text-[22px] text-[#111418] mb-5">{t('browseModal.browseSituations')}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
               {SITUATIONS.map(sit => (
                 <Link
                   key={sit}
@@ -124,22 +137,21 @@ export default function BrowseModal({ open, onClose }) {
                   onClick={onClose}
                   className="text-sm font-body text-[#111418] underline underline-offset-4 decoration-[#E5E2DC] hover:decoration-[#111418] transition-all"
                 >
-                  {sit}
+                  {labelFor(sit, SITUATION_LABELS)}
                 </Link>
               ))}
-              </div>
-              <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
+            </div>
+            <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
               <button
                 onClick={handleExplore}
                 className="text-sm font-body font-medium text-[#0a5dc2] hover:text-[#111418] transition-colors"
               >
-                Explore Areas of Help →
+                {t('browseModal.explore')}
               </button>
-              </div>
-              </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
-    </>
+    </BottomSheet>
   );
 }

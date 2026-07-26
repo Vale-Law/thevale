@@ -1,6 +1,9 @@
-const STEPS = ['Your details', 'About your case', 'Payment'];
+import { useLanguage } from '@/lib/i18n';
 
 export default function BookingProgressBar({ step }) {
+  const { t } = useLanguage();
+  const STEPS = [t('booking.stepsDetails'), t('booking.stepsCase'), t('booking.stepsPayment')];
+
   return (
     <div className="mb-8">
       <div className="flex items-center gap-0">

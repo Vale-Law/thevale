@@ -10,7 +10,7 @@ export default function CtaBand() {
           Find Your Lawyer Today.
         </h2>
         <button
-          onClick={() => navigate('/?browse=1')}
+          onClick={() => navigate('/areas-of-help')}
           className="inline-flex items-center px-10 py-4 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-all duration-200 hover:scale-[1.02]"
         >
           Browse Attorneys →

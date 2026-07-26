@@ -51,7 +51,7 @@ const SITUATION_MAP = {
   'Product Liability': 'Personal Injury',
   'Workplace Injury': 'Personal Injury',
   "Workers' Compensation": 'Personal Injury',
-  'Workers’ Compensation': 'Personal Injury',
+  'Workers\u2019 Compensation': 'Personal Injury',
   'Wrongful Termination': 'Personal Injury',
   'Contract Review': 'Business Formation',
   'Business Negotiation': 'Business Formation',
@@ -139,7 +139,7 @@ export default function Home() {
 
   useEffect(() => {
     base44.entities.Attorney.list().then(data => {
-      setAttorneys(data);
+      setAttorneys(data.filter(a => a.verification_status !== 'pending' && a.verification_status !== 'rejected'));
       setLoading(false);
     });
   }, []);
@@ -156,7 +156,24 @@ export default function Home() {
     if (area) { resolvedArea = resolveArea(area); rawLabel = area; }
     else if (situation) { resolvedArea = resolveArea(situation); rawLabel = situation; }
 
-    if (resolvedArea) {
+    const state = searchParams.get('state');
+    const city = searchParams.get('city');
+
+    if (resolvedArea && state && city) {
+      // Concierge hand-off: pre-filter results directly, skip the picker/questionnaire.
+      setFilters((f) => ({
+        ...f,
+        state,
+        city,
+        location: `${city}, ${state}`,
+        areas: [resolvedArea],
+      }));
+      processedParams.current = true;
+      setSearchParams({}, { replace: true });
+      setTimeout(() => {
+        browseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    } else if (resolvedArea) {
       setPendingArea(resolvedArea);
       setPendingAreaLabel(rawLabel || resolvedArea);
       setPickerOpen(true);

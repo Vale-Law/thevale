@@ -4,7 +4,20 @@
   "properties": {
     "role": {
       "type": "string",
+      "enum": [
+        "client",
+        "attorney",
+        "admin",
+        "user"
+      ],
       "default": "user"
+    },
+    "account_type": {
+      "type": "string",
+      "enum": [
+        "client",
+        "attorney"
+      ]
     },
     "preferredLanguage": {
       "type": "string"

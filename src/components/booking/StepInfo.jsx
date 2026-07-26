@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useLanguage } from '@/lib/i18n';
 
 export default function StepInfo({ data, onChange, onNext }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState(data);
   const valid = form.name.trim() && form.email.trim();
 
@@ -13,22 +15,22 @@ export default function StepInfo({ data, onChange, onNext }) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="font-serif text-2xl text-[#111418] mb-1">Your details</p>
-        <p className="text-sm text-[#8A8578] font-body">We'll use these to confirm your booking.</p>
+        <p className="font-serif text-2xl text-[#111418] mb-1">{t('booking.yourDetails')}</p>
+        <p className="text-sm text-[#8A8578] font-body">{t('booking.detailsSub')}</p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">Full name *</label>
+          <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">{t('booking.fullNameLabel')}</label>
           <input
             value={form.name}
             onChange={e => update('name', e.target.value)}
-            placeholder="Your full name"
+            placeholder={t('booking.placeholderName')}
             className="w-full border border-[#E5E2DC] px-4 py-3 text-sm text-[#111418] outline-none focus:border-[#111418] transition-colors font-body bg-white"
           />
         </div>
         <div>
-          <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">Email address *</label>
+          <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">{t('booking.emailLabel')}</label>
           <input
             type="email"
             value={form.email}
@@ -38,7 +40,7 @@ export default function StepInfo({ data, onChange, onNext }) {
           />
         </div>
         <div>
-          <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">Phone (optional)</label>
+          <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">{t('booking.phoneOptional')}</label>
           <input
             type="tel"
             value={form.phone}
@@ -54,7 +56,7 @@ export default function StepInfo({ data, onChange, onNext }) {
         disabled={!valid}
         className="w-full py-4 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed font-body"
       >
-        Continue →
+        {t('booking.continue')}
       </button>
     </div>
   );

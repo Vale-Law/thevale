@@ -1,7 +1,9 @@
 import { ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/lib/i18n';
 
 export default function BookingSummaryBar({ attorney, slot }) {
+  const { t } = useLanguage();
   if (!attorney) return null;
   const slotDate = slot ? new Date(slot) : null;
 
@@ -26,7 +28,7 @@ export default function BookingSummaryBar({ attorney, slot }) {
             <p className="text-sm text-[#8A8578] font-body">{format(slotDate, 'h:mm a')}</p>
           </>
         ) : (
-          <p className="text-sm text-[#8A8578] font-body">No slot selected</p>
+          <p className="text-sm text-[#8A8578] font-body">{t('booking.noSlot')}</p>
         )}
         <p className="text-xs text-[#0a5dc2] mt-0.5 font-body">${attorney.consult_fee}</p>
       </div>

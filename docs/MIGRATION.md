@@ -56,9 +56,14 @@ The `base44/entities/*.jsonc` files already declare, per entity, a JSON-schema-s
 - The concierge agent needed nothing — it's not wired to any LLM call in the shipped UI (see status above).
 - Signed file URLs are handled natively by Supabase Storage.
 
-**Phase 4 — Deploy** ← in progress
+**Phase 4 — Deploy** ← blocked on one manual step (env vars)
+- Discovered (didn't need to set up): this repo already has a Vercel project (`thevale`, team `Tim's projects`) connected via GitHub integration, auto-deploying every push. `main` → production (`thevale.vercel.app`, still the old Base44 build — untouched, merging is your call); this branch → preview deployments automatically.
 - `vercel.json` added with a SPA rewrite (`/((?!api/).*)` → `/index.html`) so client-side routes don't 404 on refresh, while leaving `/api/*` to the serverless functions.
-- Environment variables needed in Vercel: `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (client-safe), and server-only `RESEND_API_KEY` / `RESEND_FROM_EMAIL` (never prefix `VITE_`).
+- **The build succeeds, but the app will crash on load (blank page) until env vars are set** — `createClient()` throws synchronously if `VITE_SUPABASE_URL` is missing, and nothing in this session's tool access can set Vercel project environment variables (no such tool exists in the connected Vercel MCP; it's dashboard-only: Project Settings → Environment Variables). You need to add, for Preview (and Production, once you merge):
+  - `VITE_SUPABASE_URL` = `https://gzmdsyuqhegcesoekuoo.supabase.co`
+  - `VITE_SUPABASE_ANON_KEY` = the publishable key (Supabase dashboard → Project Settings → API, or ask me to pull it again)
+  - `RESEND_API_KEY` / `RESEND_FROM_EMAIL` (server-only, no `VITE_` prefix) once you have a Resend account + verified sending domain — until then `SendEmail` fails soft (already handled everywhere it's called).
+  - After adding these, redeploy (or push an empty commit) so the build picks them up.
 - Still true: the hardcoded `media.base44.com` image URLs and the `6a20eafdf3fbb0512c514d25` app ID baked into `index.html`'s favicon/apple-touch-icon links point at the Base44-hosted instance and will break once fully detached from it — not fixed in this pass, low priority (cosmetic).
 
 **Phase 5 — Build what was never built**

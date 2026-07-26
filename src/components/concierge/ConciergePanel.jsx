@@ -5,6 +5,8 @@ import { base44 } from '@/api/base44Client';
 import { X, ArrowLeft, ArrowRight, Send } from 'lucide-react';
 import { useIsMobile } from '@/components/mobile/useIsMobile';
 import { useLanguage } from '@/lib/i18n';
+import { detectPracticeArea } from '@/lib/conciergeUtils';
+import { US_STATES } from '@/lib/usLocations';
 
 const AREA_FALLBACK = ['Family Law', 'Immigration', 'Business Formation', 'Personal Injury'];
 const LANG_FALLBACK = ['English', 'Spanish'];
@@ -46,15 +48,24 @@ function OptionButton({ label, onClick }) {
   );
 }
 
-export default function ConciergePanel({ initialDescription, onReset, onBrowseAreas }) {
+export default function ConciergePanel({ initialDescription, initialState = '', initialCity = '', onReset, onBrowseAreas }) {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [attorneys, setAttorneys] = useState([]);
+  // Anything already known (area detected from the description, location handed
+  // off from the hero search) is pre-answered so we never re-ask it.
+  const detectedArea = initialDescription ? detectPracticeArea(initialDescription) : '';
   const [answers, setAnswers] = useState({
-    description: initialDescription || '', area: '', state: '', city: '', language: '', maxFee: null, urgency: '',
+    description: initialDescription || '', area: detectedArea, state: initialState, city: initialCity, language: '', maxFee: null, urgency: '',
   });
-  const [step, setStep] = useState(initialDescription ? 1 : 0);
+  const [step, setStep] = useState(
+    !initialDescription ? 0
+      : !detectedArea ? 1
+        : !initialState ? 2
+          : !initialCity ? 3
+            : 4
+  );
   const [draft, setDraft] = useState('');
   const scrollRef = useRef(null);
 
@@ -100,14 +111,62 @@ export default function ConciergePanel({ initialDescription, onReset, onBrowseAr
   const advance = (nextAnswers) => {
     setAnswers(nextAnswers);
     let next = step + 1;
-    if (step === 2 && !nextAnswers.state) next = 4; // skip city when no state
+    // Skip questions that already have an answer (e.g. handed off from the
+    // hero search) and the city question when no state was given.
+    while (
+      (next === 1 && nextAnswers.area) ||
+      (next === 2 && nextAnswers.state) ||
+      (next === 3 && (nextAnswers.city || !nextAnswers.state)) ||
+      (next === 4 && nextAnswers.language)
+    ) next += 1;
     setStep(next);
   };
 
-  const submitDescription = () => {
-    if (!draft.trim()) return;
-    setAnswers((a) => ({ ...a, description: draft.trim() }));
-    setStep(1);
+  const matchOption = (text, opts) => {
+    const q = text.trim().toLowerCase();
+    if (!q) return '';
+    return opts.find((o) => {
+      const l = String(o).toLowerCase();
+      return l === q || l.includes(q) || q.includes(l);
+    }) || '';
+  };
+
+  const matchState = (text) => {
+    const q = text.trim().toLowerCase();
+    const direct = matchOption(text, states);
+    if (direct) return direct;
+    const named = US_STATES.find((s) => s.code.toLowerCase() === q || s.name.toLowerCase() === q || q.includes(s.name.toLowerCase()));
+    return named ? named.code : '';
+  };
+
+  // Typed text answers whatever is currently being asked — it must never
+  // restart the conversation from the beginning.
+  const submitDraft = () => {
+    const text = draft.trim();
+    if (!text) return;
+    setDraft('');
+    if (step === 0) {
+      const area = detectPracticeArea(text);
+      const nextAnswers = { ...answers, description: text, area: area || answers.area };
+      setAnswers(nextAnswers);
+      setStep(nextAnswers.area ? 2 : 1);
+    } else if (step === 1) {
+      advance({ ...answers, area: matchOption(text, areas) || detectPracticeArea(text) || '__all' });
+    } else if (step === 2) {
+      const state = matchState(text);
+      advance({ ...answers, state, city: '' });
+    } else if (step === 3) {
+      advance({ ...answers, city: matchOption(text, cities) });
+    } else if (step === 4) {
+      advance({ ...answers, language: matchOption(text, langs) });
+    } else if (step === 5) {
+      const m = text.match(/\d+/);
+      const n = m ? Number(m[0]) : null;
+      advance({ ...answers, maxFee: n == null ? null : n <= 100 ? 100 : n <= 200 ? 200 : 999 });
+    } else if (step === 6) {
+      const u = URGENCY_OPTIONS.find((o) => text.toLowerCase().includes(o.toLowerCase()));
+      advance({ ...answers, urgency: u && u !== 'No preference' ? u : '' });
+    }
   };
 
   const restart = () => {
@@ -117,10 +176,15 @@ export default function ConciergePanel({ initialDescription, onReset, onBrowseAr
   };
 
   const seeAttorneys = () => {
+    // Pass everything the chat learned to the results page so the two booking
+    // flows stay in sync and nothing gets asked twice.
     const p = new URLSearchParams();
+    p.set('concierge', '1');
     if (answers.area && answers.area !== '__all') p.set('area', answers.area);
     if (answers.state) p.set('state', answers.state);
     if (answers.city) p.set('city', answers.city);
+    if (answers.language) p.set('lang', answers.language);
+    if (answers.maxFee && answers.maxFee !== 999) p.set('maxFee', String(answers.maxFee));
     navigate(`/?${p.toString()}`);
   };
 
@@ -178,12 +242,12 @@ export default function ConciergePanel({ initialDescription, onReset, onBrowseAr
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onFocus={scrollToBottom}
-            onKeyDown={(e) => e.key === 'Enter' && submitDescription()}
+            onKeyDown={(e) => e.key === 'Enter' && submitDraft()}
             placeholder={step === 0 ? "Describe what's going on…" : 'Or type your own answer…'}
             className="flex-1 min-w-0 bg-transparent outline-none text-sm text-[#111418] font-body placeholder:text-[#8A8578]"
           />
           <button
-            onClick={submitDescription}
+            onClick={submitDraft}
             disabled={!draft.trim()}
             className="w-8 h-8 rounded-full bg-[#0a5dc2] disabled:opacity-40 flex items-center justify-center text-white shrink-0"
           >
@@ -312,12 +376,12 @@ export default function ConciergePanel({ initialDescription, onReset, onBrowseAr
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submitDescription()}
-                placeholder="Describe what's going on…"
+                onKeyDown={(e) => e.key === 'Enter' && submitDraft()}
+                placeholder={step === 0 ? "Describe what's going on…" : 'Or type your own answer…'}
                 className="flex-1 min-w-0 bg-transparent outline-none text-sm text-[#111418] font-body placeholder:text-[#8A8578]"
               />
               <button
-                onClick={submitDescription}
+                onClick={submitDraft}
                 disabled={!draft.trim()}
                 className="w-8 h-8 rounded-full bg-[#0a5dc2] disabled:opacity-40 flex items-center justify-center text-white shrink-0"
               >

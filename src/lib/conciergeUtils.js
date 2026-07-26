@@ -63,6 +63,25 @@ export function stripContextPrefix(content) {
   return content.replace(/^\s*\[Context for matching[\s\S]*?\]\s*/, '').trim();
 }
 
+// Keyword-based practice-area detection for free-text input, shared by the
+// hero chatbox and the concierge chat so both flows understand the same
+// language. Returns a canonical practice area ('' when nothing matches).
+const AREA_KEYWORDS = [
+  { area: 'Immigration', keywords: ['immigra', 'inmigra', 'migra', 'visa', 'green card', 'citizenship', 'naturaliz', 'asylum', 'asilo', 'deport', 'daca', 'residency', 'residencia'] },
+  { area: 'Family Law', keywords: ['family law', 'divorce', 'divorcio', 'custody', 'custodia', 'child support', 'adopt', 'alimony', 'prenup', 'separat', 'domestic violence', 'guardianship', 'spouse', 'marriage', 'matrimonio'] },
+  { area: 'Personal Injury', keywords: ['personal injury', 'injur', 'accident', 'accidente', 'crash', 'hit by', 'slip', 'fell ', 'malpractice', 'negligen', 'dog bite', 'wrongful death', 'hurt', 'lesion', 'lesión'] },
+  { area: 'Business Formation', keywords: ['business', 'llc', 'contract', 'contrato', 'trademark', 'copyright', 'startup', 'incorporat', 'partnership', 'company', 'negocio', 'tax', 'impuesto'] },
+];
+
+export function detectPracticeArea(text) {
+  if (!text) return '';
+  const t = String(text).toLowerCase();
+  for (const { area, keywords } of AREA_KEYWORDS) {
+    if (keywords.some((k) => t.includes(k))) return area;
+  }
+  return '';
+}
+
 export function buildSearchUrl(search) {
   if (!search) return '/?browse=1';
   const params = new URLSearchParams();

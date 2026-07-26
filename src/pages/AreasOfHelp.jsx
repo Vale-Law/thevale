@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
@@ -125,6 +125,10 @@ function CategorySection({ category, index }) {
 export default function AreasOfHelp() {
   const ref = useScrollReveal();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const describe = searchParams.get('describe') || '';
+  const initialState = searchParams.get('state') || '';
+  const initialCity = searchParams.get('city') || '';
 
   const handleSearch = (area, stateCode, city) => {
     if (area) {
@@ -152,7 +156,12 @@ export default function AreasOfHelp() {
               Whatever you're facing, there's a lawyer for it. Find your situation below and we'll connect you with attorneys who handle it.
             </p>
             <div className="mt-10 lg:mt-12">
-              <MatchConcierge onSearchFallback={handleSearch} />
+              <MatchConcierge
+                onSearchFallback={handleSearch}
+                initialDescription={describe}
+                initialState={initialState}
+                initialCity={initialCity}
+              />
             </div>
           </div>
         </div>

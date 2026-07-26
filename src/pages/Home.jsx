@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -117,6 +117,7 @@ function resolveArea(param) {
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [attorneys, setAttorneys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -158,15 +159,21 @@ export default function Home() {
 
     const state = searchParams.get('state');
     const city = searchParams.get('city');
+    const fromConcierge = searchParams.get('concierge') === '1';
+    const lang = searchParams.get('lang');
+    const maxFee = Number(searchParams.get('maxFee'));
 
-    if (resolvedArea && state && city) {
-      // Concierge hand-off: pre-filter results directly, skip the picker/questionnaire.
+    if (fromConcierge || (resolvedArea && state && city)) {
+      // Concierge hand-off: it already asked its questions, so apply whatever
+      // it collected as filters directly — never re-open the picker/questionnaire.
       setFilters((f) => ({
         ...f,
-        state,
-        city,
-        location: `${city}, ${state}`,
-        areas: [resolvedArea],
+        state: state || '',
+        city: city || '',
+        location: state && city ? `${city}, ${state}` : '',
+        areas: resolvedArea ? [resolvedArea] : f.areas,
+        languages: lang ? [lang] : f.languages,
+        maxFee: maxFee >= 50 && maxFee < 500 ? maxFee : f.maxFee,
       }));
       processedParams.current = true;
       setSearchParams({}, { replace: true });
@@ -202,8 +209,18 @@ export default function Home() {
     setQuestionnaireOpen(true);
   };
 
-  const handleHeroSearch = (area, stateCode, city) => {
+  const handleHeroSearch = (area, stateCode, city, rawText = '') => {
     const resolvedArea = area ? resolveArea(area) : null;
+    if (!resolvedArea && rawText) {
+      // Free text we couldn't classify: hand it to the concierge chat with the
+      // description (and any chosen location) carried over, so the chat and the
+      // booking flow share one conversation instead of starting from scratch.
+      const p = new URLSearchParams({ describe: rawText });
+      if (stateCode) p.set('state', stateCode);
+      if (city) p.set('city', city);
+      navigate(`/areas-of-help?${p.toString()}`);
+      return;
+    }
     setPendingArea(resolvedArea || '');
     setPendingAreaLabel(area || resolvedArea || '');
     if (stateCode && city) {

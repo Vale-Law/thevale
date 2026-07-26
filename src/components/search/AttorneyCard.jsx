@@ -27,7 +27,7 @@ export default function AttorneyCard({ attorney }) {
   const location = attorney.city && attorney.state ? `${attorney.city}, ${attorney.state}` : attorney.location || 'Nationwide';
   const tagline = attorney.board_certified ? 'Board certified · New client consultations' : 'New client consultations';
   const areas = (attorney.practice_areas && attorney.practice_areas.length) ? attorney.practice_areas : (attorney.practice_area ? [attorney.practice_area] : []);
-  const pills = areas.length > 4 ? [...areas.slice(0, 3), `+${areas.length - 3} more`] : areas;
+  const pills = areas.length > 3 ? [...areas.slice(0, 3), `+${areas.length - 3} more`] : areas;
 
   const book = () => {
     base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
@@ -36,7 +36,7 @@ export default function AttorneyCard({ attorney }) {
 
   return (
     <div
-      className="bg-white border border-[#E5E2DC] rounded-xl flex flex-col p-5 w-full h-[300px] cursor-pointer"
+      className="bg-white border border-[#E5E2DC] rounded-xl flex flex-col p-5 w-full h-full min-h-[300px] cursor-pointer"
       style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
       onClick={book}
       role="button"

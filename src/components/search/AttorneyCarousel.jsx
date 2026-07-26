@@ -76,6 +76,14 @@ export default function AttorneyCarousel({ attorneys }) {
           className="no-scrollbar flex gap-5 overflow-x-auto px-1 lg:px-2 pb-4"
           style={{ scrollSnapType: 'x mandatory', cursor: 'grab', WebkitOverflowScrolling: 'touch' }}
           onMouseDown={onMouseDown}
+          onClickCapture={(e) => {
+            // A drag-scroll release must not count as a click on a card.
+            if (isDragging.current) {
+              e.preventDefault();
+              e.stopPropagation();
+              isDragging.current = false;
+            }
+          }}
         >
           {attorneys.map((attorney, i) => (
             <div

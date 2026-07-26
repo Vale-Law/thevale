@@ -160,7 +160,7 @@ export default function HowBriefWorks() {
   /* ----- Reduced-motion: static grid, no pinning ----- */
   if (reduced) {
     return (
-      <section className="bg-[#EAF2FB] py-20 lg:py-28 px-6 lg:px-8">
+      <section className="bg-[#EAF2FB] py-14 lg:py-20 px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[#111418] leading-[1.1]">How Brief works</h2>
@@ -185,7 +185,7 @@ export default function HowBriefWorks() {
   /* ----- Pinned scroll-scrub ----- */
   return (
     <section ref={containerRef} className="relative bg-[#EAF2FB] h-[400svh]">
-      <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-center px-6 lg:px-8 pt-20 lg:pt-24 pb-8">
+      <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-center px-6 lg:px-8 py-8">
         <div className="max-w-[1100px] mx-auto w-full flex flex-col items-center">
           {/* Heading */}
           <div className="text-center mb-8 lg:mb-12 shrink-0">

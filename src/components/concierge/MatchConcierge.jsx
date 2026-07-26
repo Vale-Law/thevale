@@ -45,10 +45,11 @@ function ConciergeEntry({ onStart, t }) {
   );
 }
 
-export default function MatchConcierge({ onSearchFallback }) {
+export default function MatchConcierge({ onSearchFallback, initialDescription: handedOffDescription = '', initialState = '', initialCity = '' }) {
   const { t } = useLanguage();
-  const [phase, setPhase] = useState('idle'); // idle | active | fallback
-  const [initialDescription, setInitialDescription] = useState('');
+  // A description handed off from the hero chatbox starts the chat immediately.
+  const [phase, setPhase] = useState(handedOffDescription ? 'active' : 'idle'); // idle | active | fallback
+  const [initialDescription, setInitialDescription] = useState(handedOffDescription);
 
   const start = (text) => {
     setInitialDescription(text);
@@ -76,6 +77,8 @@ export default function MatchConcierge({ onSearchFallback }) {
     return (
       <ConciergePanel
         initialDescription={initialDescription}
+        initialState={initialState}
+        initialCity={initialCity}
         onReset={reset}
         onBrowseAreas={browseAreas}
       />

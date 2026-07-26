@@ -85,7 +85,10 @@ export default function Header() {
                   </svg>
                 </button>
                 {learnOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-[#E5E2DC] shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2 z-[1200]">
+                  // pt-2 (not mt-2) keeps the gap inside the hover area so the
+                  // menu doesn't close while the cursor crosses to it.
+                  <div className="absolute top-full left-0 pt-2 z-[1200]">
+                  <div className="w-56 bg-white border border-[#E5E2DC] shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2">
                     <Link to="/learn/immigration-law" className="block px-4 py-2.5 text-sm text-[#111418] hover:bg-[#FAF9F7] hover:text-[#0a5dc2] transition-colors">
                       {t('learn.immigrationLaw')}
                     </Link>
@@ -95,6 +98,7 @@ export default function Header() {
                     <Link to="/learn" className="block px-4 py-2.5 text-sm text-[#111418] hover:bg-[#FAF9F7] hover:text-[#0a5dc2] transition-colors">
                       {t('nav.allGuides')} →
                     </Link>
+                  </div>
                   </div>
                 )}
               </div>

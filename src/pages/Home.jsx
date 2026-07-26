@@ -142,7 +142,7 @@ export default function Home() {
     base44.entities.Attorney.list().then(data => {
       setAttorneys(data.filter(a => a.verification_status !== 'pending' && a.verification_status !== 'rejected'));
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   // Handle URL params — open location picker when area/situation selected

@@ -52,7 +52,13 @@ export default function Bookings() {
           <div className="text-center py-16">
             <CalendarClock className="w-10 h-10 text-[#E5E2DC] mx-auto mb-4" />
             <p className="font-serif text-lg text-[#111418] mb-1">{t('bookings.empty')}</p>
-            <p className="text-[#8A8578] font-body text-sm">{t('bookings.emptyDesc')}</p>
+            <p className="text-[#8A8578] font-body text-sm mb-6">{t('bookings.emptyDesc')}</p>
+            <button
+              onClick={() => navigate('/?browse=1')}
+              className="px-6 py-3 bg-[#111418] text-white text-sm font-body"
+            >
+              {t('nav.browse')}
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

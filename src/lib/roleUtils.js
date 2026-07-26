@@ -6,7 +6,7 @@ export function homeForRole(role, attorney) {
   if (role === 'attorney') {
     return isAttorneyVerified(attorney) ? '/attorney-dashboard' : '/attorney-pending';
   }
-  return '/';
+  return '/bookings';
 }
 
 export { deriveRole, isAttorneyVerified };

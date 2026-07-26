@@ -30,8 +30,10 @@ export default function AuthRedirect() {
           return;
         }
 
-        // Client (or no account type set) → client home
-        window.location.href = "/";
+        // Client (or no account type set) → their bookings dashboard, so
+        // logging in lands somewhere account-specific rather than back on
+        // the public marketing homepage.
+        window.location.href = "/bookings";
       } catch (err) {
         window.location.href = "/login";
       }

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { User, Star, Calendar, Video } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
+import { useIsMobile } from '@/components/mobile/useIsMobile';
 
 // New order: 01 Pick your lawyer, 02 Schedule a time, 03 Create your account, 04 Meet online
 const STEPS = [
@@ -124,6 +125,7 @@ const VISUALS = [AttorneyVisual, CalendarVisual, AccountVisual, VideoCallVisual]
 export default function HowBriefWorks() {
   const { t } = useLanguage();
   const [reduced, setReduced] = useState(false);
+  const isMobile = useIsMobile();
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -157,8 +159,14 @@ export default function HowBriefWorks() {
   const visOps = [visOp0, visOp1, visOp2, visOp3];
   const visXs = [visX0, visX1, visX2, visX3];
 
-  /* ----- Reduced-motion: static grid, no pinning ----- */
-  if (reduced) {
+  /* ----- Reduced-motion or mobile: static grid, no pinning -----
+     The scroll-scrubbed pinned effect below sizes its section to 400svh
+     (so there's room to scroll through 4 steps) and centers short content
+     inside a 100svh sticky viewport — on mobile the step list collapses to
+     icons-only and the content is much shorter than the screen, so that
+     centering reads as a huge empty gap above/below the heading. Mobile
+     gets the same natural-height static layout as reduced-motion instead. */
+  if (reduced || isMobile) {
     return (
       <section className="bg-[#EAF2FB] py-14 lg:py-20 px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto">

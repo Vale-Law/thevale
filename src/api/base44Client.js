@@ -230,4 +230,11 @@ const integrations = {
   },
 };
 
-export const base44 = { auth, entities, integrations };
+// No analytics backend is wired up post-migration; calls are no-ops so
+// call sites (~10 of them) that fire-and-forget tracking events don't throw
+// and block the navigation/booking logic that follows them.
+const analytics = {
+  track() {},
+};
+
+export const base44 = { auth, entities, integrations, analytics };

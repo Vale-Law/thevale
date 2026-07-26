@@ -86,21 +86,30 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
     attorneys.forEach((a) => a.practice_area && s.add(a.practice_area));
     return s.size ? [...s] : AREA_FALLBACK;
   }, [attorneys]);
+  // Once a practice area is chosen, every downstream question (state, city,
+  // language) offers only options that actually have attorneys in that area —
+  // otherwise "No preference" and honest answers alike can walk the user into
+  // a state/city combo with zero matches, even though other locations work.
+  const inArea = useMemo(() => (
+    answers.area && answers.area !== '__all'
+      ? attorneys.filter((a) => a.practice_area === answers.area)
+      : attorneys
+  ), [attorneys, answers.area]);
   const states = useMemo(() => {
     const s = new Set();
-    attorneys.forEach((a) => a.state && s.add(a.state));
+    inArea.forEach((a) => a.state && s.add(a.state));
     return [...s];
-  }, [attorneys]);
+  }, [inArea]);
   const cities = useMemo(() => {
     const c = new Set();
-    attorneys.filter((a) => a.state === answers.state).forEach((a) => a.city && c.add(a.city));
+    inArea.filter((a) => a.state === answers.state).forEach((a) => a.city && c.add(a.city));
     return [...c];
-  }, [attorneys, answers.state]);
+  }, [inArea, answers.state]);
   const langs = useMemo(() => {
     const s = new Set();
-    attorneys.forEach((a) => (a.languages || []).forEach((l) => s.add(l)));
+    inArea.forEach((a) => (a.languages || []).forEach((l) => s.add(l)));
     return s.size ? [...s] : LANG_FALLBACK;
-  }, [attorneys]);
+  }, [inArea]);
 
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;

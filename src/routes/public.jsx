@@ -37,6 +37,8 @@ import AdminUsersPage from '@/pages/admin/AdminUsers';
 // Add page imports here
 
 import PrimitiveGallery from '@/pages/dev/PrimitiveGallery';
+import BookingPage from '@/pages/BookingPage';
+import ManageBooking from '@/pages/ManageBooking';
 
 import LegacyAccentScope from './LegacyAccentScope';
 
@@ -53,9 +55,10 @@ import LegacyAccentScope from './LegacyAccentScope';
  *    auth-gated -- harmless static gallery, fine to be reachable in prod
  *    for now. Deliberately left OUTSIDE LegacyAccentScope so it gets the
  *    new hex --accent from tokens.css, not the legacy HSL re-pin.
- *  - /book/:slug and /manage/:token: reserved stub routes for future units
- *    (the real booking-page/manage-page work is out of scope for this
- *    unit) -- placeholders only, also outside LegacyAccentScope.
+ *  - /book/:slug and /manage/:token: the public booking page and client
+ *    self-service flow. No login, no ClientShell (this is the attorney's
+ *    own page, not Brief's), and outside LegacyAccentScope so it renders
+ *    with Design System v2 tokens rather than the legacy accent re-pin.
  *
  * The legacy consumer + admin routes ARE wrapped in LegacyAccentScope so
  * the shadcn-style chrome they depend on (src/components/ui/**, via
@@ -110,8 +113,10 @@ export default (
         accent (tokens.css), not the legacy re-pin. */}
     <Route path="/dev/primitives" element={<PrimitiveGallery />} />
 
-    {/* Stub routes reserved for future units — placeholders only. */}
-    <Route path="/book/:slug" element={<div>Coming soon</div>} />
-    <Route path="/manage/:token" element={<div>Coming soon</div>} />
+    {/* Public attorney booking page + client self-service — no login,
+        no ClientShell, no LegacyAccentScope (attorney's own page, not
+        Brief's; renders with Design System v2 tokens directly). */}
+    <Route path="/book/:slug" element={<BookingPage />} />
+    <Route path="/manage/:token" element={<ManageBooking />} />
   </>
 );

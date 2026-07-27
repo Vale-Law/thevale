@@ -195,6 +195,9 @@ const entities = {
   Review: makeEntity('reviews'),
   User: makeEntity('profiles'),
   StaffNote: staffNoteEntity,
+  // Audit trail for booking.status transitions — see
+  // supabase/migrations/20260727050000_firm_staff_model_and_audit_trail.sql.
+  BookingStatusEvent: makeEntity('booking_status_events'),
 };
 
 function fileExtension(name) {

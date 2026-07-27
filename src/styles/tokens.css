@@ -1,0 +1,118 @@
+/*
+  Brief Design System v2 -- Section 17 token contract + Section 8 surface effects.
+
+  NOTE for the unit that owns index.html (outside this file's boundary):
+  index.html currently has NO Google Fonts link tags (verified -- only a
+  favicon/manifest/apple-touch-icon are present). src/index.css already loads
+  a Poppins font via an @import url(...), which this token contract does not
+  use. Section 17 calls for the following tags to be added to the head of
+  index.html so --font-system/--font-human/--font-mark resolve correctly:
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..500;1,6..72,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+*/
+:root{
+  color-scheme: light dark;
+
+  --ground:#F1F2ED; --surface:#FFFFFF; --surface-sunk:#E7EAE2;
+  --text:#101C17; --text-2:rgba(16,28,23,.68); --text-3:rgba(16,28,23,.52); --text-4:rgba(16,28,23,.38);
+  --accent:#1D4634; --accent-press:#122C21; --accent-on:#F1F2ED;
+  --brass:#A8834C; --oxblood:#6E2B34;
+  --line:rgba(16,28,23,.10); --line-2:rgba(16,28,23,.16);
+  --dot:rgba(29,70,52,.16);
+
+  --pending:#B07A16; --confirmed:#2F6B47; --completed:#6B7A72; --noshow:#93321F;
+
+  --shadow-raised:0 1px 2px rgba(16,28,23,.04), 0 2px 8px rgba(16,28,23,.04);
+  --shadow-overlay:0 4px 16px rgba(16,28,23,.08), 0 12px 32px rgba(16,28,23,.06);
+  --shadow-modal:0 16px 48px rgba(16,28,23,.14);
+
+  --font-system:'Archivo',system-ui,sans-serif;
+  --font-human:'Newsreader',Georgia,serif;
+  --font-mark:'Instrument Serif',Georgia,serif;
+
+  --space-1:4px;  --space-2:8px;   --space-3:12px; --space-4:16px;
+  --space-6:24px; --space-8:32px;  --space-12:48px;
+  --space-16:64px;--space-24:96px; --space-32:128px;
+
+  --radius-xs:4px; --radius-s:8px; --radius-m:12px;
+  --radius-l:16px; --radius-xl:24px; --radius-full:9999px;
+
+  --motion-instant:100ms cubic-bezier(.4,0,.2,1);
+  --motion-fast:180ms cubic-bezier(.4,0,.2,1);
+  --motion-base:260ms cubic-bezier(.32,.72,0,1);
+  --motion-slow:420ms cubic-bezier(.32,.72,0,1);
+  --motion-sheet:380ms cubic-bezier(.32,.72,0,1);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1512; --surface:#131F1A; --surface-sunk:#0A1210;
+    --text:#E9ECE4; --text-2:rgba(233,236,228,.70); --text-3:rgba(233,236,228,.54); --text-4:rgba(233,236,228,.38);
+    --accent:#54A57A; --accent-press:#6FBB92; --accent-on:#08120E;
+    --brass:#C9A46A; --oxblood:#B4636F;
+    --line:rgba(233,236,228,.12); --line-2:rgba(233,236,228,.20);
+    --dot:rgba(84,165,122,.20);
+    --pending:#E0A93C; --confirmed:#5BB183; --completed:#8A9A91; --noshow:#D4705C;
+    --shadow-raised:none;
+    --shadow-overlay:0 4px 16px rgba(0,0,0,.40), 0 12px 32px rgba(0,0,0,.30);
+    --shadow-modal:0 16px 48px rgba(0,0,0,.55);
+  }
+}
+
+[data-theme="dark"]{
+  --ground:#0C1512; --surface:#131F1A; --surface-sunk:#0A1210;
+  --text:#E9ECE4; --text-2:rgba(233,236,228,.70); --text-3:rgba(233,236,228,.54); --text-4:rgba(233,236,228,.38);
+  --accent:#54A57A; --accent-press:#6FBB92; --accent-on:#08120E;
+  --brass:#C9A46A; --oxblood:#B4636F;
+  --line:rgba(233,236,228,.12); --line-2:rgba(233,236,228,.20);
+  --dot:rgba(84,165,122,.20);
+  --pending:#E0A93C; --confirmed:#5BB183; --completed:#8A9A91; --noshow:#D4705C;
+  --shadow-raised:none;
+}
+
+/*
+  Explicit light override so a manual "force light" selection still works
+  when the OS is set to dark. The Section 17 media query above only guards
+  itself with :root:not([data-theme="light"]), which stops it from
+  clobbering this block — but nothing upstream forced light values back in,
+  since the base :root already carries them for the no-OS-preference /
+  light-OS case. This block mirrors those same base :root light values so
+  [data-theme="light"] is authoritative regardless of prefers-color-scheme.
+*/
+[data-theme="light"]{
+  --ground:#F1F2ED; --surface:#FFFFFF; --surface-sunk:#E7EAE2;
+  --text:#101C17; --text-2:rgba(16,28,23,.68); --text-3:rgba(16,28,23,.52); --text-4:rgba(16,28,23,.38);
+  --accent:#1D4634; --accent-press:#122C21; --accent-on:#F1F2ED;
+  --brass:#A8834C; --oxblood:#6E2B34;
+  --line:rgba(16,28,23,.10); --line-2:rgba(16,28,23,.16);
+  --dot:rgba(29,70,52,.16);
+
+  --pending:#B07A16; --confirmed:#2F6B47; --completed:#6B7A72; --noshow:#93321F;
+
+  --shadow-raised:0 1px 2px rgba(16,28,23,.04), 0 2px 8px rgba(16,28,23,.04);
+  --shadow-overlay:0 4px 16px rgba(16,28,23,.08), 0 12px 32px rgba(16,28,23,.06);
+  --shadow-modal:0 16px 48px rgba(16,28,23,.14);
+}
+
+/* Design System v2 — Section 8: halftone / ledger / grain surface effects */
+.halftone{position:relative;isolation:isolate}
+.halftone::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    radial-gradient(circle, var(--dot) 1.6px, transparent 1.7px),
+    radial-gradient(circle, var(--dot) 1.1px, transparent 1.2px),
+    radial-gradient(circle, var(--dot) .7px, transparent .8px);
+  background-size: 7px 7px, 11px 11px, 17px 17px;
+  background-position: 0 0, 3px 3px, 6px 6px;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 38%,transparent 78%);
+  mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 38%,transparent 78%);
+}
+.ledger{
+  background-image:repeating-linear-gradient(180deg,var(--line) 0 1px,transparent 1px 32px);
+}
+.grain::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

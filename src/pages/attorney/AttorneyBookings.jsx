@@ -1,38 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
-import { Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, CheckCircle2, XCircle, Clock, UserX, Mail, Phone } from 'lucide-react';
 
-const urgencyColors = { Urgent: 'text-red-600', Soon: 'text-yellow-600', 'Just exploring': 'text-green-600' };
-const statusColors = { pending: 'text-yellow-600', confirmed: 'text-green-600', completed: 'text-blue-600', declined: 'text-red-600' };
+const STATUSES = [
+  { key: 'pending', label: 'Pending', dot: 'bg-yellow-500', text: 'text-yellow-700' },
+  { key: 'confirmed', label: 'Confirmed', dot: 'bg-green-500', text: 'text-green-700' },
+  { key: 'completed', label: 'Completed', dot: 'bg-blue-500', text: 'text-blue-700' },
+  { key: 'no_show', label: 'No-show', dot: 'bg-red-500', text: 'text-red-700' },
+];
+
+function bookingSlot(b) {
+  return b.slot_start || b.slot;
+}
 
 export default function AttorneyBookingsPage() {
   const { attorney } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState('');
+  const [tab, setTab] = useState('pending');
+  const [active, setActive] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!attorney?.id) return;
     base44.entities.Booking.filter({ attorney_id: attorney.id })
-      .then(list => setBookings(list.sort((a, b) => new Date(b.slot) - new Date(a.slot))))
+      .then((list) => setBookings(list.sort((a, b) => new Date(bookingSlot(b)) - new Date(bookingSlot(a)))))
       .finally(() => setLoading(false));
   }, [attorney?.id]);
 
-  const act = async (id, status) => {
-    setBusy(id + status);
-    try {
-      await base44.entities.Booking.update(id, { status });
-      setBookings(prev => prev.map(b => (b.id === id ? { ...b, status } : b)));
-    } finally {
-      setBusy('');
-    }
-  };
+  useEffect(() => { load(); }, [load]);
 
-  const now = new Date();
-  const upcoming = bookings.filter(b => new Date(b.slot) >= now && b.status !== 'declined');
-  const past = bookings.filter(b => new Date(b.slot) < now || b.status === 'declined');
+  const counts = STATUSES.reduce((acc, s) => {
+    acc[s.key] = bookings.filter((b) => b.status === s.key).length;
+    return acc;
+  }, {});
+  counts.declined = bookings.filter((b) => b.status === 'declined').length;
+
+  const visible = bookings.filter((b) => b.status === tab);
 
   if (loading) {
     return <div className="min-h-[40vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" /></div>;
@@ -45,91 +52,197 @@ export default function AttorneyBookingsPage() {
         <h1 className="font-serif text-2xl sm:text-3xl text-[#111418]">Bookings</h1>
       </div>
 
-      <Section title={`Upcoming (${upcoming.length})`}>
-        {upcoming.length === 0 ? (
-          <Empty text="No upcoming consultations." />
-        ) : upcoming.map(b => (
-          <BookingCard key={b.id} b={b} busy={busy} onAct={act} />
+      {/* Status tabs — Tab, label, and count together, never color alone */}
+      <div className="flex flex-wrap gap-1 mb-5 border-b border-[#E5E2DC]">
+        {STATUSES.map((s) => (
+          <button
+            key={s.key}
+            onClick={() => setTab(s.key)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-body border-b-2 -mb-px transition-colors ${tab === s.key ? 'border-[#111418] text-[#111418]' : 'border-transparent text-[#8A8578] hover:text-[#111418]'}`}
+          >
+            <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+            {s.label}
+            <span className="text-xs text-[#8A8578]">({counts[s.key] || 0})</span>
+          </button>
         ))}
-      </Section>
-
-      <div className="mt-8">
-        <Section title={`Past (${past.length})`}>
-          {past.length === 0 ? (
-            <Empty text="No past consultations." />
-          ) : past.map(b => (
-            <BookingCard key={b.id} b={b} busy={busy} onAct={act} readonly />
-          ))}
-        </Section>
+        {counts.declined > 0 && (
+          <button
+            onClick={() => setTab('declined')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-body border-b-2 -mb-px transition-colors ${tab === 'declined' ? 'border-[#111418] text-[#111418]' : 'border-transparent text-[#8A8578] hover:text-[#111418]'}`}
+          >
+            <span className="w-2 h-2 rounded-full bg-gray-400" /> Declined <span className="text-xs text-[#8A8578]">({counts.declined})</span>
+          </button>
+        )}
       </div>
+
+      {visible.length === 0 ? (
+        <div className="bg-white border border-[#E5E2DC] p-10 text-center text-sm text-[#8A8578] font-body">
+          Nothing here. Share your booking link to open the pipeline.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {visible.map((b) => (
+            <BookingCard key={b.id} b={b} onOpen={() => setActive(b)} />
+          ))}
+        </div>
+      )}
+
+      <BookingDetailPanel
+        booking={active}
+        onClose={() => setActive(null)}
+        onChanged={(updated) => {
+          setBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
+          setActive(updated);
+        }}
+      />
     </div>
   );
 }
 
-function Section({ title, children }) {
+function BookingCard({ b, onOpen }) {
+  const statusMeta = STATUSES.find((s) => s.key === b.status);
+  const slot = bookingSlot(b);
   return (
-    <div>
-      <h2 className="font-serif text-lg text-[#111418] mb-3">{title}</h2>
-      <div className="space-y-3">{children}</div>
-    </div>
+    <button onClick={onOpen} className="text-left bg-white border border-[#E5E2DC] p-4 hover:border-[#0a5dc2] transition-colors">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-serif text-[#111418] truncate">{b.client_name}</span>
+        <span className={`flex items-center gap-1.5 text-xs font-body shrink-0 ml-2 ${statusMeta?.text || 'text-[#8A8578]'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${statusMeta?.dot || 'bg-gray-400'}`} />
+          {statusMeta?.label || b.status}
+        </span>
+      </div>
+      {slot && <p className="text-sm text-[#8A8578] font-body">{format(new Date(slot), 'EEE, MMM d · h:mm a')}</p>}
+      {b.issue_description && <p className="text-xs text-[#8A8578] font-body mt-2 line-clamp-2 italic">"{b.issue_description}"</p>}
+    </button>
   );
 }
 
-function Empty({ text }) {
-  return <div className="bg-white border border-[#E5E2DC] p-8 text-center text-sm text-[#8A8578] font-body">{text}</div>;
-}
+function BookingDetailPanel({ booking, onClose, onChanged }) {
+  const [notes, setNotes] = useState([]);
+  const [newNote, setNewNote] = useState('');
+  const [busy, setBusy] = useState('');
 
-function BookingCard({ b, busy, onAct, readonly }) {
+  useEffect(() => {
+    if (!booking?.id) { setNotes([]); return; }
+    base44.entities.StaffNote.filter({ booking_id: booking.id }).then(setNotes).catch(() => setNotes([]));
+  }, [booking?.id]);
+
+  if (!booking) return null;
+  const slot = bookingSlot(booking);
+
+  const setStatus = async (status, extra = {}) => {
+    setBusy(status);
+    try {
+      const fields = { status, ...extra };
+      if (status === 'confirmed') { fields.confirmed_at = new Date().toISOString(); fields.confirmed_by = 'staff'; }
+      const updated = await base44.entities.Booking.update(booking.id, fields);
+      onChanged(updated);
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const addNote = async () => {
+    if (!newNote.trim()) return;
+    setBusy('note');
+    try {
+      const note = await base44.entities.StaffNote.create({ booking_id: booking.id, body: newNote.trim() });
+      setNotes((prev) => [...prev, note]);
+      setNewNote('');
+    } finally {
+      setBusy('');
+    }
+  };
+
   return (
-    <div className="bg-white border border-[#E5E2DC] p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-1 flex-1 min-w-0">
-          {b.case_summary && (
-            <div className="mb-2 bg-[#EAF2FB] border-l-2 border-[#0a5dc2] px-3 py-2">
-              <p className="text-[10px] uppercase tracking-[0.1em] text-[#0a5dc2] font-body mb-0.5">Case Summary</p>
-              <p className="text-sm text-[#111418] font-body">{b.case_summary}</p>
+    <Sheet open={!!booking} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="font-serif text-xl text-[#111418]">{booking.client_name}</SheetTitle>
+        </SheetHeader>
+
+        <div className="mt-4 space-y-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-1">Status</p>
+            <p className="text-sm text-[#111418] font-body capitalize">{booking.status.replace('_', '-')}</p>
+          </div>
+
+          {slot && (
+            <div>
+              <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-1">Consultation</p>
+              <p className="text-sm text-[#111418] font-body">{format(new Date(slot), 'EEEE, MMMM d')} at {format(new Date(slot), 'h:mm a')}</p>
             </div>
           )}
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="font-serif text-lg text-[#111418]">{b.client_name}</span>
-            <span className={`text-xs uppercase tracking-[0.08em] font-body ${statusColors[b.status] || ''}`}>{b.status}</span>
-            {b.urgency && <span className={`text-xs font-body ${urgencyColors[b.urgency] || ''}`}>{b.urgency}</span>}
+
+          <div>
+            <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-1.5">Contact</p>
+            <p className="text-sm text-[#111418] font-body flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-[#8A8578]" /> {booking.client_email}</p>
+            {booking.client_phone && <p className="text-sm text-[#111418] font-body flex items-center gap-2 mt-1"><Phone className="w-3.5 h-3.5 text-[#8A8578]" /> {booking.client_phone}</p>}
           </div>
-          <p className="text-sm text-[#8A8578] font-body">{b.client_email}{b.client_phone ? ` · ${b.client_phone}` : ''}</p>
-          {b.slot && (
-            <p className="text-sm text-[#111418] font-body">
-              {format(new Date(b.slot), 'EEEE, MMMM d')} at {format(new Date(b.slot), 'h:mm a')}
-            </p>
+
+          {booking.issue_description && (
+            <div className="bg-[#EAF2FB] border-l-2 border-[#0a5dc2] px-4 py-3">
+              <p className="text-[10px] uppercase tracking-[0.1em] text-[#0a5dc2] font-body mb-1">In their words — read only</p>
+              <p className="text-sm text-[#111418] font-body italic">"{booking.issue_description}"</p>
+            </div>
           )}
-          <p className="text-xs text-[#8A8578] font-body capitalize">Payment: {b.payment_method}</p>
-          {b.issue_description && (
-            <p className="text-sm text-[#8A8578] mt-2 font-body italic">"{b.issue_description}"</p>
+          {booking.description_purged && (
+            <p className="text-xs text-[#8A8578] font-body">This client's description was removed after cancellation.</p>
           )}
+
+          <div className="pt-4 border-t border-[#E5E2DC]">
+            <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-2">Staff notes — only your firm sees this</p>
+            <div className="space-y-2 mb-3">
+              {notes.map((n) => (
+                <div key={n.id} className="bg-[#FAF9F7] border border-[#E5E2DC] px-3 py-2">
+                  <p className="text-sm text-[#111418] font-body">{n.body}</p>
+                  <p className="text-[10px] text-[#8A8578] font-body mt-1">{format(new Date(n.created_at), 'MMM d, h:mm a')}</p>
+                </div>
+              ))}
+              {notes.length === 0 && <p className="text-xs text-[#8A8578] font-body">No notes yet.</p>}
+            </div>
+            <Textarea value={newNote} onChange={(e) => setNewNote(e.target.value)} rows={2} placeholder="Add a note for the team…" />
+            <button onClick={addNote} disabled={busy === 'note' || !newNote.trim()} className="mt-2 px-4 py-2 border border-[#E5E2DC] text-sm font-body hover:border-[#0a5dc2] transition-colors disabled:opacity-40">
+              {busy === 'note' ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : 'Add note'}
+            </button>
+          </div>
+
+          <div className="pt-4 border-t border-[#E5E2DC] flex flex-wrap gap-2">
+            {booking.status === 'pending' && (
+              <>
+                <ActionButton onClick={() => setStatus('confirmed')} busy={busy === 'confirmed'} icon={CheckCircle2} label="Confirm" />
+                <ActionButton onClick={() => setStatus('declined')} busy={busy === 'declined'} icon={XCircle} label="Decline" tone="muted" />
+              </>
+            )}
+            {booking.status === 'confirmed' && (
+              <>
+                <ActionButton onClick={() => setStatus('completed')} busy={busy === 'completed'} icon={Clock} label="Mark completed" />
+                <ActionButton onClick={() => setStatus('no_show')} busy={busy === 'no_show'} icon={UserX} label="Mark no-show" tone="destructive" />
+              </>
+            )}
+          </div>
+          {/* No-show is only ever set by this explicit staff action — never
+              inferred automatically from time passing. */}
         </div>
-        {!readonly && b.status === 'pending' && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => onAct(b.id, 'confirmed')}
-              disabled={!!busy}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#111418] text-white text-xs font-body hover:bg-[#0a5dc2] transition-colors disabled:opacity-40"
-            >
-              {busy === b.id + 'confirmed' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-              Confirm
-            </button>
-            <button
-              onClick={() => onAct(b.id, 'declined')}
-              disabled={!!busy}
-              className="flex items-center gap-1.5 px-4 py-2 border border-[#E5E2DC] text-[#8A8578] text-xs font-body hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-40"
-            >
-              {busy === b.id + 'declined' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
-              Decline
-            </button>
-          </div>
-        )}
-        {readonly && b.status === 'completed' && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-body"><Clock className="w-3.5 h-3.5" /> Completed</span>
-        )}
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function ActionButton({ onClick, busy, icon: Icon, label, tone }) {
+  const toneClass = tone === 'destructive'
+    ? 'border-red-300 text-red-600 hover:bg-red-50'
+    : tone === 'muted'
+    ? 'border-[#E5E2DC] text-[#8A8578] hover:border-red-300 hover:text-red-600'
+    : 'bg-[#111418] text-white border-[#111418] hover:bg-[#0a5dc2]';
+  return (
+    <button
+      onClick={onClick}
+      disabled={busy}
+      className={`flex items-center gap-1.5 px-4 py-2 border text-xs font-body transition-colors disabled:opacity-40 ${toneClass}`}
+    >
+      {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Icon className="w-3.5 h-3.5" />}
+      {label}
+    </button>
   );
 }

@@ -7,7 +7,6 @@ import ScrollToTop from './components/ScrollToTop';
 import { OnboardingProvider } from './lib/onboardingContext';
 import { LanguageProvider } from './lib/i18n';
 import OnboardingModal from './components/onboarding/OnboardingModal';
-
 import AppRoutes from '@/routes';
 
 function App() {

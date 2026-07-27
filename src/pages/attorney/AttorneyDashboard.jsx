@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
-import { Users, CalendarClock, Star, TrendingUp, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { computeMetrics } from '@/lib/metrics';
+import MetricCards from '@/components/metrics/MetricCards';
+import WeeklyBookingsChart from '@/components/metrics/WeeklyBookingsChart';
 
-const statusColors = { pending: 'text-yellow-600', confirmed: 'text-green-600', completed: 'text-blue-600', declined: 'text-red-600' };
+const statusColors = { pending: 'text-yellow-600', confirmed: 'text-green-600', completed: 'text-blue-600', declined: 'text-red-600', no_show: 'text-red-600' };
+
+function slotOf(b) {
+  return b.slot_start || b.slot;
+}
 
 export default function AttorneyDashboardPage() {
   const { attorney } = useAuth();
@@ -21,15 +28,9 @@ export default function AttorneyDashboardPage() {
 
   const upcoming = bookings
     .filter(b => ['pending', 'confirmed'].includes(b.status))
-    .sort((a, b) => new Date(a.slot) - new Date(b.slot));
+    .sort((a, b) => new Date(slotOf(a)) - new Date(slotOf(b)));
   const newRequests = bookings.filter(b => b.status === 'pending');
-
-  const metrics = [
-    { icon: Users, label: 'Total bookings', value: bookings.length },
-    { icon: CalendarClock, label: 'Upcoming', value: upcoming.length },
-    { icon: Star, label: 'Avg rating', value: `${attorney?.rating || 0}★` },
-    { icon: TrendingUp, label: 'Reviews', value: attorney?.review_count || 0 },
-  ];
+  const metrics = computeMetrics(bookings);
 
   return (
     <div>
@@ -43,15 +44,8 @@ export default function AttorneyDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#E5E2DC] mb-8">
-        {metrics.map(({ icon: Icon, label, value }) => (
-          <div key={label} className="bg-white p-5">
-            <Icon className="w-4 h-4 text-[#8A8578] mb-3" />
-            <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-2">{label}</p>
-            <div className="font-serif text-3xl text-[#111418] leading-none">{loading ? '—' : value}</div>
-          </div>
-        ))}
-      </div>
+      <MetricCards metrics={metrics} loading={loading} className="mb-6" />
+      <WeeklyBookingsChart metrics={metrics} loading={loading} className="mb-8" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white border border-[#E5E2DC] p-6">
@@ -71,9 +65,9 @@ export default function AttorneyDashboardPage() {
                     <span className="font-serif text-[#111418]">{b.client_name}</span>
                     <span className={`text-xs uppercase tracking-[0.08em] font-body ${statusColors[b.status] || ''}`}>{b.status}</span>
                   </div>
-                  {b.slot && (
+                  {slotOf(b) && (
                     <p className="text-sm text-[#8A8578] font-body">
-                      {format(new Date(b.slot), 'EEE, MMM d · h:mm a')}
+                      {format(new Date(slotOf(b)), 'EEE, MMM d · h:mm a')}
                     </p>
                   )}
                   {b.case_summary && (
@@ -98,7 +92,7 @@ export default function AttorneyDashboardPage() {
             ) : (
               <div>
                 <p className="font-serif text-[#111418]">{upcoming[0].client_name}</p>
-                <p className="text-sm text-[#8A8578] font-body">{format(new Date(upcoming[0].slot), 'EEE, MMM d · h:mm a')}</p>
+                <p className="text-sm text-[#8A8578] font-body">{format(new Date(slotOf(upcoming[0])), 'EEE, MMM d · h:mm a')}</p>
               </div>
             )}
           </div>

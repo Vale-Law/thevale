@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -16,6 +15,14 @@
     "resolveJsonModule": true,
     "types": []
   },
-  "include": ["src/components/**/*.js", "src/pages/**/*.jsx", "src/Layout.jsx"],
+  "include": [
+    "src/components/**/*.js",
+    "src/components/primitives/**/*.jsx",
+    "src/pages/**/*.jsx",
+    "src/pages/dev/**/*.jsx",
+    "src/Layout.jsx",
+    "src/routes/**/*.jsx",
+    "src/types/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "src/vite-plugins", "src/components/ui", "src/api", "src/lib"]
 }

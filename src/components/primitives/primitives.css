@@ -1,0 +1,181 @@
+/**
+ * Brief Design System v2 — bespoke rules for src/components/primitives/**
+ *
+ * This stylesheet only carries rules that plain Tailwind utility classes
+ * (including arbitrary-value bracket syntax like `bg-[var(--accent)]`)
+ * can't express cleanly: pseudo-element masks, color-mix() focus rings,
+ * and a couple of hover transitions that read better as real CSS than as
+ * a wall of arbitrary-variant classes.
+ *
+ * All values reference custom properties from src/styles/tokens.css.
+ * Nothing in here hard-codes a hex color.
+ */
+
+/* ---------------------------------------------------------------------- */
+/* Type scale (DS §10) — shared by Field, TimeSlot, Button labels, etc.   */
+/* ---------------------------------------------------------------------- */
+
+.ds-type-body-m {
+  font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.ds-type-label {
+  font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ds-type-data {
+  font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Button (DS §10) — focus ring                                           */
+/*                                                                         */
+/* Tailwind's `ring-[var(--accent)]/20` opacity-modifier syntax can't      */
+/* inject an alpha channel into an opaque CSS custom property (it only    */
+/* works when Tailwind knows the underlying color format), so the focus   */
+/* ring is a real CSS rule using color-mix() instead — same technique as  */
+/* the Field focus ring below.                                            */
+/* ---------------------------------------------------------------------- */
+
+.ds-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Field (DS §10 "Inputs")                                                */
+/* ---------------------------------------------------------------------- */
+
+.ds-field-input {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius-s);
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+
+.ds-field-input:focus-visible,
+.ds-field-input:focus {
+  outline: none;
+  border: 2px solid var(--accent);
+  /* 3px ring at 20% opacity — color-mix keeps this correct regardless of
+     whether --accent resolves to a hex, hsl(), or oklch() value. */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.ds-field-input[data-error="true"] {
+  border-color: var(--noshow);
+}
+
+.ds-field-input[data-error="true"]:focus-visible,
+.ds-field-input[data-error="true"]:focus {
+  border: 2px solid var(--noshow);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--noshow) 20%, transparent);
+}
+
+.ds-field-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ds-field-textarea {
+  min-height: 96px;
+  height: auto;
+  resize: vertical;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Card (DS §10) — hover lift, raised tone only                           */
+/* ---------------------------------------------------------------------- */
+
+.ds-card--raised {
+  transition: transform var(--motion-fast), box-shadow var(--motion-fast);
+}
+
+.ds-card--raised:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tab (DS §9 — "the record signature")                                   */
+/* ---------------------------------------------------------------------- */
+
+.ds-tab {
+  position: absolute;
+  top: 0;
+  left: 20px;
+  width: 56px;
+  height: 6px;
+  border-top-left-radius: var(--radius-xs);
+  border-top-right-radius: var(--radius-xs);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  transition: height var(--motion-fast);
+  pointer-events: auto;
+}
+
+.ds-tab:hover {
+  height: 9px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* TimeSlot (DS §10 "Time slots")                                         */
+/* ---------------------------------------------------------------------- */
+
+.ds-timeslot {
+  border-radius: var(--radius-s);
+  /* Border *color* is intentionally left to the Tailwind classes applied
+     per-state in TimeSlot.jsx (border-[var(--line)] / border-transparent) —
+     this file and Tailwind's generated utilities load in an order that
+     isn't guaranteed relative to each other, so border-color must only
+     ever be set from exactly one place to avoid a cascade race. */
+  border-width: 1px;
+  border-style: solid;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+
+.ds-timeslot:disabled {
+  cursor: default;
+  /* DS §10 explicitly forbids text-decoration: line-through for the
+     unavailable state — do not add it back here. */
+}
+
+/* ---------------------------------------------------------------------- */
+/* Halftone (DS §8.1 — "the surface signature")                           */
+/*                                                                         */
+/* tokens.css's `.halftone::before` mask is:                              */
+/*   linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 38%, transparent 78%)*/
+/* i.e. opaque at the top (near a hero), fading out by 78% down the block.*/
+/* The two modifier classes below reuse the exact same 0% / 38% / 78%     */
+/* stop curve, just re-oriented, so `radial` and `up` read as the same    */
+/* "signature" fade rather than a differently-shaped one:                 */
+/*   - `up`: same curve, flipped to fade from the bottom (0deg points      */
+/*     "to top", so the gradient runs bottom -> top) — strong near a      */
+/*     footer, fading out higher up the block.                            */
+/*   - `radial`: same curve, swept outward from the center instead of     */
+/*     top-to-bottom — strong at a focal element, fading toward the edge. */
+/* ---------------------------------------------------------------------- */
+
+.ds-halftone--radial::before {
+  mask-image: radial-gradient(circle, black 0%, rgba(0, 0, 0, 0.55) 38%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle, black 0%, rgba(0, 0, 0, 0.55) 38%, transparent 78%);
+}
+
+.ds-halftone--up::before {
+  mask-image: linear-gradient(0deg, black 0%, rgba(0, 0, 0, 0.55) 38%, transparent 78%);
+  -webkit-mask-image: linear-gradient(0deg, black 0%, rgba(0, 0, 0, 0.55) 38%, transparent 78%);
+}

@@ -9,8 +9,8 @@ export default function AdminShell() {
 
   if (isLoadingAuth && !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA]">
-        <div className="w-6 h-6 border-2 border-[#E5E2DC] border-t-[#111418] rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--ground)]">
+        <div className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--accent)] rounded-full animate-spin" />
       </div>
     );
   }

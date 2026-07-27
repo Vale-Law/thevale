@@ -31,18 +31,18 @@ export default function MetricCards({ metrics, loading, className = '' }) {
   ];
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-3 gap-px bg-[#E5E2DC] ${className}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-3 gap-px bg-[var(--line)] ${className}`}>
       {cards.map(({ icon: Icon, label, value, empty }) => (
-        <div key={label} className="bg-white p-5">
-          <Icon className="w-4 h-4 text-[#8A8578] mb-3" />
-          <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-2">{label}</p>
+        <div key={label} className="bg-[var(--surface)] p-5">
+          <Icon className="w-4 h-4 text-[var(--text-3)] mb-3" />
+          <p className="ds-type-label text-[var(--text-3)] mb-2">{label}</p>
           {value == null ? (
             <div>
-              <div className="font-serif text-3xl text-[#D8D4CC] leading-none mb-1">—</div>
-              <p className="text-xs text-[#8A8578] font-body">{empty}</p>
+              <div className="text-3xl text-[var(--text-4)] leading-none mb-1" style={{ fontFamily: 'var(--font-human)' }}>—</div>
+              <p className="text-xs text-[var(--text-3)] ds-type-body-m">{empty}</p>
             </div>
           ) : (
-            <div className="font-serif text-3xl text-[#111418] leading-none">{value}</div>
+            <div className="text-3xl text-[var(--text)] leading-none [font-variant-numeric:tabular-nums]" style={{ fontFamily: 'var(--font-human)' }}>{value}</div>
           )}
         </div>
       ))}

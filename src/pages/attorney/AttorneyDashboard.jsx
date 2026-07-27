@@ -5,10 +5,11 @@ import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
 import { ArrowRight } from 'lucide-react';
 import { computeMetrics } from '@/lib/metrics';
+import { Card } from '@/components/primitives';
 import MetricCards from '@/components/metrics/MetricCards';
 import WeeklyBookingsChart from '@/components/metrics/WeeklyBookingsChart';
 
-const statusColors = { pending: 'text-yellow-600', confirmed: 'text-green-600', completed: 'text-blue-600', declined: 'text-red-600', no_show: 'text-red-600' };
+const statusColor = { pending: 'var(--pending)', confirmed: 'var(--confirmed)', completed: 'var(--completed)', declined: 'var(--text-3)', no_show: 'var(--noshow)' };
 
 function slotOf(b) {
   return b.slot_start || b.slot;
@@ -34,12 +35,12 @@ export default function AttorneyDashboardPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-8 pb-5 border-b border-[#E5E2DC]">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-8 pb-5 border-b border-[var(--line)]">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-1 font-body">Attorney Portal</p>
-          <h1 className="font-serif text-2xl sm:text-3xl text-[#111418]">Dashboard</h1>
+          <p className="ds-type-label text-[var(--text-3)] mb-1">Attorney Portal</p>
+          <h1 className="text-2xl sm:text-3xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>Dashboard</h1>
         </div>
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-[#EAF2FB] text-[#0a5dc2] text-xs font-body">
+        <div className="inline-flex items-center px-3 py-1.5 rounded-[var(--radius-full)] bg-[var(--surface-sunk)] text-[var(--accent)] text-xs ds-type-body-m">
           {attorney?.verified && attorney?.verified_date ? `License checked ${format(new Date(attorney.verified_date), 'MMM d, yyyy')}` : 'License check pending'}
         </div>
       </div>
@@ -48,55 +49,64 @@ export default function AttorneyDashboardPage() {
       <WeeklyBookingsChart metrics={metrics} loading={loading} className="mb-8" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white border border-[#E5E2DC] p-6">
+        <Card tone="raised" className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-lg text-[#111418]">New booking requests</h2>
-            <Link to="/attorney/bookings" className="text-xs text-[#0a5dc2] font-body hover:underline flex items-center gap-1">
+            <h2 className="text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>New booking requests</h2>
+            <Link to="/attorney/bookings" className="text-xs text-[var(--accent)] ds-type-body-m hover:underline flex items-center gap-1">
               View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           {newRequests.length === 0 ? (
-            <p className="text-sm text-[#8A8578] font-body py-8 text-center">No new requests. You're all caught up.</p>
+            <p className="text-sm text-[var(--text-3)] ds-type-body-m py-8 text-center">No new requests. You're all caught up.</p>
           ) : (
             <div className="space-y-3">
               {newRequests.slice(0, 4).map(b => (
-                <Link key={b.id} to="/attorney/bookings" className="block border border-[#E5E2DC] p-4 hover:border-[#0a5dc2] transition-colors">
+                <Link
+                  key={b.id}
+                  to="/attorney/bookings"
+                  className="block rounded-[var(--radius-s)] border border-[var(--line)] p-4 hover:border-[var(--accent)] transition-colors"
+                >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-serif text-[#111418]">{b.client_name}</span>
-                    <span className={`text-xs uppercase tracking-[0.08em] font-body ${statusColors[b.status] || ''}`}>{b.status}</span>
+                    <span className="text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{b.client_name}</span>
+                    <span className="text-xs uppercase tracking-[0.08em] ds-type-body-m" style={{ color: statusColor[b.status] || 'var(--text-3)' }}>{b.status}</span>
                   </div>
                   {slotOf(b) && (
-                    <p className="text-sm text-[#8A8578] font-body">
+                    <p className="text-sm text-[var(--text-3)] ds-type-body-m">
                       {format(new Date(slotOf(b)), 'EEE, MMM d · h:mm a')}
                     </p>
                   )}
                   {b.case_summary && (
-                    <p className="text-xs text-[#111418] font-body mt-2 line-clamp-2 bg-[#EAF2FB] border-l-2 border-[#0a5dc2] px-2 py-1.5">{b.case_summary}</p>
+                    <p
+                      className="text-xs text-[var(--text)] ds-type-body-m mt-2 line-clamp-2 px-2 py-1.5 rounded-[var(--radius-xs)]"
+                      style={{ backgroundColor: 'var(--surface-sunk)', borderLeft: '2px solid var(--accent)' }}
+                    >
+                      {b.case_summary}
+                    </p>
                   )}
                 </Link>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
-        <div className="bg-white border border-[#E5E2DC] p-6">
-          <h2 className="font-serif text-lg text-[#111418] mb-4">Profile completeness</h2>
+        <Card tone="raised">
+          <h2 className="text-lg text-[var(--text)] mb-4" style={{ fontFamily: 'var(--font-human)' }}>Profile completeness</h2>
           <Completeness attorney={attorney} />
-          <Link to="/attorney/profile" className="mt-4 inline-flex items-center gap-1 text-xs text-[#0a5dc2] font-body hover:underline">
+          <Link to="/attorney/profile" className="mt-4 inline-flex items-center gap-1 text-xs text-[var(--accent)] ds-type-body-m hover:underline">
             Edit profile <ArrowRight className="w-3 h-3" />
           </Link>
-          <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
-            <h3 className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-2">Next consultation</h3>
+          <div className="mt-6 pt-5 border-t border-[var(--line)]">
+            <h3 className="ds-type-label text-[var(--text-3)] mb-2">Next consultation</h3>
             {upcoming.length === 0 ? (
-              <p className="text-sm text-[#8A8578] font-body">Nothing scheduled.</p>
+              <p className="text-sm text-[var(--text-3)] ds-type-body-m">Nothing scheduled.</p>
             ) : (
               <div>
-                <p className="font-serif text-[#111418]">{upcoming[0].client_name}</p>
-                <p className="text-sm text-[#8A8578] font-body">{format(new Date(slotOf(upcoming[0])), 'EEE, MMM d · h:mm a')}</p>
+                <p className="text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{upcoming[0].client_name}</p>
+                <p className="text-sm text-[var(--text-3)] ds-type-body-m">{format(new Date(slotOf(upcoming[0])), 'EEE, MMM d · h:mm a')}</p>
               </div>
             )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
@@ -116,17 +126,17 @@ function Completeness({ attorney }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <span className="font-serif text-2xl text-[#111418]">{pct}%</span>
-        <span className="text-xs text-[#8A8578] font-body">{done}/{fields.length} complete</span>
+        <span className="text-2xl text-[var(--text)] [font-variant-numeric:tabular-nums]" style={{ fontFamily: 'var(--font-human)' }}>{pct}%</span>
+        <span className="text-xs text-[var(--text-3)] ds-type-body-m">{done}/{fields.length} complete</span>
       </div>
-      <div className="h-2 bg-[#F4F2EE] rounded-full overflow-hidden mb-3">
-        <div className="h-full bg-[#0a5dc2] rounded-full transition-all" style={{ width: `${pct}%` }} />
+      <div className="h-2 rounded-[var(--radius-full)] overflow-hidden mb-3" style={{ backgroundColor: 'var(--surface-sunk)' }}>
+        <div className="h-full rounded-[var(--radius-full)] transition-all" style={{ width: `${pct}%`, backgroundColor: 'var(--accent)' }} />
       </div>
       <ul className="space-y-1.5">
         {fields.map(f => (
-          <li key={f.label} className="flex items-center gap-2 text-sm font-body">
-            <span className={`w-1.5 h-1.5 rounded-full ${f.ok ? 'bg-green-500' : 'bg-[#D8D4CC]'}`} />
-            <span className={f.ok ? 'text-[#111418]' : 'text-[#8A8578]'}>{f.label}</span>
+          <li key={f.label} className="flex items-center gap-2 text-sm ds-type-body-m">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: f.ok ? 'var(--confirmed)' : 'var(--line-2)' }} />
+            <span style={{ color: f.ok ? 'var(--text)' : 'var(--text-3)' }}>{f.label}</span>
           </li>
         ))}
       </ul>

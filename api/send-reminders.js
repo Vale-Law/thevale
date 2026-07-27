@@ -1,6 +1,10 @@
-// GET /api/send-reminders — invoked hourly by Vercel Cron (see vercel.json).
-// Vercel only runs crons against Production deployments, never Preview, so
-// this is inert until the app is actually deployed to production.
+// GET /api/send-reminders — invoked daily by Vercel Cron (see vercel.json).
+// Hourly was the original schedule, but the Hobby plan only permits daily
+// cron jobs, so this now runs once a day; the send_at <= now() due-window
+// query below still catches anything that became due since the last run,
+// just with up to ~24h of latency instead of ~1h. Vercel only runs crons
+// against Production deployments, never Preview, so this is inert until
+// the app is actually deployed to production.
 //
 // Confirm tokens are never persisted in the clear (only their hash), so a
 // reminder can't resend the original confirm link — it retires whatever

@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { WEEKDAYS } from '@/lib/availability';
+import { Button, Card, Field } from '@/components/primitives';
 import { Loader2, Copy, Check, ExternalLink } from 'lucide-react';
 
 const TIMEZONES = [
@@ -95,117 +96,126 @@ export default function AttorneyAvailabilityPage() {
   };
 
   if (loading || !rules) {
-    return <div className="min-h-[40vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" /></div>;
+    return <div className="min-h-[40vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" /></div>;
   }
 
   return (
     <div>
-      <div className="mb-6 pb-5 border-b border-[#E5E2DC]">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-1 font-body">Attorney Portal</p>
-        <h1 className="font-serif text-2xl sm:text-3xl text-[#111418]">Availability</h1>
-        <p className="text-sm text-[#8A8578] font-body mt-2 max-w-lg">
+      <div className="mb-6 pb-5 border-b border-[var(--line)]">
+        <p className="ds-type-label text-[var(--text-3)] mb-1">Attorney Portal</p>
+        <h1 className="text-2xl sm:text-3xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>Availability</h1>
+        <p className="text-sm text-[var(--text-3)] ds-type-body-m mt-2 max-w-lg">
           Set your weekly hours once. Clients pick from what's actually open — the site works out the rest.
         </p>
       </div>
 
       {/* Booking link */}
-      <div className="bg-white border border-[#E5E2DC] p-6 mb-5">
-        <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-3">Your booking page</p>
+      <Card tone="raised" className="mb-5">
+        <p className="ds-type-label text-[var(--text-3)] mb-3">Your booking page</p>
         {!attorney.slug ? (
           <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              value={slug}
-              onChange={(e) => setSlug(slugify(e.target.value))}
-              placeholder={slugify(attorney.name) || 'your-name'}
-              className="flex-1 border border-[#E5E2DC] px-4 py-2.5 text-sm outline-none focus:border-[#111418] font-body"
-            />
-            <button onClick={claimSlug} disabled={slugSaving} className="px-5 py-2.5 bg-[#111418] text-white text-sm font-body hover:bg-[#0a5dc2] transition-colors disabled:opacity-40 flex items-center gap-2">
+            <div className="flex-1">
+              <Field
+                label="Booking link"
+                value={slug}
+                onChange={(e) => setSlug(slugify(e.target.value))}
+                placeholder={slugify(attorney.name) || 'your-name'}
+              />
+            </div>
+            <Button variant="primary" disabled={slugSaving} onClick={claimSlug} className="sm:self-end">
               {slugSaving && <Loader2 className="w-4 h-4 animate-spin" />} Claim link
-            </button>
+            </Button>
           </div>
         ) : (
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <code className="flex-1 border border-[#E5E2DC] bg-[#FAF9F7] px-4 py-2.5 text-sm font-body text-[#111418] truncate">
+              <code className="flex-1 rounded-[var(--radius-s)] border border-[var(--line)] bg-[var(--surface-sunk)] px-4 py-2.5 text-sm ds-type-body-m text-[var(--text)] truncate">
                 {window.location.origin}/book/{attorney.slug}
               </code>
-              <button onClick={copyLink} className="p-2.5 border border-[#E5E2DC] hover:border-[#0a5dc2] transition-colors">
-                {copied ? <Check className="w-4 h-4 text-[#0a5dc2]" /> : <Copy className="w-4 h-4 text-[#8A8578]" />}
+              <button onClick={copyLink} className="p-2.5 rounded-[var(--radius-s)] border border-[var(--line)] hover:border-[var(--accent)] transition-colors">
+                {copied ? <Check className="w-4 h-4 text-[var(--accent)]" /> : <Copy className="w-4 h-4 text-[var(--text-3)]" />}
               </button>
-              <a href={`/book/${attorney.slug}`} target="_blank" rel="noreferrer" className="p-2.5 border border-[#E5E2DC] hover:border-[#0a5dc2] transition-colors">
-                <ExternalLink className="w-4 h-4 text-[#8A8578]" />
+              <a href={`/book/${attorney.slug}`} target="_blank" rel="noreferrer" className="p-2.5 rounded-[var(--radius-s)] border border-[var(--line)] hover:border-[var(--accent)] transition-colors">
+                <ExternalLink className="w-4 h-4 text-[var(--text-3)]" />
               </a>
             </div>
-            <label className="flex items-center gap-2 text-sm font-body text-[#111418]">
-              <input type="checkbox" checked={published} onChange={togglePublish} className="w-4 h-4" />
+            <label className="flex items-center gap-2 text-sm ds-type-body-m text-[var(--text)]">
+              <input type="checkbox" checked={published} onChange={togglePublish} className="w-4 h-4" style={{ accentColor: 'var(--accent)' }} />
               Published — clients can book this link
             </label>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Weekly hours */}
-      <div className="bg-white border border-[#E5E2DC] p-6 mb-5">
+      <Card tone="raised" className="mb-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body">Weekly hours ({rules.timezone})</p>
-          {saving && <Loader2 className="w-3.5 h-3.5 text-[#8A8578] animate-spin" />}
-          {saved && <span className="text-xs text-[#0a5dc2] font-body">Saved</span>}
+          <p className="ds-type-label text-[var(--text-3)]">Weekly hours ({rules.timezone})</p>
+          {saving && <Loader2 className="w-3.5 h-3.5 text-[var(--text-3)] animate-spin" />}
+          {saved && <span className="text-xs text-[var(--accent)] ds-type-body-m">Saved</span>}
         </div>
         <div className="space-y-2">
           {WEEKDAYS.map(({ key, label }) => {
             const windows = rules.working_hours[key];
             return (
-              <div key={key} className="flex items-center gap-3 py-2 border-b border-[#F4F2EE] last:border-0">
+              <div key={key} className="flex items-center gap-3 py-2 border-b border-[var(--line)] last:border-0">
                 <label className="flex items-center gap-2 w-32 shrink-0">
-                  <input type="checkbox" checked={!!windows} onChange={() => toggleDay(key)} className="w-4 h-4" />
-                  <span className="text-sm font-body text-[#111418]">{label}</span>
+                  <input type="checkbox" checked={!!windows} onChange={() => toggleDay(key)} className="w-4 h-4" style={{ accentColor: 'var(--accent)' }} />
+                  <span className="text-sm ds-type-body-m text-[var(--text)]">{label}</span>
                 </label>
                 {windows ? (
                   <div className="flex items-center gap-2">
-                    <input type="time" value={windows[0][0]} onChange={(e) => setWindow(key, 0, 'start', e.target.value)} className="border border-[#E5E2DC] px-2 py-1.5 text-sm font-body" />
-                    <span className="text-[#8A8578] text-sm">to</span>
-                    <input type="time" value={windows[0][1]} onChange={(e) => setWindow(key, 0, 'end', e.target.value)} className="border border-[#E5E2DC] px-2 py-1.5 text-sm font-body" />
+                    <input type="time" value={windows[0][0]} onChange={(e) => setWindow(key, 0, 'start', e.target.value)} className="ds-field-input px-2 py-1.5 text-sm ds-type-body-m text-[var(--text)]" />
+                    <span className="text-[var(--text-3)] text-sm">to</span>
+                    <input type="time" value={windows[0][1]} onChange={(e) => setWindow(key, 0, 'end', e.target.value)} className="ds-field-input px-2 py-1.5 text-sm ds-type-body-m text-[var(--text)]" />
                   </div>
                 ) : (
-                  <span className="text-sm text-[#8A8578] font-body">Not available</span>
+                  <span className="text-sm text-[var(--text-3)] ds-type-body-m">Not available</span>
                 )}
               </div>
             );
           })}
         </div>
-      </div>
+      </Card>
 
       {/* Rules */}
-      <div className="bg-white border border-[#E5E2DC] p-6">
-        <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-4">Booking rules</p>
+      <Card tone="raised">
+        <p className="ds-type-label text-[var(--text-3)] mb-4">Booking rules</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Field label="Buffer between consults (min)">
-            <input type="number" min={0} value={rules.buffer_minutes} onChange={(e) => saveRules({ ...rules, buffer_minutes: +e.target.value })} className="w-full border border-[#E5E2DC] px-3 py-2 text-sm font-body" />
-          </Field>
-          <Field label="Minimum notice (hours)">
-            <input type="number" min={0} value={rules.min_notice_hours} onChange={(e) => saveRules({ ...rules, min_notice_hours: +e.target.value })} className="w-full border border-[#E5E2DC] px-3 py-2 text-sm font-body" />
-          </Field>
-          <Field label="Daily cap (optional)">
-            <input type="number" min={1} value={rules.daily_cap || ''} onChange={(e) => saveRules({ ...rules, daily_cap: e.target.value ? +e.target.value : null })} placeholder="No limit" className="w-full border border-[#E5E2DC] px-3 py-2 text-sm font-body" />
-          </Field>
+          <Field
+            label="Buffer between consults (min)"
+            type="number"
+            min={0}
+            value={rules.buffer_minutes}
+            onChange={(e) => saveRules({ ...rules, buffer_minutes: +e.target.value })}
+          />
+          <Field
+            label="Minimum notice (hours)"
+            type="number"
+            min={0}
+            value={rules.min_notice_hours}
+            onChange={(e) => saveRules({ ...rules, min_notice_hours: +e.target.value })}
+          />
+          <Field
+            label="Daily cap (optional)"
+            type="number"
+            min={1}
+            value={rules.daily_cap || ''}
+            onChange={(e) => saveRules({ ...rules, daily_cap: e.target.value ? +e.target.value : null })}
+            placeholder="No limit"
+          />
         </div>
-        <div className="mt-4">
-          <Field label="Timezone">
-            <select value={rules.timezone} onChange={(e) => saveRules({ ...rules, timezone: e.target.value })} className="w-full border border-[#E5E2DC] px-3 py-2 text-sm font-body">
-              {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
-            </select>
-          </Field>
+        <div className="mt-4 flex flex-col gap-1.5">
+          <label className="ds-type-label text-[var(--text-2)]">Timezone</label>
+          <select
+            value={rules.timezone}
+            onChange={(e) => saveRules({ ...rules, timezone: e.target.value })}
+            className="ds-field-input ds-type-body-m h-11 w-full px-3 text-[var(--text)]"
+          >
+            {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
+          </select>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <div>
-      <label className="block text-xs uppercase tracking-[0.08em] text-[#8A8578] font-body mb-1.5">{label}</label>
-      {children}
+      </Card>
     </div>
   );
 }

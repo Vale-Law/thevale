@@ -175,6 +175,18 @@ const caseSummaryEntity = makeEntity('case_summaries');
 const caseSummaryCreate = caseSummaryEntity.create;
 caseSummaryEntity.create = async (fields) => caseSummaryCreate({ ...fields, created_by_id: await currentUserId() });
 
+// Firm-private notes on a booking (booking_staff_notes) — RLS scopes reads
+// and writes to the attorney who owns the booking (or an admin); never
+// visible to the client. See supabase/migrations/20260727040000_track_a_w0_foundation.sql.
+const staffNoteEntity = makeEntity('booking_staff_notes');
+const staffNoteCreate = staffNoteEntity.create;
+staffNoteEntity.create = async (fields) => staffNoteCreate({ ...fields, author_id: await currentUserId() });
+staffNoteEntity.filter = async (match) => {
+  const { data, error } = await supabase.from('booking_staff_notes').select('*').match(match).order('created_at', { ascending: true });
+  if (error) throw error;
+  return data;
+};
+
 const entities = {
   Attorney: makeEntity('attorneys'),
   Booking: bookingEntity,
@@ -182,6 +194,7 @@ const entities = {
   Waitlist: makeEntity('waitlist'),
   Review: makeEntity('reviews'),
   User: makeEntity('profiles'),
+  StaffNote: staffNoteEntity,
 };
 
 function fileExtension(name) {

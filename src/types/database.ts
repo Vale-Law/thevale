@@ -108,6 +108,7 @@ export type Database = {
           distance: string | null
           education: string | null
           email: string | null
+          firm_id: string | null
           id: string
           id_document: string | null
           interpreter_available: boolean | null
@@ -157,6 +158,7 @@ export type Database = {
           distance?: string | null
           education?: string | null
           email?: string | null
+          firm_id?: string | null
           id?: string
           id_document?: string | null
           interpreter_available?: boolean | null
@@ -206,6 +208,7 @@ export type Database = {
           distance?: string | null
           education?: string | null
           email?: string | null
+          firm_id?: string | null
           id?: string
           id_document?: string | null
           interpreter_available?: boolean | null
@@ -235,7 +238,15 @@ export type Database = {
           verified_date?: string | null
           years_experience?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "attorneys_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "firms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       booking_action_tokens: {
         Row: {
@@ -297,6 +308,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "booking_staff_notes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_status_events: {
+        Row: {
+          actor_id: string | null
+          actor_role: string
+          booking_id: string
+          created_at: string
+          from_status: string | null
+          id: string
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_role: string
+          booking_id: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_role?: string
+          booking_id?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_status_events_booking_id_fkey"
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
@@ -487,6 +536,56 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      firm_members: {
+        Row: {
+          created_at: string
+          firm_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          firm_id: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          firm_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "firm_members_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      firms: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

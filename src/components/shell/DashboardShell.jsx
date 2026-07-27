@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Loader2, LogOut, Settings as SettingsIcon, ChevronDown } from 'lucide-react';
 import FloatingPanel from '@/components/ui/FloatingPanel';
@@ -13,6 +13,16 @@ const LOGO = 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03
 // been retrofitted yet -- flipping just the shell dark-aware while its
 // pages stay hardcoded light would reproduce the exact same mismatch this
 // change exists to fix, just on the admin portal instead.
+//
+// `accent` is deliberately NOT a bare `var(--accent)` reference in the
+// tokens theme: the whole attorney route tree (src/routes/attorney.jsx)
+// is wrapped in LegacyAccentScope, which re-pins --accent to a bare HSL
+// triplet ("215 87% 40%", meant for hsl(var(--accent)) in legacy shadcn
+// components) for every descendant, including this shell. Using that
+// bare triplet directly as a `color`/`backgroundColor` value is invalid
+// CSS and silently drops -- there is no CSS-only escape from an ancestor
+// override on an inherited custom property. usePrefersDark() below picks
+// tokens.css's own light/dark --accent hex directly instead.
 const THEME = {
   legacy: {
     pageBg: '#F7F8FA', surfaceBg: '#FFFFFF', line: '#E5E2DC',
@@ -23,10 +33,31 @@ const THEME = {
   tokens: {
     pageBg: 'var(--ground)', surfaceBg: 'var(--surface)', line: 'var(--line)',
     text: 'var(--text)', textMuted: 'var(--text-3)', textFaint: 'var(--text-4)',
-    accent: 'var(--accent)', accentSoftBg: 'var(--surface-sunk)', hoverBg: 'var(--surface-sunk)',
+    accentSoftBg: 'var(--surface-sunk)', hoverBg: 'var(--surface-sunk)',
     fontHuman: 'var(--font-human)', bodyFont: 'var(--font-system)',
   },
 };
+
+// tokens.css's own --accent values (src/styles/tokens.css), duplicated
+// here only because LegacyAccentScope makes the CSS variable itself
+// unusable for direct color/backgroundColor assignment inside the
+// attorney route tree. The app has no manual light/dark toggle anywhere
+// (grepped for `data-theme` writes -- none), so prefers-color-scheme is
+// the only signal that ever applies.
+const ACCENT_HEX = { light: '#1D4634', dark: '#54A57A' };
+
+function usePrefersDark() {
+  const [prefersDark, setPrefersDark] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = (e) => setPrefersDark(e.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+  return prefersDark;
+}
 
 function getInitials(name) {
   if (!name) return '?';
@@ -83,7 +114,11 @@ export default function DashboardShell({
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef(null);
-  const c = THEME[theme] || THEME.legacy;
+  const prefersDark = usePrefersDark();
+  const c = {
+    ...(THEME[theme] || THEME.legacy),
+    accent: theme === 'tokens' ? (prefersDark ? ACCENT_HEX.dark : ACCENT_HEX.light) : THEME.legacy.accent,
+  };
 
   const initials = getInitials(user?.full_name);
   const handleLogout = () => logout('/');

@@ -31,6 +31,8 @@ import Account from './pages/Account';
 import Bookings from './pages/Bookings';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import BookingPage from './pages/BookingPage';
+import ManageBooking from './pages/ManageBooking';
 
 import ClientShell from '@/components/shell/ClientShell';
 import AttorneyShell from '@/components/shell/AttorneyShell';
@@ -68,6 +70,11 @@ const AuthenticatedApp = () => {
       {/* Public legal pages — no login required */}
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
+
+      {/* Public attorney booking page + client self-service — no login,
+          no ClientShell (this is the attorney's own page, not Brief's) */}
+      <Route path="/book/:slug" element={<BookingPage />} />
+      <Route path="/manage/:token" element={<ManageBooking />} />
 
       {/* Client + public/auth routes (marketing shell) */}
       <Route element={<ClientShell />}>

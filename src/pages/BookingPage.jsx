@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { supabase } from '@/api/supabaseClient';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { Textarea } from '@/components/ui/textarea';
+import { Button, Field, Card, TimeSlot, Halftone } from '@/components/primitives';
 import { Checkbox } from '@/components/ui/checkbox';
+import MinimalFooter from '@/components/layout/MinimalFooter';
 import { Loader2, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
+
+const STEPS = ['slot', 'situation', 'contact', 'confirm'];
 
 // The attorney's own public booking page — this is the v1.4 keystone
 // feature. No login required to book. Calendar sync is limited to the
@@ -13,12 +14,12 @@ import { Loader2, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
 // external Google/Microsoft free-busy sync isn't built yet.
 export default function BookingPage() {
   const { slug } = useParams();
-  const navigate = useNavigate();
 
   const [attorney, setAttorney] = useState(undefined); // undefined = loading, null = not found
   const [avail, setAvail] = useState(null);
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [step, setStep] = useState('slot');
 
   const [form, setForm] = useState({ name: '', email: '', phone: '', situation: '', consent: true });
   const [submitting, setSubmitting] = useState(false);
@@ -67,9 +68,22 @@ export default function BookingPage() {
   }, [avail]);
 
   const formatTime = (iso) => new Intl.DateTimeFormat('en-US', { timeZone: avail?.timezone, hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+  const formatDay = (iso) => new Intl.DateTimeFormat('en-US', { timeZone: avail?.timezone, weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(iso));
 
-  const submit = async (e) => {
-    e.preventDefault();
+  const chooseSlot = (slot) => {
+    setSelected(slot);
+    setStep('situation');
+  };
+
+  const changeTime = () => {
+    setSelected(null);
+    setStep('slot');
+  };
+
+  const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const contactValid = form.name.trim().length > 0 && emailLooksValid;
+
+  const submit = async () => {
     setSubmitting(true);
     setError('');
     try {
@@ -104,7 +118,7 @@ export default function BookingPage() {
     return (
       <Shell>
         <div className="flex items-center justify-center py-32">
-          <Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" />
+          <Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" />
         </div>
       </Shell>
     );
@@ -114,32 +128,34 @@ export default function BookingPage() {
     return (
       <Shell>
         <div className="max-w-[560px] mx-auto px-6 py-24 text-center">
-          <h1 className="font-serif text-2xl text-[#111418] mb-3">This booking page isn't available.</h1>
-          <p className="text-sm text-[#8A8578] font-body">It may not be published yet, or the link may be incorrect.</p>
+          <h1 className="font-serif text-2xl text-[var(--text)] mb-3" style={{ fontFamily: 'var(--font-human)' }}>This booking page isn't available.</h1>
+          <p className="text-sm text-[var(--text-3)] ds-type-body-m">It may not be published yet, or the link may be incorrect.</p>
         </div>
       </Shell>
     );
   }
 
   if (result) {
-    const when = `${new Intl.DateTimeFormat('en-US', { timeZone: avail.timezone, weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(selected.start))} at ${formatTime(selected.start)}`;
+    const when = `${formatDay(selected.start)} at ${formatTime(selected.start)}`;
     return (
       <Shell>
         <div className="max-w-[560px] mx-auto px-6 py-20 text-center">
-          <CheckCircle2 className="w-12 h-12 text-[#0a5dc2] mx-auto mb-6" />
-          <h1 className="font-serif text-3xl text-[#111418] mb-2">You're booked.</h1>
-          <p className="text-sm text-[#8A8578] font-body mb-8">
-            {when} with {attorney.name}. A confirmation
-            {result.emailSent ? ' has been sent to ' : ' would be sent to '}
-            <span className="text-[#111418]">{form.email}</span>
-            {!result.emailSent && ' (email sending isn\'t configured on this preview yet)'}.
-          </p>
-          <div className="bg-white border border-[#E5E2DC] p-6 text-left space-y-2">
-            <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] font-body mb-3">Manage this appointment</p>
-            <a href={`/manage/${result.manage.confirm.split('/').pop()}`} className="block text-sm text-[#0a5dc2] hover:underline font-body">Confirm my appointment</a>
-            <a href={`/manage/${result.manage.reschedule.split('/').pop()}`} className="block text-sm text-[#0a5dc2] hover:underline font-body">Reschedule</a>
-            <a href={`/manage/${result.manage.cancel.split('/').pop()}`} className="block text-sm text-[#0a5dc2] hover:underline font-body">Cancel</a>
-          </div>
+          <Halftone direction="radial" className="rounded-[var(--radius-l)] px-6 py-10 mb-2">
+            <CheckCircle2 className="w-12 h-12 text-[var(--accent)] mx-auto mb-6" />
+            <h1 className="text-3xl text-[var(--text)] mb-2" style={{ fontFamily: 'var(--font-human)' }}>You're booked.</h1>
+            <p className="text-sm text-[var(--text-3)] ds-type-body-m mb-8">
+              {when} with {attorney.name}. A confirmation
+              {result.emailSent ? ' has been sent to ' : ' would be sent to '}
+              <span className="text-[var(--text)]">{form.email}</span>
+              {!result.emailSent && " (email sending isn't configured on this preview yet)"}.
+            </p>
+          </Halftone>
+          <Card tone="raised" className="text-left space-y-2">
+            <p className="ds-type-label text-[var(--text-3)] mb-3">Manage this appointment</p>
+            <a href={`/manage/${result.manage.confirm.split('/').pop()}`} className="block text-sm text-[var(--accent)] hover:underline ds-type-body-m">Confirm my appointment</a>
+            <a href={`/manage/${result.manage.reschedule.split('/').pop()}`} className="block text-sm text-[var(--accent)] hover:underline ds-type-body-m">Reschedule</a>
+            <a href={`/manage/${result.manage.cancel.split('/').pop()}`} className="block text-sm text-[var(--accent)] hover:underline ds-type-body-m">Cancel</a>
+          </Card>
         </div>
       </Shell>
     );
@@ -148,39 +164,37 @@ export default function BookingPage() {
   return (
     <Shell>
       <div className="max-w-[680px] mx-auto px-6 py-12">
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-[#E5E2DC]">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-[#F4F2EE] border border-[#E5E2DC] flex items-center justify-center shrink-0">
-            {attorney.photo ? <img src={attorney.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xl font-serif text-[#8A8578]">{attorney.name?.[0]}</span>}
+        <Halftone className="rounded-[var(--radius-l)] border border-[var(--line)] bg-[var(--surface)] px-6 py-6 mb-8 flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-[var(--surface-sunk)] border border-[var(--line)] flex items-center justify-center shrink-0">
+            {attorney.photo ? <img src={attorney.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xl text-[var(--text-3)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name?.[0]}</span>}
           </div>
           <div>
-            <h1 className="font-serif text-2xl text-[#111418]">{attorney.name}</h1>
-            <p className="text-sm text-[#8A8578] font-body">{(attorney.practice_areas?.length ? attorney.practice_areas : [attorney.practice_area]).filter(Boolean).join(' · ')}</p>
+            <h1 className="text-2xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name}</h1>
+            <p className="text-sm text-[var(--text-3)] ds-type-body-m">{(attorney.practice_areas?.length ? attorney.practice_areas : [attorney.practice_area]).filter(Boolean).join(' · ')}</p>
           </div>
-        </div>
+        </Halftone>
 
-        {!selected ? (
+        <StepIndicator step={step} />
+
+        {step === 'slot' && (
           <div>
-            <h2 className="font-serif text-lg text-[#111418] mb-4 flex items-center gap-2"><CalendarIcon className="w-4 h-4" /> Pick a time</h2>
+            <h2 className="text-lg text-[var(--text)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-human)' }}><CalendarIcon className="w-4 h-4" /> Pick a time</h2>
             {loadingSlots ? (
-              <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 text-[#0a5dc2] animate-spin" /></div>
+              <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 text-[var(--accent)] animate-spin" /></div>
             ) : days.length === 0 ? (
-              <div className="bg-white border border-[#E5E2DC] p-8 text-center">
-                <p className="text-sm text-[#8A8578] font-body">No open times right now. Check back soon.</p>
-              </div>
+              <Card tone="recessed" className="text-center">
+                <p className="text-sm text-[var(--text-3)] ds-type-body-m">No open times right now. Check back soon.</p>
+              </Card>
             ) : (
               <div className="space-y-5">
                 {days.map((day) => (
                   <div key={day.key}>
-                    <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-2">{day.label}</p>
+                    <p className="ds-type-label text-[var(--text-3)] mb-2">{day.label}</p>
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {day.slots.map((s) => (
-                        <button
-                          key={s.start}
-                          onClick={() => setSelected(s)}
-                          className="border border-[#E5E2DC] py-2.5 text-sm font-body text-[#111418] hover:border-[#0a5dc2] hover:text-[#0a5dc2] transition-colors"
-                        >
+                        <TimeSlot key={s.start} selected={selected?.start === s.start} onClick={() => chooseSlot(s)}>
                           {formatTime(s.start)}
-                        </button>
+                        </TimeSlot>
                       ))}
                     </div>
                   </div>
@@ -188,72 +202,124 @@ export default function BookingPage() {
               </div>
             )}
           </div>
-        ) : (
-          <form onSubmit={submit}>
-            <button type="button" onClick={() => setSelected(null)} className="text-xs text-[#0a5dc2] font-body hover:underline mb-4">
-              ← Choose a different time
-            </button>
-            <div className="bg-[#EAF2FB] border-l-2 border-[#0a5dc2] px-4 py-3 mb-6">
-              <p className="text-sm text-[#111418] font-body">
-                {new Intl.DateTimeFormat('en-US', { timeZone: avail.timezone, weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(selected.start))} at {formatTime(selected.start)}
-              </p>
-            </div>
+        )}
 
-            <div className="space-y-4 mb-6">
-              <Field label="Your name">
-                <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="w-full border border-[#E5E2DC] px-3 py-2.5 text-sm font-body outline-none focus:border-[#111418]" />
-              </Field>
-              <Field label="Email">
-                <input type="email" required value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="w-full border border-[#E5E2DC] px-3 py-2.5 text-sm font-body outline-none focus:border-[#111418]" />
-              </Field>
-              <Field label="Phone (optional)">
-                <input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="w-full border border-[#E5E2DC] px-3 py-2.5 text-sm font-body outline-none focus:border-[#111418]" />
-              </Field>
-            </div>
+        {step === 'situation' && selected && (
+          <div>
+            <SelectedSlotBanner label={`${formatDay(selected.start)} at ${formatTime(selected.start)}`} onChangeTime={changeTime} />
 
-            <p className="text-xs text-[#8A8578] font-body mb-2 leading-relaxed">
-              Sharing details below does not create an attorney-client relationship. Brief is not a law firm, and submitting this form is not legal advice.
-            </p>
-            <Field label="What's going on? (optional)">
-              <Textarea value={form.situation} onChange={(e) => setForm((f) => ({ ...f, situation: e.target.value }))} rows={4} placeholder="Tell us what's going on, in your own words." />
-            </Field>
-            <label className="flex items-start gap-2 mt-3 mb-6 text-xs text-[#8A8578] font-body">
+            <Field
+              label="What's going on? (optional)"
+              type="textarea"
+              rows={4}
+              value={form.situation}
+              onChange={(e) => setForm((f) => ({ ...f, situation: e.target.value }))}
+              placeholder="Tell us what's going on, in your own words."
+            />
+            <label className="flex items-start gap-2 mt-3 text-xs text-[var(--text-3)] ds-type-body-m">
               <Checkbox checked={form.consent} onCheckedChange={(v) => setForm((f) => ({ ...f, consent: !!v }))} className="mt-0.5" />
               Share what I wrote above with {attorney.name}. (Unchecked, only my contact info is sent.)
             </label>
 
-            {error && <p className="text-sm text-red-600 font-body mb-4">{error}</p>}
+            {/* Draft copy — pending legal review (Rule 1.18, prospective-client
+                confidentiality). Covers both "no attorney-client relationship
+                yet" and "this may not be privileged" so a client doesn't
+                over-share before engagement. */}
+            <p className="text-xs text-[var(--text-3)] ds-type-body-m mt-4 leading-relaxed">
+              Submitting this form does not create an attorney-client relationship, and nothing
+              here is legal advice. Because that relationship doesn't exist yet, information you
+              share here may not be protected by attorney-client privilege or confidentiality —
+              please avoid including highly sensitive details until an attorney has agreed to
+              represent you.
+            </p>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-3.5 bg-[#111418] text-white text-sm font-body hover:bg-[#0a5dc2] transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
-            >
-              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Confirm booking
-            </button>
-          </form>
+            <div className="flex justify-end mt-6">
+              <Button variant="primary" onClick={() => setStep('contact')}>Continue</Button>
+            </div>
+          </div>
+        )}
+
+        {step === 'contact' && selected && (
+          <div>
+            <SelectedSlotBanner label={`${formatDay(selected.start)} at ${formatTime(selected.start)}`} onChangeTime={changeTime} />
+
+            <div className="space-y-4">
+              <Field label="Your name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+              <Field label="Email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+              <Field label="Phone (optional)" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+            </div>
+
+            <div className="flex justify-between mt-6">
+              <Button variant="ghost" onClick={() => setStep('situation')}>Back</Button>
+              <Button variant="primary" disabled={!contactValid} onClick={() => setStep('confirm')}>Continue</Button>
+            </div>
+          </div>
+        )}
+
+        {step === 'confirm' && selected && (
+          <div>
+            <SelectedSlotBanner label={`${formatDay(selected.start)} at ${formatTime(selected.start)}`} onChangeTime={changeTime} />
+
+            <Card tone="recessed" className="space-y-3 mb-6">
+              <div>
+                <p className="ds-type-label text-[var(--text-3)]">Contact</p>
+                <p className="text-sm text-[var(--text)] ds-type-body-m">{form.name} · {form.email}{form.phone ? ` · ${form.phone}` : ''}</p>
+              </div>
+              <div>
+                <p className="ds-type-label text-[var(--text-3)]">What you shared</p>
+                <p className="text-sm text-[var(--text-2)] ds-type-body-m">
+                  {form.consent && form.situation.trim() ? form.situation : 'Only your contact info will be shared.'}
+                </p>
+              </div>
+            </Card>
+
+            {error && <p className="text-sm text-[var(--noshow)] ds-type-body-m mb-4">{error}</p>}
+
+            <div className="flex justify-between">
+              <Button variant="ghost" onClick={() => setStep('contact')} disabled={submitting}>Back</Button>
+              <Button variant="primary" disabled={submitting} onClick={submit}>
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirm booking
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </Shell>
   );
 }
 
-function Field({ label, children }) {
+function SelectedSlotBanner({ label, onChangeTime }) {
   return (
-    <div>
-      <label className="block text-xs uppercase tracking-[0.08em] text-[#8A8578] font-body mb-1.5">{label}</label>
-      {children}
+    <div className="flex items-center justify-between gap-4 bg-[var(--surface-sunk)] border-l-2 border-[var(--accent)] rounded-[var(--radius-s)] px-4 py-3 mb-6">
+      <p className="text-sm text-[var(--text)] ds-type-body-m">{label}</p>
+      <button type="button" onClick={onChangeTime} className="text-xs text-[var(--accent)] ds-type-body-m hover:underline shrink-0">
+        Change time
+      </button>
+    </div>
+  );
+}
+
+function StepIndicator({ step }) {
+  const idx = STEPS.indexOf(step);
+  return (
+    <div className="flex items-center gap-2 mb-8" aria-hidden="true">
+      {STEPS.map((s, i) => (
+        <span
+          key={s}
+          className="h-1 flex-1 rounded-[var(--radius-full)]"
+          style={{ backgroundColor: i <= idx ? 'var(--accent)' : 'var(--line-2)' }}
+        />
+      ))}
     </div>
   );
 }
 
 function Shell({ children }) {
   return (
-    <div className="min-h-screen bg-[#FAF9F7] flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-[var(--ground)] flex flex-col">
       <div className="flex-1">{children}</div>
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 }

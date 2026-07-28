@@ -7,6 +7,8 @@ const STATUS_TOKEN = {
   confirmed: "var(--confirmed)",
   completed: "var(--completed)",
   no_show: "var(--noshow)",
+  // See Tab.jsx -- reuses --oxblood, no dedicated token for this status.
+  disputed: "var(--oxblood)",
 }
 
 /**

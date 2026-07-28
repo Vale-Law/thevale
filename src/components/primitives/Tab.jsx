@@ -8,6 +8,10 @@ const STATUS_TOKEN = {
   confirmed: "var(--confirmed)",
   completed: "var(--completed)",
   no_show: "var(--noshow)",
+  // No dedicated "disputed" token in DS v2 §2.3/§17 -- reuses --oxblood,
+  // the DS's existing "rare emphasis" color, rather than inventing one
+  // (DS §2.5: never introduce a color outside the tokens document).
+  disputed: "var(--oxblood)",
 }
 
 /**

@@ -204,7 +204,7 @@ export type Database = {
           office_location: string | null
           phone_number: string | null
           photo: string | null
-          practice_area: string
+          practice_area: string | null
           practice_areas: string[] | null
           profile_attestation: boolean | null
           profile_attestation_date: string | null
@@ -254,7 +254,7 @@ export type Database = {
           office_location?: string | null
           phone_number?: string | null
           photo?: string | null
-          practice_area: string
+          practice_area?: string | null
           practice_areas?: string[] | null
           profile_attestation?: boolean | null
           profile_attestation_date?: string | null
@@ -304,7 +304,7 @@ export type Database = {
           office_location?: string | null
           phone_number?: string | null
           photo?: string | null
-          practice_area?: string
+          practice_area?: string | null
           practice_areas?: string[] | null
           profile_attestation?: boolean | null
           profile_attestation_date?: string | null

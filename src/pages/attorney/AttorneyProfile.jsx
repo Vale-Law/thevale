@@ -6,8 +6,11 @@ import { Loader2, Upload, Check } from 'lucide-react';
 
 const ALL_LANGUAGES = ['English', 'Spanish', 'Portuguese', 'French', 'Mandarin', 'Arabic', 'Other'];
 const LANG_LABEL = { English: 'English', Spanish: 'Spanish', Portuguese: 'Portuguese', French: 'French', Mandarin: 'Mandarin', Arabic: 'Arabic', Other: 'Other' };
-const PRACTICE_AREAS = ['Family Law', 'Immigration', 'Business Formation', 'Personal Injury'];
-const AREAS = { 'Family Law': 'area.familyLaw', Immigration: 'area.immigration', 'Business Formation': 'area.businessFormation', 'Personal Injury': 'area.personalInjury' };
+// Canonical launch scope is Family Law, Immigration, and Business Formation
+// (Personal Injury is not part of the launch scope -- Brief Aspirational
+// Feature Blueprint, "Current structural gaps").
+const PRACTICE_AREAS = ['Family Law', 'Immigration', 'Business Formation'];
+const AREAS = { 'Family Law': 'area.familyLaw', Immigration: 'area.immigration', 'Business Formation': 'area.businessFormation' };
 
 const ADD_STAFF_MESSAGES = {
   added: { text: 'Added to your team.', ok: true },
@@ -36,11 +39,22 @@ export default function AttorneyProfilePage() {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
+  const toggleArea = (area) => {
+    const areas = form.practice_areas || [];
+    set('practice_areas', areas.includes(area) ? areas.filter(a => a !== area) : [...areas, area]);
+  };
+
   const save = async () => {
     setSaving(true);
     setSaved(false);
     try {
-      await base44.entities.Attorney.update(attorney.id, form);
+      // practice_areas (array) is canonical; practice_area (singular) is no
+      // longer written from this attorney-facing surface. The column is
+      // still nullable-but-present (its drop is deferred to Track B
+      // confirming B1's admin display is off it -- Shared Contract 2.2), so
+      // omitting it here is safe.
+      const { practice_area: _unused, ...rest } = form;
+      await base44.entities.Attorney.update(attorney.id, rest);
       await reloadAttorney();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -146,15 +160,16 @@ export default function AttorneyProfilePage() {
               />
             </div>
           ))}
-          <div>
-            <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">Primary practice area</label>
-            <select
-              value={form.practice_area || ''}
-              onChange={e => set('practice_area', e.target.value)}
-              className="w-full border border-[#E5E2DC] px-4 py-2.5 text-sm text-[#111418] outline-none focus:border-[#111418] font-body appearance-none bg-white"
-            >
-              {PRACTICE_AREAS.map(a => <option key={a} value={a}>{AREAS[a]}</option>)}
-            </select>
+          <div className="sm:col-span-2">
+            <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">Practice areas</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {PRACTICE_AREAS.map(a => (
+                <label key={a} className="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" checked={(form.practice_areas || []).includes(a)} onChange={() => toggleArea(a)} className="accent-[#0a5dc2] w-4 h-4" />
+                  <span className="text-sm font-body text-[#111418]">{AREAS[a]}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 

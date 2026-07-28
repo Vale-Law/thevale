@@ -1,0 +1,12 @@
+-- Track A / Sprint v1.2 W3: practice-area consolidation, schema half.
+--
+-- Attorney-facing surfaces are moving to practice_areas (array) as
+-- canonical this sprint and no longer write the legacy singular
+-- practice_area column (see AttorneyApplication.jsx, AttorneyProfile.jsx).
+-- The column itself is NOT dropped -- that stays deferred until Track B
+-- confirms B1's admin display no longer reads it (Shared Contract 2.2) --
+-- but its NOT NULL constraint has to go now, or the one remaining insert
+-- path (AttorneyApplication.jsx) would fail the moment it stops supplying
+-- a value. This is a pure loosening: every existing row keeps its current
+-- value, every existing reader keeps working, only new rows may omit it.
+alter table public.attorneys alter column practice_area drop not null;

@@ -55,31 +55,116 @@ export type Database = {
           calendar_id: string | null
           connected_at: string
           id: string
+          last_error: string | null
           last_synced_at: string | null
           provider: string
           refresh_token_encrypted: string
+          status: string
         }
         Insert: {
           attorney_id: string
           calendar_id?: string | null
           connected_at?: string
           id?: string
+          last_error?: string | null
           last_synced_at?: string | null
           provider: string
           refresh_token_encrypted: string
+          status?: string
         }
         Update: {
           attorney_id?: string
           calendar_id?: string | null
           connected_at?: string
           id?: string
+          last_error?: string | null
           last_synced_at?: string | null
           provider?: string
           refresh_token_encrypted?: string
+          status?: string
         }
         Relationships: [
           {
             foreignKeyName: "attorney_calendar_connections_attorney_id_fkey"
+            columns: ["attorney_id"]
+            isOneToOne: false
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attorney_verification_evidence: {
+        Row: {
+          evidence_type: string
+          evidence_uri: string
+          id: string
+          uploaded_at: string
+          verification_record_id: string
+        }
+        Insert: {
+          evidence_type: string
+          evidence_uri: string
+          id?: string
+          uploaded_at?: string
+          verification_record_id: string
+        }
+        Update: {
+          evidence_type?: string
+          evidence_uri?: string
+          id?: string
+          uploaded_at?: string
+          verification_record_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attorney_verification_evidence_verification_record_id_fkey"
+            columns: ["verification_record_id"]
+            isOneToOne: false
+            referencedRelation: "attorney_verification_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attorney_verification_records: {
+        Row: {
+          attorney_id: string
+          bar_status_verified_at: string | null
+          created_at: string
+          id: string
+          identity_verified_at: string | null
+          profile_attested_at: string | null
+          renewal_date: string | null
+          reviewer_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attorney_id: string
+          bar_status_verified_at?: string | null
+          created_at?: string
+          id?: string
+          identity_verified_at?: string | null
+          profile_attested_at?: string | null
+          renewal_date?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attorney_id?: string
+          bar_status_verified_at?: string | null
+          created_at?: string
+          id?: string
+          identity_verified_at?: string | null
+          profile_attested_at?: string | null
+          renewal_date?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attorney_verification_records_attorney_id_fkey"
             columns: ["attorney_id"]
             isOneToOne: false
             referencedRelation: "attorneys"
@@ -357,6 +442,7 @@ export type Database = {
         Row: {
           attorney_id: string
           attorney_name: string | null
+          cancelled_by: string | null
           case_summary: string | null
           client_email: string
           client_id: string | null
@@ -386,6 +472,7 @@ export type Database = {
         Insert: {
           attorney_id: string
           attorney_name?: string | null
+          cancelled_by?: string | null
           case_summary?: string | null
           client_email: string
           client_id?: string | null
@@ -415,6 +502,7 @@ export type Database = {
         Update: {
           attorney_id?: string
           attorney_name?: string | null
+          cancelled_by?: string | null
           case_summary?: string | null
           client_email?: string
           client_id?: string | null
@@ -501,6 +589,60 @@ export type Database = {
           urgency?: string | null
         }
         Relationships: []
+      }
+      consultation_charges: {
+        Row: {
+          amount_cents: number
+          attorney_id: string
+          booking_id: string
+          charged_at: string | null
+          created_at: string
+          dispute_reason: string | null
+          id: string
+          status: string
+          updated_at: string
+          waived_reason: string | null
+        }
+        Insert: {
+          amount_cents?: number
+          attorney_id: string
+          booking_id: string
+          charged_at?: string | null
+          created_at?: string
+          dispute_reason?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          waived_reason?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          attorney_id?: string
+          booking_id?: string
+          charged_at?: string | null
+          created_at?: string
+          dispute_reason?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          waived_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_charges_attorney_id_fkey"
+            columns: ["attorney_id"]
+            isOneToOne: false
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_charges_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_schedule: {
         Row: {

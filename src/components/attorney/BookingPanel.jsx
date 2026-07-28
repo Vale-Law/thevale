@@ -17,7 +17,16 @@ export default function BookingPanel({ attorney }) {
   const [consultType, setConsultType] = useState('in-person');
   const [clientType, setClientType] = useState('new');
   const [windowStart, setWindowStart] = useState(() => startOfDay(new Date()));
-  const [selectedDay, setSelectedDay] = useState(() => startOfDay(new Date()));
+  // Default to the first day that actually has a bookable slot -- slots
+  // rarely start today (24h min-notice), so defaulting to today greeted
+  // every visitor with "No slots available" until they clicked around.
+  const [selectedDay, setSelectedDay] = useState(() => {
+    const future = (attorney.available_slots || [])
+      .map((s) => new Date(s))
+      .filter((d) => !isNaN(d) && d > new Date());
+    if (!future.length) return startOfDay(new Date());
+    return startOfDay(new Date(Math.min(...future.map((d) => d.getTime()))));
+  });
 
   const monthlyAffirm = attorney.typical_retainer ? Math.round(attorney.typical_retainer / 12) : null;
 

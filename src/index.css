@@ -32,6 +32,12 @@
     --chart-5: 27 87% 67%;
     --radius: 0.25rem;
     --mobile-header-h: 80px;
+    /* Desktop sticky stack: AnnouncementBar (~34px) + header (h-28, 112px).
+       ProfileTabs and MiniHeader pin against this via
+       lg:top-[var(--header-height)] -- it was previously only set inline on
+       the Home page, so on every other page those elements computed
+       top:auto and sticky positioning silently never engaged. */
+    --header-height: 146px;
     --font-heading: 'Poppins', ui-sans-serif, system-ui, sans-serif;
     --font-body: 'Poppins', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Poppins', ui-sans-serif, system-ui, sans-serif;

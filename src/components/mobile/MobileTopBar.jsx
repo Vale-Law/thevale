@@ -26,7 +26,6 @@ export default function MobileTopBar() {
             src={LOGO}
             alt="Brief"
             className="h-16 w-auto max-w-[60vw] object-contain"
-            style={{ animation: 'float 3.5s ease-in-out infinite' }}
           />
         </Link>
         <div className="flex-1" />

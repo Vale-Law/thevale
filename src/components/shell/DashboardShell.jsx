@@ -44,7 +44,7 @@ const THEME = {
 // attorney route tree. The app has no manual light/dark toggle anywhere
 // (grepped for `data-theme` writes -- none), so prefers-color-scheme is
 // the only signal that ever applies.
-const ACCENT_HEX = { light: '#1D4634', dark: '#54A57A' };
+const ACCENT_HEX = { light: '#6B8A5E', dark: '#8FAF80' };
 
 function usePrefersDark() {
   const [prefersDark, setPrefersDark] = useState(

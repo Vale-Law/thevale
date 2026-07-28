@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import MobileMenu from './MobileMenu';
 
-const LOGO = 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG';
+const LOGO = '/brand/logo-light.png';
 
 export default function MobileTopBar() {
   const navigate = useNavigate();
@@ -26,7 +26,6 @@ export default function MobileTopBar() {
             src={LOGO}
             alt="Brief"
             className="h-16 w-auto max-w-[60vw] object-contain"
-            style={{ animation: 'float 3.5s ease-in-out infinite' }}
           />
         </Link>
         <div className="flex-1" />

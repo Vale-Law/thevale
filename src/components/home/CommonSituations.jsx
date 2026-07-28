@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/i18n';
 
 const SITUATIONS = [
-  { key: 'divorce', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/9790bf345_image.png', area: 'Family Law' },
-  { key: 'childCustody', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/51806928b_image.png', area: 'Family Law' },
-  { key: 'greenCard', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/676cf5b67_image.png', area: 'Immigration' },
-  { key: 'asylum', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/bc3d90fab_image.png', area: 'Immigration' },
-  { key: 'carAccident', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/b7f8a3a70_image.png', area: 'Personal Injury' },
-  { key: 'slipFall', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/fff2611a8_image.png', area: 'Personal Injury' },
-  { key: 'dui', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/3fa4ceb1c_image.png', area: 'Personal Injury' },
-  { key: 'expungement', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/c0f44d99a_image.png', area: 'Personal Injury' },
-  { key: 'llcFormation', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/daf0ecc0c_image.png', area: 'Business Formation' },
+  { key: 'divorce', image: '/images/situations/divorce.png', area: 'Family Law' },
+  { key: 'childCustody', image: '/images/situations/child-custody.png', area: 'Family Law' },
+  { key: 'greenCard', image: '/images/situations/green-card.png', area: 'Immigration' },
+  { key: 'asylum', image: '/images/situations/asylum.png', area: 'Immigration' },
+  { key: 'carAccident', image: '/images/situations/car-accident.png', area: 'Personal Injury' },
+  { key: 'slipFall', image: '/images/situations/slip-fall.png', area: 'Personal Injury' },
+  { key: 'dui', image: '/images/situations/dui.png', area: 'Personal Injury' },
+  { key: 'expungement', image: '/images/situations/expungement.png', area: 'Personal Injury' },
+  { key: 'llcFormation', image: '/images/situations/llc-formation.png', area: 'Business Formation' },
 ];
 
 export default function CommonSituations({ onSelect }) {

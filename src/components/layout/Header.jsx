@@ -13,12 +13,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileLearnOpen, setMobileLearnOpen] = useState(false);
   const [browseOpen, setBrowseOpen] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -57,12 +52,9 @@ export default function Header() {
           <div className="max-w-[1200px] mx-auto px-6 lg:px-8 h-28 flex items-center justify-between">
             <Link to="/" onClick={closeMenu} className="flex items-center relative z-[1200]">
               <img
-                src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG"
+                src="/brand/logo-light.png"
                 alt="Brief"
                 className="h-20 w-auto object-contain"
-                style={{
-                  animation: prefersReducedMotion ? 'none' : 'float 3.5s ease-in-out infinite',
-                }}
               />
             </Link>
 

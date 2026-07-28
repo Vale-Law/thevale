@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
-const BRIEF_LOGO = "https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG";
+const BRIEF_LOGO = "/brand/logo-light.png";
 
 export default function AuthLayout({ title, subtitle, footer, children, maxWidth = "max-w-md", logoPosition = "center" }) {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  }, []);
-
   const isLeft = logoPosition === "left";
 
   return (
@@ -20,7 +15,6 @@ export default function AuthLayout({ title, subtitle, footer, children, maxWidth
               src={BRIEF_LOGO}
               alt="Brief"
               className="h-24 w-auto object-contain"
-              style={{ animation: reduced ? 'none' : 'float 3.5s ease-in-out infinite' }}
             />
           </Link>
         </div>

@@ -32,3 +32,7 @@ Thumbs.db
 
 .env
 .vite
+
+# Scratch: unzipped Base44 export under investigation, not part of the app
+/base44-export/
+base44-export.zip

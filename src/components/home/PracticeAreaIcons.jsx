@@ -4,12 +4,12 @@ import { Heart, Scale, Plane, Shield, Building, FileText } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
 const cards = [
-{ key: 'familyLaw', query: 'Family Law', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/978433de0_image.png', icon: Heart },
-{ key: 'personalInjury', query: 'Personal Injury', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/fb1ab0966_image.png', icon: Scale },
-{ key: 'immigration', query: 'Immigration', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/3cf9e299a_image.png', icon: Plane },
-{ key: 'criminalDefense', query: 'Criminal Defense', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/0a4fd0c5f_image.png', icon: Shield },
-{ key: 'businessTax', query: 'Business & Tax', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/a3657b6ba_image.png', icon: Building },
-{ key: 'estateWills', query: 'Estate & Wills', image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/e5bf3e70f_image.png', icon: FileText }];
+{ key: 'familyLaw', query: 'Family Law', image: '/images/practice-icons/family-law.png', icon: Heart },
+{ key: 'personalInjury', query: 'Personal Injury', image: '/images/practice-icons/personal-injury.png', icon: Scale },
+{ key: 'immigration', query: 'Immigration', image: '/images/practice-icons/immigration.png', icon: Plane },
+{ key: 'criminalDefense', query: 'Criminal Defense', image: '/images/practice-icons/criminal-defense.png', icon: Shield },
+{ key: 'businessTax', query: 'Business & Tax', image: '/images/practice-icons/business-tax.png', icon: Building },
+{ key: 'estateWills', query: 'Estate & Wills', image: '/images/practice-icons/estate-wills.png', icon: FileText }];
 
 
 export default function PracticeAreaIcons({ onSelect }) {

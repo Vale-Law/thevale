@@ -24,7 +24,7 @@ export default function FounderVision() {
                 }}
               >
                 <img
-                  src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/1de2ebd74_41332B7C-06D0-403E-9152-5D77CA2FB580.jpeg"
+                  src="/images/founders/ola-kuforiji.jpeg"
                   alt="Ola Kuforiji"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
                 />
@@ -45,7 +45,7 @@ export default function FounderVision() {
                 }}
               >
                 <img
-                  src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/b93616956_IMG_0310.PNG"
+                  src="/images/founders/timothy-ogunlowo.png"
                   alt="Timothy Ogunlowo"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
                 />

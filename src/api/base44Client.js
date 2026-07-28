@@ -246,4 +246,17 @@ const integrations = {
   },
 };
 
-export const base44 = { auth, entities, integrations };
+// Base44's hosted SDK shipped a client-side analytics tracker, and 13 call
+// sites still invoke it fire-and-forget -- several as the FIRST line of a
+// click handler (AttorneyCard's "Book online", BookingPanel's slot buttons,
+// the onboarding steps). This key was dropped in the Supabase port, so every
+// one of those handlers threw TypeError before reaching its navigate()/
+// submit logic: clicks silently did nothing. No analytics sink exists in
+// this stack yet, so track() is a deliberate no-op -- it exists so the
+// booking funnel works, not to collect anything. Wire it to a real provider
+// here (one place) if/when analytics lands.
+const analytics = {
+  track() {},
+};
+
+export const base44 = { auth, entities, integrations, analytics };

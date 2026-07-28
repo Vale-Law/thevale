@@ -47,6 +47,14 @@ export default function AttorneyProfile() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Lock the page behind the mobile booking sheet, same as Header does for
+  // its mobile menu — otherwise wheel/touch scrolling chains through the
+  // sheet to the page underneath.
+  useEffect(() => {
+    document.body.style.overflow = mobileSheet ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileSheet]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -63,10 +71,14 @@ export default function AttorneyProfile() {
     return () => observer.disconnect();
   }, [attorney]);
 
+  // Scroll clearance: the desktop sticky stack is the announcement bar +
+  // header (--header-height, 146px) plus the pinned section tabs (~48px).
+  // The old -120 offset was smaller than the header alone, so scroll
+  // targets tucked underneath it.
   const scrollTo = useCallback((sid) => {
     const el = document.getElementById(sid);
     if (el) {
-      const y = el.getBoundingClientRect().top + window.scrollY - 120;
+      const y = el.getBoundingClientRect().top + window.scrollY - 200;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
     setActive(sid);
@@ -76,7 +88,7 @@ export default function AttorneyProfile() {
     if (window.matchMedia('(min-width: 1024px)').matches) {
       const el = document.getElementById('booking');
       if (el) {
-        const y = el.getBoundingClientRect().top + window.scrollY - 120;
+        const y = el.getBoundingClientRect().top + window.scrollY - 170;
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
     } else {
@@ -113,7 +125,7 @@ export default function AttorneyProfile() {
       <Header />
       <MiniHeader attorney={attorney} visible={miniVisible} onBook={handleBook} />
 
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8 lg:py-10 pb-28 lg:pb-10">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8 lg:py-10 pb-40 lg:pb-10">
         <Link to="/?browse=1" className="inline-flex items-center gap-1.5 text-sm text-[#8A8578] hover:text-[#0a5dc2] mb-8 transition-colors font-body">
           <ArrowLeft className="w-4 h-4" />
           {t('profile.backToResults')}
@@ -125,9 +137,12 @@ export default function AttorneyProfile() {
             <ProfileHeader attorney={attorney} />
             <RatingCard attorney={attorney} reviews={reviews} onSeeAll={() => scrollTo('reviews')} />
 
-            <div className="mt-6">
-              <ProfileTabs active={active} onSelect={scrollTo} />
-            </div>
+            {/* No wrapper div: ProfileTabs is position:sticky, and a sticky
+                element can only travel within its parent. A wrapper exactly
+                as tall as the tabs pinned them to a 48px corridor -- i.e.
+                never. Direct child of the tall article column, they pin for
+                its whole height. */}
+            <ProfileTabs active={active} onSelect={scrollTo} />
 
             <div className="space-y-10 mt-8">
               <section id="highlights" className="scroll-mt-40">
@@ -161,17 +176,23 @@ export default function AttorneyProfile() {
             </p>
           </div>
 
-          {/* Right column — sticky booking panel (desktop) */}
+          {/* Right column — sticky booking panel (desktop). top must clear the
+              146px sticky header stack (--header-height) or the panel tucks
+              underneath it while pinned. */}
           <div id="booking" className="hidden lg:block lg:w-[380px] shrink-0">
-            <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto no-scrollbar">
+            <div className="sticky top-[168px] max-h-[calc(100vh-12rem)] overflow-y-auto no-scrollbar">
               <BookingPanel attorney={attorney} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile fixed bottom bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-[#E5E2DC] safe-pb">
+      {/* Mobile fixed bottom bar. Sits ABOVE the app-wide MobileTabBar
+          (fixed bottom-0, z-[1100], ~64px tall) — at bottom-0 this bar was
+          almost entirely buried underneath it and the Book online button
+          could not be tapped at all. 64px matches .mobile-shell-pad's
+          clearance for the same tab bar. */}
+      <div className="lg:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom))] inset-x-0 z-40 bg-white border-t border-[#E5E2DC]">
         <div className="px-5 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs text-[#8A8578] font-body">Consultation</p>
@@ -183,16 +204,19 @@ export default function AttorneyProfile() {
         </div>
       </div>
 
-      {/* Mobile booking sheet */}
+      {/* Mobile booking sheet. z must beat the MobileTabBar's z-[1100] or
+          the tab bar floats over the bottom of the open sheet and steals
+          its taps; overscroll-contain stops sheet scrolling from chaining
+          to the page. */}
       {mobileSheet && (
-        <div className="lg:hidden fixed inset-0 z-50 flex items-end">
+        <div className="lg:hidden fixed inset-0 z-[1200] flex items-end">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSheet(false)} />
           <div className="relative w-full max-h-[92vh] bg-[#FAF9F7] rounded-t-2xl flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E2DC]">
               <p className="font-serif text-lg text-[#111418]">Book a consultation</p>
-              <button onClick={() => setMobileSheet(false)} className="w-9 h-9 flex items-center justify-center text-[#111418]"><X className="w-5 h-5" /></button>
+              <button onClick={() => setMobileSheet(false)} aria-label="Close booking sheet" className="w-9 h-9 flex items-center justify-center text-[#111418]"><X className="w-5 h-5" /></button>
             </div>
-            <div className="overflow-y-auto p-5">
+            <div className="overflow-y-auto overscroll-contain p-5 safe-pb">
               <BookingPanel attorney={attorney} />
             </div>
           </div>

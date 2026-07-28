@@ -9,7 +9,7 @@ const TABS = [
 
 export default function ProfileTabs({ active, onSelect }) {
   return (
-    <div className="sticky top-[calc(env(safe-area-inset-top)+var(--mobile-header-h))] lg:top-[var(--header-height)] z-30 -mx-6 lg:mx-0 px-6 lg:px-0 bg-[#FAF9F7]/95 backdrop-blur-sm border-b border-[#E5E2DC]">
+    <div className="sticky mt-6 top-[calc(env(safe-area-inset-top)+var(--mobile-header-h))] lg:top-[var(--header-height)] z-30 -mx-6 lg:mx-0 px-6 lg:px-0 bg-[#FAF9F7]/95 backdrop-blur-sm border-b border-[#E5E2DC]">
       <div className="flex gap-6 overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
           <button

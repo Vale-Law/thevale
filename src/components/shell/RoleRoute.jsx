@@ -17,7 +17,7 @@ export default function RoleRoute({ allow, requireVerified, requirePending, chil
   if (isLoadingAuth && !user) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" />
+        <Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" />
       </div>
     );
   }

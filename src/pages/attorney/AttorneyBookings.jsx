@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -18,19 +19,26 @@ function bookingSlot(b) {
 }
 
 export default function AttorneyBookingsPage() {
-  const { attorney, user } = useAuth();
+  const { user, firmAttorneyIds } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('pending');
   const [active, setActive] = useState(null);
   const cardRefs = useRef([]);
 
-  const load = useCallback(() => {
-    if (!attorney?.id) return;
-    base44.entities.Booking.filter({ attorney_id: attorney.id })
-      .then((list) => setBookings(list.sort((a, b) => new Date(bookingSlot(b)) - new Date(bookingSlot(a)))))
-      .finally(() => setLoading(false));
-  }, [attorney?.id]);
+  // Firm-wide, not just this login's own attorney row -- an office manager
+  // or a firm's second attorney both need to see every booking the firm
+  // takes, matching the firm_members-scoped RLS already on `bookings`.
+  const load = useCallback(async () => {
+    if (!firmAttorneyIds?.length) { setLoading(false); return; }
+    try {
+      const { data, error } = await supabase.from('bookings').select('*').in('attorney_id', firmAttorneyIds);
+      if (error) throw error;
+      setBookings((data || []).sort((a, b) => new Date(bookingSlot(b)) - new Date(bookingSlot(a))));
+    } finally {
+      setLoading(false);
+    }
+  }, [firmAttorneyIds]);
 
   useEffect(() => { load(); }, [load]);
 

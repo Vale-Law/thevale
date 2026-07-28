@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { Loader2, Upload, Check } from 'lucide-react';
 
@@ -8,11 +9,22 @@ const LANG_LABEL = { English: 'English', Spanish: 'Spanish', Portuguese: 'Portug
 const PRACTICE_AREAS = ['Family Law', 'Immigration', 'Business Formation', 'Personal Injury'];
 const AREAS = { 'Family Law': 'area.familyLaw', Immigration: 'area.immigration', 'Business Formation': 'area.businessFormation', 'Personal Injury': 'area.personalInjury' };
 
+const ADD_STAFF_MESSAGES = {
+  added: { text: 'Added to your team.', ok: true },
+  no_account_found: { text: 'No Brief account found for that email. They need to sign up first.', ok: false },
+  already_member: { text: 'Already on your team.', ok: false },
+  ineligible_role: { text: "That email belongs to an attorney or admin account and can't be added as staff.", ok: false },
+  not_firm_owner: { text: "Only the firm's owner can add staff.", ok: false },
+};
+
 export default function AttorneyProfilePage() {
   const { attorney, reloadAttorney } = useAuth();
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [staffEmail, setStaffEmail] = useState('');
+  const [addingStaff, setAddingStaff] = useState(false);
+  const [addStaffResult, setAddStaffResult] = useState(null);
 
   useEffect(() => {
     if (attorney) setForm({ ...attorney });
@@ -45,6 +57,28 @@ export default function AttorneyProfilePage() {
   };
 
   const toggleComm = (field) => set(field, !form[field]);
+
+  // Minimal admin-side "add to firm" action (Sprint v1.2 D4): the firm
+  // owner adds an already-registered user by email -- no self-service
+  // invite/token flow this sprint. See add_firm_staff_by_email() in
+  // supabase/migrations/20260728070000_track_a_w0b_add_firm_staff.sql.
+  const addStaff = async (e) => {
+    e.preventDefault();
+    if (!staffEmail.trim()) return;
+    setAddingStaff(true);
+    setAddStaffResult(null);
+    try {
+      const { data, error } = await supabase.rpc('add_firm_staff_by_email', { p_email: staffEmail.trim() });
+      if (error) throw error;
+      const { ok, reason } = data?.[0] || {};
+      setAddStaffResult(ADD_STAFF_MESSAGES[reason] || { text: 'Something went wrong.', ok: false });
+      if (ok) setStaffEmail('');
+    } catch (err) {
+      setAddStaffResult({ text: err.message || 'Something went wrong.', ok: false });
+    } finally {
+      setAddingStaff(false);
+    }
+  };
 
   const uploadPhoto = async (e) => {
     const file = e.target.files?.[0];
@@ -158,6 +192,31 @@ export default function AttorneyProfilePage() {
             </label>
           ))}
         </div>
+      </div>
+
+      {/* Team */}
+      <div className="bg-white border border-[#E5E2DC] p-6 mb-6">
+        <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-1">Team</p>
+        <p className="text-sm text-[#8A8578] font-body mb-4">Add office staff who already have a Brief account. They'll see your firm's booking pipeline the next time they log in.</p>
+        <form onSubmit={addStaff} className="flex flex-wrap items-center gap-3">
+          <input
+            type="email"
+            value={staffEmail}
+            onChange={e => setStaffEmail(e.target.value)}
+            placeholder="staff@yourfirm.com"
+            className="flex-1 min-w-[220px] border border-[#E5E2DC] px-4 py-2.5 text-sm text-[#111418] outline-none focus:border-[#111418] transition-colors font-body"
+          />
+          <button
+            type="submit"
+            disabled={addingStaff || !staffEmail.trim()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 border border-[#111418] text-sm font-body text-[#111418] hover:bg-[#111418] hover:text-white transition-colors disabled:opacity-40"
+          >
+            {addingStaff ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add to team'}
+          </button>
+        </form>
+        {addStaffResult && (
+          <p className={`text-sm font-body mt-3 ${addStaffResult.ok ? 'text-green-600' : 'text-[#8A8578]'}`}>{addStaffResult.text}</p>
+        )}
       </div>
 
       <div className="flex items-center gap-4">

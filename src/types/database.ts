@@ -835,7 +835,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_firm_staff_by_email: {
+        Args: { p_email: string }
+        Returns: {
+          ok: boolean
+          reason: string
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
+      my_firm_ids: { Args: never; Returns: string[] }
+      my_owner_firm_ids: { Args: never; Returns: string[] }
     }
     Enums: {
       [_ in never]: never

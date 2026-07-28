@@ -4,7 +4,7 @@ import { Loader2, LogOut, Settings as SettingsIcon, ChevronDown } from 'lucide-r
 import FloatingPanel from '@/components/ui/FloatingPanel';
 import { useAuth } from '@/lib/AuthContext';
 
-const LOGO = 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG';
+const LOGO = { light: '/brand/logo-light.png', dark: '/brand/logo-dark.png' };
 
 // `theme="tokens"` opts a caller into tokens.css (light/dark aware) --
 // used by AttorneyShell, whose page content is already retrofitted to DS
@@ -119,6 +119,7 @@ export default function DashboardShell({
     ...(THEME[theme] || THEME.legacy),
     accent: theme === 'tokens' ? (prefersDark ? ACCENT_HEX.dark : ACCENT_HEX.light) : THEME.legacy.accent,
   };
+  const logoSrc = theme === 'tokens' && prefersDark ? LOGO.dark : LOGO.light;
 
   const initials = getInitials(user?.full_name);
   const handleLogout = () => logout('/');
@@ -133,7 +134,7 @@ export default function DashboardShell({
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-60 z-30" style={{ backgroundColor: c.surfaceBg, borderRight: `1px solid ${c.line}` }}>
         <Link to={homePath} className="flex items-center gap-2 px-5 h-16" style={{ borderBottom: `1px solid ${c.line}` }}>
-          <img src={LOGO} alt="Brief" className="h-9 w-auto object-contain" />
+          <img src={logoSrc} alt="Brief" className="h-9 w-auto object-contain" />
           <span className="text-[10px] uppercase tracking-[0.12em] leading-tight" style={{ color: c.textMuted }}>
             {portalLabel}
           </span>
@@ -185,7 +186,7 @@ export default function DashboardShell({
       <header className="lg:hidden fixed top-0 left-0 right-0 z-30 safe-pt" style={{ backgroundColor: c.surfaceBg, borderBottom: `1px solid ${c.line}` }}>
         <div className="flex items-center justify-between px-4 h-14">
           <Link to={homePath} className="flex items-center gap-2">
-            <img src={LOGO} alt="Brief" className="h-8 w-auto object-contain" />
+            <img src={logoSrc} alt="Brief" className="h-8 w-auto object-contain" />
             <span className="text-[10px] uppercase tracking-[0.12em]" style={{ color: c.textMuted }}>
               {portalLabel}
             </span>

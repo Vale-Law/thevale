@@ -47,7 +47,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-14">
           <div className="col-span-2 lg:col-span-2">
             <img
-              src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG"
+              src="/brand/logo-light.png"
               alt="Brief"
               className="h-16 w-auto object-contain mb-4"
             />

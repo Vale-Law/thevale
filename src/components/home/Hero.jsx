@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import HeroSearchCard from './HeroSearchCard';
 
-const HERO_GIF = 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/0401aa1f5_63a02f7d041f5f83b2b14e23_NY.gif';
+const HERO_GIF = '/images/hero-nyc.gif';
 
 
 

@@ -10,7 +10,7 @@ export default function ForAttorneysStrip() {
     <section className="bg-white py-20 lg:py-28 px-6 lg:px-8">
       <div className="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-[#EAF2FB] order-2 lg:order-1">
-          <img src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/19b53e696_ChatGPT_Image_Jul_3__2026_at_01_23_54_AM.png"
+          <img src="/for-attorneys.png"
 
           alt="Attorney on Brief"
           className="w-full h-full object-cover"

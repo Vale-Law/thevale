@@ -52,7 +52,7 @@ export default function Header() {
           <div className="max-w-[1200px] mx-auto px-6 lg:px-8 h-28 flex items-center justify-between">
             <Link to="/" onClick={closeMenu} className="flex items-center relative z-[1200]">
               <img
-                src="https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/03090a7d8_A685878D-8D1E-4B4E-BD14-35608619A7D7.PNG"
+                src="/brand/logo-light.png"
                 alt="Brief"
                 className="h-20 w-auto object-contain"
               />

@@ -1,14 +1,18 @@
 import { useState } from 'react';
+import { Heart, Plane, Scale, Building } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useLanguage } from '@/lib/i18n';
 
+// Placeholder icons pending real illustrations for these 4 areas — the
+// original Base44-hosted illustrations have no local equivalent yet.
+// Swap `icon` for an `image` field (see CircleCard) once real artwork
+// is supplied.
 const areas = [
   {
     nameKey: 'area.familyLaw',
     name: 'Family Law',
     description: { en: 'Divorce, custody, adoption, and domestic matters.', es: 'Divorcio, custodia, adopción y asuntos familiares.' },
-    image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/567d6cc7a_51593BAB-8AD5-4A83-8FCE-244CBE22C93B.png',
-    imgAlt: 'Illustration of two people holding the ends of a giant tangled knot of string while a friendly attorney calmly untangles it, with a cat sitting on top of the knot.',
+    icon: Heart,
     query: 'Family Law',
     bgColor: '#EAF2FB',
   },
@@ -16,8 +20,7 @@ const areas = [
     nameKey: 'area.immigration',
     name: 'Immigration',
     description: { en: 'Visas, green cards, citizenship, and deportation defense.', es: 'Visas, green cards, ciudadanía y defensa contra deportación.' },
-    image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/2afc075ea_C1E156ED-B20F-4CD4-9CB7-C4FDE851C436.png',
-    imgAlt: 'Illustration of a determined immigrant on a journey toward a hopeful destination, with labeled milestones along the way.',
+    icon: Plane,
     query: 'Immigration',
     bgColor: '#F5F0E8',
   },
@@ -25,8 +28,7 @@ const areas = [
     nameKey: 'area.personalInjury',
     name: 'Personal Injury',
     description: { en: 'Accidents, negligence claims — no fee unless you win.', es: 'Accidentes, negligencia — no pagas a menos que ganes.' },
-    image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/681cdfe82_IMG_0322.png',
-    imgAlt: "Illustration of a balance scale where a lawyer's glowing case folder tips the scales back in favor of an injured person.",
+    icon: Scale,
     query: 'Personal Injury',
     bgColor: '#EAF2FB',
   },
@@ -34,8 +36,7 @@ const areas = [
     nameKey: 'area.businessFormation',
     name: 'Business Formation',
     description: { en: 'LLCs, contracts, trademarks, and startup legal strategy.', es: 'LLCs, contratos, marcas y estrategia legal para startups.' },
-    image: 'https://media.base44.com/images/public/6a20eafdf3fbb0512c514d25/7336e8da5_IMG_0321.png',
-    imgAlt: 'Illustration of an entrepreneur building their own storefront out of labeled business and tax blocks, with an OPEN sign at the top.',
+    icon: Building,
     query: 'Business Formation',
     bgColor: '#F5F0E8',
   },
@@ -55,7 +56,7 @@ function CircleCard({ area, index, onClick, t, language }) {
       className="fade-up-child flex flex-col items-center gap-4 group"
       style={{ transitionDelay: `${index * 80}ms` }}
     >
-      {/* Circle */}
+      {/* Circle — placeholder icon pending real illustration for this area (see areas[] above) */}
       <div
         style={{
           width: 'clamp(140px, 20vw, 220px)',
@@ -71,20 +72,21 @@ function CircleCard({ area, index, onClick, t, language }) {
           overflow: 'hidden',
           position: 'relative',
           flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <img
-          src={area.image}
-          alt={area.imgAlt}
-          loading="lazy"
+        <area.icon
+          aria-hidden="true"
+          strokeWidth={1.25}
           style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: hovered && animate ? 'scale(1.06)' : 'scale(1)',
-            transition: 'transform 2.5s ease-in-out',
-            display: 'block',
+            width: '34%',
+            height: '34%',
+            color: '#111418',
+            opacity: 0.65,
+            transform: hovered && animate ? 'scale(1.08)' : 'scale(1)',
+            transition: 'transform 300ms ease',
           }}
         />
       </div>

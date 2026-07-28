@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
 import { ArrowRight } from 'lucide-react';
@@ -16,16 +16,24 @@ function slotOf(b) {
 }
 
 export default function AttorneyDashboardPage() {
-  const { attorney } = useAuth();
+  const { attorney, firmAttorneyIds } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Firm-wide, not just this login's own attorney row -- see
+  // AttorneyBookings.jsx for the same fix and why.
   useEffect(() => {
-    if (!attorney?.id) return;
-    base44.entities.Booking.filter({ attorney_id: attorney.id })
-      .then(setBookings)
-      .finally(() => setLoading(false));
-  }, [attorney?.id]);
+    if (!firmAttorneyIds?.length) { setLoading(false); return; }
+    (async () => {
+      try {
+        const { data, error } = await supabase.from('bookings').select('*').in('attorney_id', firmAttorneyIds);
+        if (error) throw error;
+        setBookings(data || []);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [firmAttorneyIds]);
 
   const upcoming = bookings
     .filter(b => ['pending', 'confirmed'].includes(b.status))
@@ -40,9 +48,11 @@ export default function AttorneyDashboardPage() {
           <p className="ds-type-label text-[var(--text-3)] mb-1">Attorney Portal</p>
           <h1 className="text-2xl sm:text-3xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>Dashboard</h1>
         </div>
-        <div className="inline-flex items-center px-3 py-1.5 rounded-[var(--radius-full)] bg-[var(--surface-sunk)] text-[var(--accent)] text-xs ds-type-body-m">
-          {attorney?.verified && attorney?.verified_date ? `License checked ${format(new Date(attorney.verified_date), 'MMM d, yyyy')}` : 'License check pending'}
-        </div>
+        {attorney && (
+          <div className="inline-flex items-center px-3 py-1.5 rounded-[var(--radius-full)] bg-[var(--surface-sunk)] text-[var(--accent)] text-xs ds-type-body-m">
+            {attorney?.verified && attorney?.verified_date ? `License checked ${format(new Date(attorney.verified_date), 'MMM d, yyyy')}` : 'License check pending'}
+          </div>
+        )}
       </div>
 
       <MetricCards metrics={metrics} loading={loading} className="mb-6" />
@@ -90,22 +100,38 @@ export default function AttorneyDashboardPage() {
         </Card>
 
         <Card tone="raised">
-          <h2 className="text-lg text-[var(--text)] mb-4" style={{ fontFamily: 'var(--font-human)' }}>Profile completeness</h2>
-          <Completeness attorney={attorney} />
-          <Link to="/attorney/profile" className="mt-4 inline-flex items-center gap-1 text-xs text-[var(--accent)] ds-type-body-m hover:underline">
-            Edit profile <ArrowRight className="w-3 h-3" />
-          </Link>
-          <div className="mt-6 pt-5 border-t border-[var(--line)]">
-            <h3 className="ds-type-label text-[var(--text-3)] mb-2">Next consultation</h3>
-            {upcoming.length === 0 ? (
-              <p className="text-sm text-[var(--text-3)] ds-type-body-m">Nothing scheduled.</p>
-            ) : (
-              <div>
-                <p className="text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{upcoming[0].client_name}</p>
-                <p className="text-sm text-[var(--text-3)] ds-type-body-m">{format(new Date(slotOf(upcoming[0])), 'EEE, MMM d · h:mm a')}</p>
+          {attorney ? (
+            <>
+              <h2 className="text-lg text-[var(--text)] mb-4" style={{ fontFamily: 'var(--font-human)' }}>Profile completeness</h2>
+              <Completeness attorney={attorney} />
+              <Link to="/attorney/profile" className="mt-4 inline-flex items-center gap-1 text-xs text-[var(--accent)] ds-type-body-m hover:underline">
+                Edit profile <ArrowRight className="w-3 h-3" />
+              </Link>
+              <div className="mt-6 pt-5 border-t border-[var(--line)]">
+                <h3 className="ds-type-label text-[var(--text-3)] mb-2">Next consultation</h3>
+                {upcoming.length === 0 ? (
+                  <p className="text-sm text-[var(--text-3)] ds-type-body-m">Nothing scheduled.</p>
+                ) : (
+                  <div>
+                    <p className="text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{upcoming[0].client_name}</p>
+                    <p className="text-sm text-[var(--text-3)] ds-type-body-m">{format(new Date(slotOf(upcoming[0])), 'EEE, MMM d · h:mm a')}</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-lg text-[var(--text)] mb-4" style={{ fontFamily: 'var(--font-human)' }}>Next consultation</h2>
+              {upcoming.length === 0 ? (
+                <p className="text-sm text-[var(--text-3)] ds-type-body-m">Nothing scheduled.</p>
+              ) : (
+                <div>
+                  <p className="text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{upcoming[0].client_name}</p>
+                  <p className="text-sm text-[var(--text-3)] ds-type-body-m">{format(new Date(slotOf(upcoming[0])), 'EEE, MMM d · h:mm a')}</p>
+                </div>
+              )}
+            </>
+          )}
         </Card>
       </div>
     </div>

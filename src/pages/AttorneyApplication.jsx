@@ -14,11 +14,13 @@ import { toast } from "@/components/ui/use-toast";
 // Single editable list of states Brief is currently accepting attorneys from.
 const ACCEPTED_STATES = ["Texas"];
 
+// Canonical launch scope is Family Law, Immigration, and Business Formation
+// (Personal Injury is not part of the launch scope -- Brief Aspirational
+// Feature Blueprint, "Current structural gaps").
 const PRACTICE_AREAS = [
   { value: "Family Law", labelKey: "area.familyLaw" },
   { value: "Immigration", labelKey: "area.immigration" },
   { value: "Business Formation", labelKey: "area.businessFormation" },
-  { value: "Personal Injury", labelKey: "area.personalInjury" },
 ];
 
 export default function AttorneyApplication() {
@@ -153,7 +155,6 @@ export default function AttorneyApplication() {
       await base44.entities.Attorney.create({
         name: form.name,
         email: form.email,
-        practice_area: practiceAreas[0],
         practice_areas: practiceAreas,
         bar_number: form.barNumber,
         bar_state: form.barState,

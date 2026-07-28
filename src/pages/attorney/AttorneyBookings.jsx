@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -18,19 +19,26 @@ function bookingSlot(b) {
 }
 
 export default function AttorneyBookingsPage() {
-  const { attorney, user } = useAuth();
+  const { user, firmAttorneyIds } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('pending');
   const [active, setActive] = useState(null);
   const cardRefs = useRef([]);
 
-  const load = useCallback(() => {
-    if (!attorney?.id) return;
-    base44.entities.Booking.filter({ attorney_id: attorney.id })
-      .then((list) => setBookings(list.sort((a, b) => new Date(bookingSlot(b)) - new Date(bookingSlot(a)))))
-      .finally(() => setLoading(false));
-  }, [attorney?.id]);
+  // Firm-wide, not just this login's own attorney row -- an office manager
+  // or a firm's second attorney both need to see every booking the firm
+  // takes, matching the firm_members-scoped RLS already on `bookings`.
+  const load = useCallback(async () => {
+    if (!firmAttorneyIds?.length) { setLoading(false); return; }
+    try {
+      const { data, error } = await supabase.from('bookings').select('*').in('attorney_id', firmAttorneyIds);
+      if (error) throw error;
+      setBookings((data || []).sort((a, b) => new Date(bookingSlot(b)) - new Date(bookingSlot(a))));
+    } finally {
+      setLoading(false);
+    }
+  }, [firmAttorneyIds]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -39,6 +47,7 @@ export default function AttorneyBookingsPage() {
     return acc;
   }, {});
   counts.declined = bookings.filter((b) => b.status === 'declined').length;
+  counts.disputed = bookings.filter((b) => b.status === 'disputed').length;
 
   const visible = bookings.filter((b) => b.status === tab);
 
@@ -90,6 +99,15 @@ export default function AttorneyBookingsPage() {
             style={{ borderColor: tab === 'declined' ? 'var(--text)' : 'transparent', color: tab === 'declined' ? 'var(--text)' : 'var(--text-3)' }}
           >
             <StatusDot /> Declined <span className="text-xs text-[var(--text-4)]">({counts.declined})</span>
+          </button>
+        )}
+        {counts.disputed > 0 && (
+          <button
+            onClick={() => setTab('disputed')}
+            className="flex items-center gap-2 px-4 py-2.5 text-sm ds-type-body-m border-b-2 -mb-px transition-colors"
+            style={{ borderColor: tab === 'disputed' ? 'var(--text)' : 'transparent', color: tab === 'disputed' ? 'var(--text)' : 'var(--text-3)' }}
+          >
+            <StatusDot status="disputed" /> Disputed <span className="text-xs text-[var(--text-4)]">({counts.disputed})</span>
           </button>
         )}
       </div>
@@ -154,14 +172,39 @@ function BookingDetailPanel({ booking, actorId, onClose, onChanged }) {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState('');
   const [busy, setBusy] = useState('');
+  const [charge, setCharge] = useState(null);
+  const [chargeLoading, setChargeLoading] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+  const [waiveReason, setWaiveReason] = useState('');
 
   useEffect(() => {
     if (!booking?.id) { setNotes([]); return; }
     base44.entities.StaffNote.filter({ booking_id: booking.id }).then(setNotes).catch(() => setNotes([]));
   }, [booking?.id]);
 
+  const loadCharge = useCallback(async () => {
+    if (!booking?.id) { setCharge(null); return; }
+    setChargeLoading(true);
+    try {
+      const { data } = await supabase.from('consultation_charges').select('*').eq('booking_id', booking.id).maybeSingle();
+      setCharge(data || null);
+    } finally {
+      setChargeLoading(false);
+    }
+  }, [booking?.id]);
+
+  useEffect(() => { loadCharge(); }, [loadCharge]);
+
   if (!booking) return null;
   const slot = bookingSlot(booking);
+
+  const logStatusEvent = (fromStatus, toStatus) => base44.entities.BookingStatusEvent.create({
+    booking_id: booking.id,
+    from_status: fromStatus,
+    to_status: toStatus,
+    actor_id: actorId || null,
+    actor_role: 'staff',
+  });
 
   const setStatus = async (status) => {
     setBusy(status);
@@ -171,14 +214,66 @@ function BookingDetailPanel({ booking, actorId, onClose, onChanged }) {
       if (status === 'confirmed') { fields.confirmed_at = new Date().toISOString(); fields.confirmed_by = 'staff'; }
       if (status === 'declined') { fields.issue_description = null; fields.case_summary = null; fields.description_purged = true; }
       const updated = await base44.entities.Booking.update(booking.id, fields);
-      await base44.entities.BookingStatusEvent.create({
-        booking_id: booking.id,
-        from_status: fromStatus,
-        to_status: status,
-        actor_id: actorId || null,
-        actor_role: 'staff',
-      });
+      await logStatusEvent(fromStatus, status);
+      // Exactly one consultation_charges row per completed booking, status
+      // 'pending' -- never triggered by anything other than this real
+      // status transition, and ignoreDuplicates plus the DB's own unique
+      // index on booking_id guarantee it's never created twice (Shared
+      // Contract 2.3, W2 gate).
+      if (status === 'completed') {
+        const { error: chargeError } = await supabase
+          .from('consultation_charges')
+          .upsert({ booking_id: booking.id, attorney_id: booking.attorney_id }, { onConflict: 'booking_id', ignoreDuplicates: true });
+        if (chargeError) throw chargeError;
+        await loadCharge();
+      }
       onChanged(updated);
+    } finally {
+      setBusy('');
+    }
+  };
+
+  // Booking-level dispute (Shared Contract: "extend the state machine").
+  // Disputing a completed or no-show booking is, in practice, disputing
+  // its $50 charge -- the only concrete artifact in dispute this sprint --
+  // so this sets both the booking's own status and the charge's dispute
+  // state together, sharing the one reason the staff member gives.
+  const markDisputed = async () => {
+    if (!disputeReason.trim()) return;
+    setBusy('disputed');
+    try {
+      const fromStatus = booking.status;
+      const updated = await base44.entities.Booking.update(booking.id, { status: 'disputed' });
+      await logStatusEvent(fromStatus, 'disputed');
+      if (charge) {
+        const { error } = await supabase
+          .from('consultation_charges')
+          .update({ status: 'disputed', dispute_reason: disputeReason.trim() })
+          .eq('id', charge.id);
+        if (error) throw error;
+        await loadCharge();
+      }
+      setDisputeReason('');
+      onChanged(updated);
+    } finally {
+      setBusy('');
+    }
+  };
+
+  // Waiving the fee is a charge-only action -- it never changes the
+  // booking's own status (Shared Contract 2.3: "Marking it waived or
+  // disputed is a deliberate staff/admin action, never automatic").
+  const waiveCharge = async () => {
+    if (!charge) return;
+    setBusy('waive');
+    try {
+      const { error } = await supabase
+        .from('consultation_charges')
+        .update({ status: 'waived', waived_reason: waiveReason.trim() || null })
+        .eq('id', charge.id);
+      if (error) throw error;
+      setWaiveReason('');
+      await loadCharge();
     } finally {
       setBusy('');
     }
@@ -297,6 +392,55 @@ function BookingDetailPanel({ booking, actorId, onClose, onChanged }) {
               </>
             )}
           </div>
+
+          {!chargeLoading && charge && (
+            <div className="pt-4 border-t border-[var(--line)]">
+              <p className="ds-type-label text-[var(--text-3)] mb-2">Billing</p>
+              <p className="text-sm text-[var(--text)] ds-type-body-m [font-variant-numeric:tabular-nums]">
+                ${(charge.amount_cents / 100).toFixed(2)} — <span className="capitalize">{charge.status}</span>
+              </p>
+              {charge.waived_reason && <p className="text-xs text-[var(--text-3)] ds-type-body-m mt-1">Waived: {charge.waived_reason}</p>}
+              {charge.dispute_reason && <p className="text-xs text-[var(--text-3)] ds-type-body-m mt-1">Dispute: {charge.dispute_reason}</p>}
+              {charge.status === 'pending' && (
+                <div className="mt-3">
+                  <Field
+                    label="Reason (optional)"
+                    type="textarea"
+                    rows={2}
+                    value={waiveReason}
+                    onChange={(e) => setWaiveReason(e.target.value)}
+                    placeholder="Why this fee is being waived…"
+                  />
+                  <Button variant="secondary" size="compact" className="mt-2" disabled={!!busy} onClick={waiveCharge}>
+                    {busy === 'waive' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Waive fee'}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {(booking.status === 'completed' || booking.status === 'no_show') && booking.status !== 'disputed' && (
+            <div className="pt-4 border-t border-[var(--line)]">
+              <p className="ds-type-label text-[var(--text-3)] mb-2">Dispute</p>
+              <Field
+                label="What's being disputed"
+                type="textarea"
+                rows={2}
+                value={disputeReason}
+                onChange={(e) => setDisputeReason(e.target.value)}
+                placeholder="Attendance, fee, or format disagreement…"
+              />
+              <Button
+                variant="destructive"
+                size="compact"
+                className="mt-2"
+                disabled={!!busy || !disputeReason.trim()}
+                onClick={markDisputed}
+              >
+                {busy === 'disputed' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Mark disputed'}
+              </Button>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

@@ -1,10 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { WEEKDAYS } from '@/lib/availability';
 import { Button, Card, Field } from '@/components/primitives';
-import { Loader2, Copy, Check, ExternalLink } from 'lucide-react';
+import { Loader2, Copy, Check, ExternalLink, CalendarClock } from 'lucide-react';
+
+const CONNECTION_STATUS_LABEL = { connected: 'Connected', error: 'Connection error', disconnected: 'Disconnected' };
+const CONNECTION_STATUS_COLOR = { connected: 'var(--confirmed)', error: 'var(--noshow)', disconnected: 'var(--text-3)' };
+const CALENDAR_ERROR_REASON = {
+  not_configured: "Calendar connection isn't set up yet.",
+  invalid_state: 'That link expired — try connecting again.',
+  token_exchange_failed: 'Google declined the connection — try again.',
+  no_refresh_token: 'Google did not grant lasting access — try again and accept every permission.',
+  save_failed: 'Something went wrong saving the connection — try again.',
+};
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -31,6 +42,10 @@ export default function AttorneyAvailabilityPage() {
   const [published, setPublished] = useState(false);
   const [slugSaving, setSlugSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [connection, setConnection] = useState(null);
+  const [connecting, setConnecting] = useState(false);
+  const [calendarMessage, setCalendarMessage] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const load = useCallback(async () => {
     if (!attorney?.id) return;
@@ -43,6 +58,56 @@ export default function AttorneyAvailabilityPage() {
   }, [attorney?.id, attorney?.slug, attorney?.booking_page_published]);
 
   useEffect(() => { load(); }, [load]);
+
+  const loadConnection = useCallback(async () => {
+    if (!attorney?.id) return;
+    const { data } = await supabase.from('attorney_calendar_connections').select('*').eq('attorney_id', attorney.id).eq('provider', 'google').maybeSingle();
+    setConnection(data || null);
+  }, [attorney?.id]);
+
+  useEffect(() => { loadConnection(); }, [loadConnection]);
+
+  // Land back here from the Google OAuth redirect (calendar-callback.js)
+  // with ?calendar=connected or ?calendar=error&reason=... -- refresh the
+  // connection state once, then strip the params so a page reload doesn't
+  // re-show the message.
+  useEffect(() => {
+    const calendarResult = searchParams.get('calendar');
+    if (!calendarResult) return;
+    loadConnection();
+    setCalendarMessage(
+      calendarResult === 'connected'
+        ? { text: 'Google Calendar connected.', ok: true }
+        : { text: CALENDAR_ERROR_REASON[searchParams.get('reason')] || 'Could not connect Google Calendar.', ok: false }
+    );
+    const next = new URLSearchParams(searchParams);
+    next.delete('calendar');
+    next.delete('reason');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const connectCalendar = async () => {
+    setConnecting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/calendar-connect', {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not start the connection.');
+      window.location.href = data.url;
+    } catch (e) {
+      alert(e.message || 'Could not start the connection.');
+      setConnecting(false);
+    }
+  };
+
+  const disconnectCalendar = async () => {
+    if (!connection) return;
+    await supabase.from('attorney_calendar_connections').delete().eq('id', connection.id);
+    setConnection(null);
+  };
 
   const saveRules = async (next) => {
     setRules(next);
@@ -108,6 +173,38 @@ export default function AttorneyAvailabilityPage() {
           Set your weekly hours once. Clients pick from what's actually open — the site works out the rest.
         </p>
       </div>
+
+      {/* Calendar connection (F-01) */}
+      <Card tone="raised" className="mb-5">
+        <p className="ds-type-label text-[var(--text-3)] mb-3">Calendar</p>
+        {calendarMessage && (
+          <p className={`text-sm ds-type-body-m mb-3 ${calendarMessage.ok ? 'text-[var(--accent)]' : 'text-[var(--noshow)]'}`}>{calendarMessage.text}</p>
+        )}
+        {connection ? (
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: CONNECTION_STATUS_COLOR[connection.status] || 'var(--text-3)' }} />
+              <span className="text-sm ds-type-body-m text-[var(--text)]">Google Calendar — {CONNECTION_STATUS_LABEL[connection.status] || connection.status}</span>
+            </div>
+            {connection.status === 'error' && connection.last_error && (
+              <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-2">{connection.last_error}</p>
+            )}
+            <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-3">
+              {connection.last_synced_at ? `Last synced ${new Date(connection.last_synced_at).toLocaleString()}` : 'Not synced yet'}
+            </p>
+            <Button variant="destructive" size="compact" onClick={disconnectCalendar}>Disconnect</Button>
+          </div>
+        ) : (
+          <div>
+            <p className="text-sm text-[var(--text-3)] ds-type-body-m mb-3 max-w-md">
+              Connect your Google Calendar so busy time there also blocks your Brief booking page. Free/busy only — Brief never reads event details.
+            </p>
+            <Button variant="secondary" size="compact" disabled={connecting} onClick={connectCalendar}>
+              {connecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CalendarClock className="w-3.5 h-3.5" />} Connect Google Calendar
+            </Button>
+          </div>
+        )}
+      </Card>
 
       {/* Booking link */}
       <Card tone="raised" className="mb-5">

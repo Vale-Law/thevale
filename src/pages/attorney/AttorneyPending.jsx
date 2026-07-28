@@ -49,7 +49,7 @@ export default function AttorneyPendingPage() {
           <div className="bg-[#F7F8FA] border border-[#E5E2DC] p-5 mb-6">
             <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-2">Your application</p>
             <p className="text-sm font-body text-[#111418]">
-              <span className="font-medium">{attorney.name}</span> · {attorney.practice_area}
+              <span className="font-medium">{attorney.name}</span> · {(attorney.practice_areas || []).join(', ')}
             </p>
             <p className="text-sm text-[#8A8578] font-body">
               Bar #{attorney.bar_number} · {attorney.bar_state}

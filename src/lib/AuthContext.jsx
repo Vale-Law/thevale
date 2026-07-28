@@ -8,12 +8,15 @@ const AuthContext = createContext();
  * Effective role derivation:
  *  - admin   → user.role === 'admin'
  *  - attorney→ user.account_type === 'attorney'
+ *  - staff   → user.role === 'staff' (office staff added to a firm; see
+ *              firm_members and add_firm_staff_by_email())
  *  - client  → everyone else (including the platform default 'user' role)
  */
 export function deriveRole(user) {
   if (!user) return 'guest';
   if (user.role === 'admin') return 'admin';
   if (user.account_type === 'attorney') return 'attorney';
+  if (user.role === 'staff') return 'staff';
   return 'client';
 }
 
@@ -25,26 +28,53 @@ export function isAttorneyVerified(attorney) {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [attorney, setAttorney] = useState(null);
+  const [firmAttorneyIds, setFirmAttorneyIds] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
-  const loadAttorneyFor = useCallback(async (currentUser) => {
-    if (!currentUser || currentUser.account_type !== 'attorney') {
+  // Loads the logged-in user's own attorney row (attorney role only) and the
+  // full set of attorney IDs in their firm (attorney or staff role) — the
+  // pipeline (AttorneyBookings/AttorneyDashboard) reads firm-wide, not just
+  // the individual attorney's own bookings, matching the firm_members-scoped
+  // RLS that already governs `bookings` at the database level.
+  const loadFirmFor = useCallback(async (currentUser) => {
+    const role = deriveRole(currentUser);
+    if (!currentUser || (role !== 'attorney' && role !== 'staff')) {
       setAttorney(null);
+      setFirmAttorneyIds([]);
       return;
     }
     try {
-      const list = await base44.entities.Attorney.filter({ user_id: currentUser.id });
-      setAttorney(list[0] || null);
+      let ownAttorney = null;
+      if (role === 'attorney') {
+        const list = await base44.entities.Attorney.filter({ user_id: currentUser.id });
+        ownAttorney = list[0] || null;
+      }
+      setAttorney(ownAttorney);
+
+      const { data: membership } = await supabase
+        .from('firm_members')
+        .select('firm_id')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+      const firmId = membership?.firm_id || ownAttorney?.firm_id || null;
+
+      if (!firmId) {
+        setFirmAttorneyIds(ownAttorney ? [ownAttorney.id] : []);
+        return;
+      }
+      const { data: firmAttorneys } = await supabase.from('attorneys').select('id').eq('firm_id', firmId);
+      setFirmAttorneyIds((firmAttorneys || []).map((a) => a.id));
     } catch (e) {
       setAttorney(null);
+      setFirmAttorneyIds([]);
     }
   }, []);
 
   const reloadAttorney = useCallback(async () => {
-    if (user) await loadAttorneyFor(user);
-  }, [user, loadAttorneyFor]);
+    if (user) await loadFirmFor(user);
+  }, [user, loadFirmFor]);
 
   const checkUserAuth = useCallback(async () => {
     setIsLoadingAuth(true);
@@ -52,16 +82,17 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
-      await loadAttorneyFor(currentUser);
+      await loadFirmFor(currentUser);
     } catch (error) {
       setUser(null);
       setAttorney(null);
+      setFirmAttorneyIds([]);
       setIsAuthenticated(false);
     } finally {
       setIsLoadingAuth(false);
       setAuthChecked(true);
     }
-  }, [loadAttorneyFor]);
+  }, [loadFirmFor]);
 
   useEffect(() => {
     checkUserAuth();
@@ -77,6 +108,7 @@ export const AuthProvider = ({ children }) => {
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setAttorney(null);
+    setFirmAttorneyIds([]);
     setIsAuthenticated(false);
     base44.auth.logout(shouldRedirect ? window.location.href : undefined);
   };
@@ -92,6 +124,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{
       user,
       attorney,
+      firmAttorneyIds,
       effectiveRole,
       attorneyVerified,
       isAuthenticated,
@@ -101,7 +134,7 @@ export const AuthProvider = ({ children }) => {
       navigateToLogin,
       checkUserAuth,
       reloadAttorney,
-      loadAttorneyFor,
+      loadFirmFor,
     }}>
       {children}
     </AuthContext.Provider>

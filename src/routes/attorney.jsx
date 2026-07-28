@@ -31,9 +31,9 @@ import LegacyAccentScope from './LegacyAccentScope';
 export default (
   <Route element={<LegacyAccentScope />}>
     <Route element={<AttorneyShell />}>
-      <Route path="/attorney-dashboard" element={<RoleRoute allow={['attorney']} requireVerified><AttorneyDashboardPage /></RoleRoute>} />
+      <Route path="/attorney-dashboard" element={<RoleRoute allow={['attorney', 'staff']} requireVerified><AttorneyDashboardPage /></RoleRoute>} />
       <Route path="/attorney-pending" element={<RoleRoute allow={['attorney']} requirePending><AttorneyPendingPage /></RoleRoute>} />
-      <Route path="/attorney/bookings" element={<RoleRoute allow={['attorney']} requireVerified><AttorneyBookingsPage /></RoleRoute>} />
+      <Route path="/attorney/bookings" element={<RoleRoute allow={['attorney', 'staff']} requireVerified><AttorneyBookingsPage /></RoleRoute>} />
       <Route path="/attorney/availability" element={<RoleRoute allow={['attorney']} requireVerified><AttorneyAvailabilityPage /></RoleRoute>} />
       <Route path="/attorney/profile" element={<RoleRoute allow={['attorney']}><AttorneyProfilePage /></RoleRoute>} />
     </Route>

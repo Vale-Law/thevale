@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { deriveRole } from '@/lib/roleUtils';
+import { Card, Field } from '@/components/primitives';
 
-function roleLabel(user) {
-  const r = deriveRole(user);
-  if (r === 'attorney') return 'Attorney';
-  if (r === 'admin') return 'Admin';
-  return 'Client';
-}
+// Role chip colors on existing tokens, mirroring the export's
+// green/amber/grey mapping. staff is new in v1.2 (Track A's W0b) and
+// uses --brass, the DS's existing secondary accent.
+const ROLE = {
+  attorney: { color: 'var(--confirmed)', label: 'Attorney' },
+  admin: { color: 'var(--pending)', label: 'Admin' },
+  staff: { color: 'var(--brass)', label: 'Staff' },
+  client: { color: 'var(--completed)', label: 'Client' },
+};
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -31,38 +35,44 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="mb-5 pb-5 border-b border-[#E5E2DC]">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-1 font-body">Admin</p>
-        <h1 className="font-serif text-2xl sm:text-3xl text-[#111418]">Users</h1>
-        <p className="text-sm text-[#8A8578] font-body mt-2">{clientCount} clients · {attorneyCount} attorneys · {users.length} total</p>
+      <div className="mb-5 pb-5 border-b border-[var(--line)]">
+        <p className="ds-type-label text-[var(--text-3)] mb-1">Admin</p>
+        <h1 className="text-2xl sm:text-3xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>Users</h1>
+        <p className="text-sm text-[var(--text-3)] ds-type-body-m mt-2">{clientCount} clients · {attorneyCount} attorneys · {users.length} total</p>
       </div>
 
-      <div className="relative mb-4 max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8578]" />
-        <input
+      <div className="mb-4 max-w-sm">
+        <Field
+          label="Search"
+          type="search"
           value={q}
           onChange={e => setQ(e.target.value)}
-          placeholder="Search users…"
-          className="w-full pl-9 pr-3 py-2.5 border border-[#E5E2DC] text-sm font-body outline-none focus:border-[#111418] bg-white"
+          placeholder="Name or email"
         />
       </div>
 
       {loading ? (
-        <div className="min-h-[30vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" /></div>
+        <div className="min-h-[30vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" /></div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-[#E5E2DC] p-10 text-center text-sm text-[#8A8578] font-body">No users.</div>
+        <Card tone="raised" className="p-10 text-center text-sm text-[var(--text-3)] ds-type-body-m">No users.</Card>
       ) : (
-        <div className="bg-white border border-[#E5E2DC] divide-y divide-[#E5E2DC]">
-          {filtered.map(u => (
-            <div key={u.id} className="flex items-center justify-between gap-3 p-4">
-              <div className="min-w-0">
-                <p className="font-serif text-[#111418] truncate">{u.full_name || u.email}</p>
-                {u.full_name && <p className="text-xs text-[#8A8578] font-body truncate">{u.email}</p>}
+        <Card tone="raised" className="p-0 divide-y divide-[var(--line)] overflow-hidden">
+          {filtered.map(u => {
+            const r = ROLE[deriveRole(u)] || ROLE.client;
+            return (
+              <div key={u.id} className="flex items-center justify-between gap-3 p-4">
+                <div className="min-w-0">
+                  <p className="text-[var(--text)] truncate" style={{ fontFamily: 'var(--font-human)' }}>{u.full_name || u.email}</p>
+                  {u.full_name && <p className="text-xs text-[var(--text-3)] ds-type-body-m truncate">{u.email}</p>}
+                </div>
+                <span className="inline-flex items-center gap-1.5">
+                  <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 rounded-[var(--radius-full)]" style={{ backgroundColor: r.color }} />
+                  <span className="text-[11px] uppercase tracking-[0.14em] ds-type-body-m" style={{ color: r.color }}>{r.label}</span>
+                </span>
               </div>
-              <span className="text-xs uppercase tracking-[0.08em] font-body text-[#8A8578]">{roleLabel(u)}</span>
-            </div>
-          ))}
-        </div>
+            );
+          })}
+        </Card>
       )}
     </div>
   );

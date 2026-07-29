@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
+import { useAuth } from '@/lib/AuthContext';
 import { Loader2, ShieldOff } from 'lucide-react';
 import { Button, Card, Field } from '@/components/primitives';
 
 export default function AdminAttorneysPage() {
+  const { user } = useAuth();
   const [attorneys, setAttorneys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
@@ -22,9 +25,37 @@ export default function AdminAttorneysPage() {
 
   // Confirmation is the destructive Button's own double-click confirm --
   // no window.confirm() on top of it.
+  //
+  // Deactivation writes through attorney_verification_records first
+  // (status 'suspended', Shared Contract 2.3: status changes flow through
+  // the record, and only this action updates the fast-path column) --
+  // updating the latest record, or creating one for attorneys verified
+  // before the records table existed. Best-effort: a records failure is
+  // logged but does not block the deactivation itself.
   const deactivate = async (a) => {
     setBusy(a.id);
     try {
+      try {
+        const { data: rec } = await supabase
+          .from('attorney_verification_records')
+          .select('id')
+          .eq('attorney_id', a.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (rec) {
+          await supabase
+            .from('attorney_verification_records')
+            .update({ status: 'suspended', reviewer_id: user?.id || null, updated_at: new Date().toISOString() })
+            .eq('id', rec.id);
+        } else {
+          await supabase
+            .from('attorney_verification_records')
+            .insert({ attorney_id: a.id, status: 'suspended', reviewer_id: user?.id || null });
+        }
+      } catch (e) {
+        console.error('Verification record update failed during deactivation:', e);
+      }
       await base44.entities.Attorney.update(a.id, { verification_status: 'rejected', verified: false });
       await load();
     } finally {

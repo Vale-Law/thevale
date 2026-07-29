@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, ArrowLeft } from 'lucide-react';
 import { Button, Card, StatusDot } from '@/components/primitives';
+import VerificationChecklist from './VerificationChecklist';
 
 const APP_STATUS = {
   pending: { dot: 'pending', color: 'var(--pending)', label: 'Pending' },
@@ -15,7 +16,6 @@ export default function AdminApplicationDetailPage() {
   const navigate = useNavigate();
   const [attorney, setAttorney] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -34,34 +34,23 @@ export default function AdminApplicationDetailPage() {
     }
   };
 
-  const approve = async () => {
-    setBusy('approve');
+  // The attorneys.verification_status fast-path update now happens inside
+  // VerificationChecklist's approve/reject -- the one action allowed to
+  // touch it (Shared Contract 2.3). These callbacks only handle the
+  // post-decision email and navigation.
+  const onApproved = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
-      await base44.entities.Attorney.update(id, { verification_status: 'verified', verified: true, verified_date: today });
-      try {
-        await base44.integrations.Core.SendEmail({
-          to: attorney.email,
-          subject: "You're approved — welcome to Brief!",
-          body: `Hi ${attorney.name},\n\nGreat news — your Brief application has been approved! You're now a verified attorney on Brief.\n\nLog in to your dashboard to complete your profile, set your availability, and start receiving clients.\n\nWelcome aboard!\n\nThe Brief Team`,
-        });
-      } catch (e) { console.error('Approval email failed:', e); }
-      navigate('/admin/applications?flash=approved');
-    } catch (e) {
-      alert('Failed to verify: ' + (e.message || 'unknown error'));
-      setBusy('');
-    }
+      await base44.integrations.Core.SendEmail({
+        to: attorney.email,
+        subject: "You're approved — welcome to Brief!",
+        body: `Hi ${attorney.name},\n\nGreat news — your Brief application has been approved! You're now a verified attorney on Brief.\n\nLog in to your dashboard to complete your profile, set your availability, and start receiving clients.\n\nWelcome aboard!\n\nThe Brief Team`,
+      });
+    } catch (e) { console.error('Approval email failed:', e); }
+    navigate('/admin/applications?flash=approved');
   };
 
-  const reject = async () => {
-    setBusy('reject');
-    try {
-      await base44.entities.Attorney.update(id, { verification_status: 'rejected', verified: false });
-      navigate('/admin/applications?flash=rejected');
-    } catch (e) {
-      alert('Failed to reject: ' + (e.message || 'unknown error'));
-      setBusy('');
-    }
+  const onRejected = () => {
+    navigate('/admin/applications?flash=rejected');
   };
 
   if (loading) {
@@ -127,18 +116,8 @@ export default function AdminApplicationDetailPage() {
         <p className="text-xs text-[var(--text-3)] ds-type-body-m mt-3">Tip: cross-check the name and bar number against your state's bar directory before approving.</p>
       </Card>
 
-      {status === 'pending' && (
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" onClick={approve} disabled={!!busy}>
-            {busy === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-            Verify &amp; approve
-          </Button>
-          <Button variant="destructive" confirmLabel="Reject this application?" onClick={reject} disabled={!!busy}>
-            {busy === 'reject' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-            Reject
-          </Button>
-        </div>
-      )}
+      <VerificationChecklist attorney={attorney} onApproved={onApproved} onRejected={onRejected} />
+
       {status === 'verified' && (
         <div className="inline-flex items-center gap-2 text-sm text-[var(--confirmed)] ds-type-body-m">
           <CheckCircle2 className="w-4 h-4" /> Approved{attorney.verified_date ? ` on ${attorney.verified_date}` : ''}

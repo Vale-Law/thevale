@@ -37,6 +37,7 @@ import AdminUsersPage from '@/pages/admin/AdminUsers';
 // Add page imports here
 
 import PrimitiveGallery from '@/pages/dev/PrimitiveGallery';
+import HowBriefVerifies from '@/pages/verify/HowBriefVerifies';
 import BookingPage from '@/pages/BookingPage';
 import ManageBooking from '@/pages/ManageBooking';
 
@@ -118,6 +119,10 @@ export default (
       <Route path="/admin/bookings" element={<RoleRoute allow={['admin']}><AdminBookingsPage /></RoleRoute>} />
       <Route path="/admin/users" element={<RoleRoute allow={['admin']}><AdminUsersPage /></RoleRoute>} />
     </Route>
+
+    {/* Public "How Brief Verifies" trust page (F-05, Sprint v1.2 Track B
+        W2.2) — Design System v2 tokens, outside LegacyAccentScope. */}
+    <Route path="/verify" element={<HowBriefVerifies />} />
 
     {/* Dev-only design-system verification gallery — new Design System v2
         accent (tokens.css), not the legacy re-pin. */}

@@ -38,6 +38,8 @@ import AdminUsersPage from '@/pages/admin/AdminUsers';
 
 import PrimitiveGallery from '@/pages/dev/PrimitiveGallery';
 import HowBriefVerifies from '@/pages/verify/HowBriefVerifies';
+import ConsultationFeedback from '@/pages/feedback/ConsultationFeedback';
+import AdminFeedbackPage from '@/pages/admin/AdminFeedback';
 import BookingPage from '@/pages/BookingPage';
 import ManageBooking from '@/pages/ManageBooking';
 
@@ -118,11 +120,16 @@ export default (
       <Route path="/admin/attorneys" element={<RoleRoute allow={['admin']}><AdminAttorneysPage /></RoleRoute>} />
       <Route path="/admin/bookings" element={<RoleRoute allow={['admin']}><AdminBookingsPage /></RoleRoute>} />
       <Route path="/admin/users" element={<RoleRoute allow={['admin']}><AdminUsersPage /></RoleRoute>} />
+      <Route path="/admin/feedback" element={<RoleRoute allow={['admin']}><AdminFeedbackPage /></RoleRoute>} />
     </Route>
 
     {/* Public "How Brief Verifies" trust page (F-05, Sprint v1.2 Track B
         W2.2) — Design System v2 tokens, outside LegacyAccentScope. */}
     <Route path="/verify" element={<HowBriefVerifies />} />
+
+    {/* Token-authenticated internal feedback form (F-03, Track B W3) — no
+        login, DS v2 tokens, outside LegacyAccentScope. */}
+    <Route path="/feedback/:token" element={<ConsultationFeedback />} />
 
     {/* Dev-only design-system verification gallery — new Design System v2
         accent (tokens.css), not the legacy re-pin. */}

@@ -5,7 +5,9 @@
 // — see the Shared Contract note in bookings_insert_client's RLS.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
 import { generateToken, hashToken } from './_lib/tokens.js';
-import { sendEmail, manageLinks, bookingEmailBody } from './_lib/mailer.js';
+import { sendEmail, manageLinks } from './_lib/mailer.js';
+import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
+import { attorneyNotificationText, attorneyNotificationHtml } from '../emails/attorney-notification.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -120,13 +122,16 @@ export default async function handler(req, res) {
   const clientSent = await sendEmail(
     clientEmail,
     'Your consultation is booked',
-    bookingEmailBody({ clientName: clientName.trim(), attorneyName: attorney.name, when, links }),
+    bookingEmailText({ clientName: clientName.trim(), attorneyName: attorney.name, when, links }),
+    bookingEmailHtml({ clientName: clientName.trim(), attorneyName: attorney.name, when, links }),
   );
   if (attorney.email) {
+    const dashboardUrl = `${origin}/attorney/bookings`;
     await sendEmail(
       attorney.email,
       `New consultation request — ${clientName.trim()}`,
-      `${clientName.trim()} requested a consultation for ${when}.\n\nReview it in your dashboard: ${origin}/attorney/bookings`,
+      attorneyNotificationText({ clientName: clientName.trim(), when, dashboardUrl }),
+      attorneyNotificationHtml({ clientName: clientName.trim(), when, dashboardUrl }),
     );
   }
   if (clientSent) {

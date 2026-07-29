@@ -15,19 +15,25 @@
 :root{
   color-scheme: light dark;
 
-  --ground:#F1F2ED; --surface:#FFFFFF; --surface-sunk:#E7EAE2;
+  /* --ground/--surface/--surface-sunk are warm (cream/off-white), matching
+     the Base44 export's attorney-portal-bg exactly (#F4F2EA/#FFFFFF/
+     #FBFAF5), per an explicit owner instruction overriding this doc's
+     original "cool bone, not warm cream" language -- see the Track B log,
+     "attorney portal visual-fidelity retrofit" entry, for the record of
+     that override. --dot follows the same warm cast. */
+  --ground:#F4F2EA; --surface:#FFFFFF; --surface-sunk:#FBFAF5;
   --text:#101C17; --text-2:rgba(16,28,23,.68); --text-3:rgba(16,28,23,.52); --text-4:rgba(16,28,23,.38);
   --accent:#6B8A5E; --accent-press:#55704A; --accent-on:#F1F2ED;
   --brass:#A8834C; --oxblood:#6E2B34;
   --line:rgba(16,28,23,.10); --line-2:rgba(16,28,23,.16);
-  --dot:rgba(107,138,94,.16);
+  --dot:rgba(95,126,79,.10);
   /* Supplemental (legacy-migration) tokens: soft accent wash for chips /
      selected states, and a translucent ground for blurred sticky bars. */
-  --accent-soft:rgba(107,138,94,.14); --ground-glass:rgba(241,242,237,.90);
+  --accent-soft:rgba(107,138,94,.14); --ground-glass:rgba(244,242,234,.90);
 
   --pending:#B07A16; --confirmed:#2F6B47; --completed:#6B7A72; --noshow:#93321F;
 
-  --shadow-raised:0 1px 2px rgba(16,28,23,.04), 0 2px 8px rgba(16,28,23,.04);
+  --shadow-raised:0 1px 2px rgba(16,28,23,.04), 0 6px 16px -8px rgba(16,28,23,.10);
   --shadow-overlay:0 4px 16px rgba(16,28,23,.08), 0 12px 32px rgba(16,28,23,.06);
   --shadow-modal:0 16px 48px rgba(16,28,23,.14);
 
@@ -39,7 +45,13 @@
   --space-6:24px; --space-8:32px;  --space-12:48px;
   --space-16:64px;--space-24:96px; --space-32:128px;
 
-  --radius-xs:4px; --radius-s:8px; --radius-m:12px;
+  /* --radius-m bumped 12px -> 14px to match the Base44 export's card
+     radius exactly, per the same explicit owner override noted above.
+     This reopens Sprint v1.2 Track B's Decision 1 (which had kept 12px
+     over the export's 14px) -- the owner's current instruction is more
+     recent and more specific, so it wins; noted here so the reversal is
+     visible rather than silent. */
+  --radius-xs:4px; --radius-s:8px; --radius-m:14px;
   --radius-l:16px; --radius-xl:24px; --radius-full:9999px;
 
   --motion-instant:100ms cubic-bezier(.4,0,.2,1);
@@ -51,13 +63,16 @@
 
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ground:#0C1512; --surface:#131F1A; --surface-sunk:#0A1210;
+    /* Warm charcoal-black, matching the Base44 export's dark
+       attorney-portal-bg exactly (#14140F/#1A1A16/#14140F) -- same owner
+       override noted at :root above. */
+    --ground:#14140F; --surface:#1A1A16; --surface-sunk:#14140F;
     --text:#E9ECE4; --text-2:rgba(233,236,228,.70); --text-3:rgba(233,236,228,.54); --text-4:rgba(233,236,228,.38);
     --accent:#8FAF80; --accent-press:#A3C094; --accent-on:#0C1512;
     --brass:#C9A46A; --oxblood:#B4636F;
     --line:rgba(233,236,228,.12); --line-2:rgba(233,236,228,.20);
-    --dot:rgba(143,175,128,.20);
-    --accent-soft:rgba(143,175,128,.18); --ground-glass:rgba(12,21,18,.90);
+    --dot:rgba(143,175,128,.10);
+    --accent-soft:rgba(143,175,128,.18); --ground-glass:rgba(20,20,15,.90);
     --pending:#E0A93C; --confirmed:#5BB183; --completed:#8A9A91; --noshow:#D4705C;
     --shadow-raised:none;
     --shadow-overlay:0 4px 16px rgba(0,0,0,.40), 0 12px 32px rgba(0,0,0,.30);
@@ -66,13 +81,13 @@
 }
 
 [data-theme="dark"]{
-  --ground:#0C1512; --surface:#131F1A; --surface-sunk:#0A1210;
+  --ground:#14140F; --surface:#1A1A16; --surface-sunk:#14140F;
   --text:#E9ECE4; --text-2:rgba(233,236,228,.70); --text-3:rgba(233,236,228,.54); --text-4:rgba(233,236,228,.38);
   --accent:#8FAF80; --accent-press:#A3C094; --accent-on:#0C1512;
   --brass:#C9A46A; --oxblood:#B4636F;
   --line:rgba(233,236,228,.12); --line-2:rgba(233,236,228,.20);
-  --dot:rgba(143,175,128,.20);
-  --accent-soft:rgba(143,175,128,.18); --ground-glass:rgba(12,21,18,.90);
+  --dot:rgba(143,175,128,.10);
+  --accent-soft:rgba(143,175,128,.18); --ground-glass:rgba(20,20,15,.90);
   --pending:#E0A93C; --confirmed:#5BB183; --completed:#8A9A91; --noshow:#D4705C;
   --shadow-raised:none;
 }
@@ -87,19 +102,51 @@
   [data-theme="light"] is authoritative regardless of prefers-color-scheme.
 */
 [data-theme="light"]{
-  --ground:#F1F2ED; --surface:#FFFFFF; --surface-sunk:#E7EAE2;
+  --ground:#F4F2EA; --surface:#FFFFFF; --surface-sunk:#FBFAF5;
   --text:#101C17; --text-2:rgba(16,28,23,.68); --text-3:rgba(16,28,23,.52); --text-4:rgba(16,28,23,.38);
   --accent:#6B8A5E; --accent-press:#55704A; --accent-on:#F1F2ED;
   --brass:#A8834C; --oxblood:#6E2B34;
   --line:rgba(16,28,23,.10); --line-2:rgba(16,28,23,.16);
-  --dot:rgba(107,138,94,.16);
-  --accent-soft:rgba(107,138,94,.14); --ground-glass:rgba(241,242,237,.90);
+  --dot:rgba(95,126,79,.10);
+  --accent-soft:rgba(107,138,94,.14); --ground-glass:rgba(244,242,234,.90);
 
   --pending:#B07A16; --confirmed:#2F6B47; --completed:#6B7A72; --noshow:#93321F;
 
-  --shadow-raised:0 1px 2px rgba(16,28,23,.04), 0 2px 8px rgba(16,28,23,.04);
+  --shadow-raised:0 1px 2px rgba(16,28,23,.04), 0 6px 16px -8px rgba(16,28,23,.10);
   --shadow-overlay:0 4px 16px rgba(16,28,23,.08), 0 12px 32px rgba(16,28,23,.06);
   --shadow-modal:0 16px 48px rgba(16,28,23,.14);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Portal background texture (attorney + admin dashboard shells only)     */
+/*                                                                         */
+/* Base44's fine dotted-grid, reproduced with tokens.css's own --dot       */
+/* value (already theme-aware) rather than a separate variable. Scoped to */
+/* .ds-portal-bg -- the dashboard shell root -- never applied to          */
+/* marketing/public pages. Deliberately NOT the halftone effect from      */
+/* Section 8 below: that's a masked, fading, "≤2 per page" marketing      */
+/* device; this is a flat, unmasked, full-bleed chrome texture per an     */
+/* explicit owner instruction for this retrofit, distinct in purpose and  */
+/* rule set from Section 8's signature.                                   */
+/* ---------------------------------------------------------------------- */
+.ds-portal-bg{ position: relative; isolation: isolate; }
+.ds-portal-bg::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--dot) 1.5px, transparent 1.5px);
+  background-size: 9px 9px;
+}
+@media (prefers-reduced-motion: no-preference){
+  .ds-portal-bg::before{
+    animation: ds-portal-dots 11s ease-in-out infinite;
+  }
+}
+@keyframes ds-portal-dots{
+  0%, 100% { opacity: .6; }
+  50% { opacity: 1; }
 }
 
 /* Design System v2 — Section 8: halftone / ledger / grain surface effects */

@@ -54,7 +54,9 @@
      Design System v2 dark tokens (src/styles/tokens.css) so shadcn-styled
      surfaces (auth pages, dropdowns, dialogs) match the token-based pages.
      tailwind darkMode is "class" and nothing toggles the .dark class, so
-     prefers-color-scheme is the only dark signal — same as tokens.css. */
+     the dark signals are the same two tokens.css honors: the OS preference,
+     and the dashboard shells' manual data-theme override
+     (src/lib/useThemeOverride.js). */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --background: 160 27% 6%;
@@ -77,6 +79,28 @@
       --input: 145 13% 19%;
       --ring: 101 23% 59%;
     }
+  }
+
+  :root[data-theme="dark"] {
+    --background: 160 27% 6%;
+    --foreground: 83 17% 91%;
+    --card: 155 24% 10%;
+    --card-foreground: 83 17% 91%;
+    --popover: 155 24% 10%;
+    --popover-foreground: 83 17% 91%;
+    --primary: 101 23% 59%;
+    --primary-foreground: 160 27% 6%;
+    --secondary: 155 24% 14%;
+    --secondary-foreground: 83 17% 91%;
+    --muted: 165 29% 5%;
+    --muted-foreground: 83 10% 64%;
+    --ui-accent: 155 24% 14%;
+    --ui-accent-foreground: 83 17% 91%;
+    --destructive: 8 58% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 145 13% 19%;
+    --input: 145 13% 19%;
+    --ring: 101 23% 59%;
   }
 
   .dark {

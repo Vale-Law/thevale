@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { Loader2, Upload, Check } from 'lucide-react';
+import { Card, Field, Button } from '@/components/primitives';
 
 const ALL_LANGUAGES = ['English', 'Spanish', 'Portuguese', 'French', 'Mandarin', 'Arabic', 'Other'];
 const LANG_LABEL = { English: 'English', Spanish: 'Spanish', Portuguese: 'Portuguese', French: 'French', Mandarin: 'Mandarin', Arabic: 'Arabic', Other: 'Other' };
@@ -110,34 +111,34 @@ export default function AttorneyProfilePage() {
 
   return (
     <div>
-      <div className="mb-6 pb-5 border-b border-[var(--line-2)]">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-1 font-body">Attorney Portal</p>
-        <h1 className="font-serif text-2xl sm:text-3xl text-[var(--text)]">My Profile</h1>
-        <p className="text-sm text-[var(--text-3)] font-body mt-2">This is your public-facing profile that clients see.</p>
+      <div className="mb-6 pb-5 border-b border-[var(--line)]">
+        <p className="ds-type-label text-[var(--text-3)] mb-1">Attorney Portal</p>
+        <h1 className="text-2xl sm:text-3xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>My Profile</h1>
+        <p className="text-sm text-[var(--text-3)] ds-type-body-m mt-2">This is your public-facing profile that clients see.</p>
       </div>
 
       {/* Photo */}
-      <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6 mb-5">
-        <p className="text-xs uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-3">Profile photo</p>
+      <Card tone="raised" className="mb-4">
+        <p className="ds-type-label text-[var(--text-3)] mb-3">Profile photo</p>
         <div className="flex items-center gap-5">
-          <div className="w-20 h-20 rounded-full overflow-hidden bg-[var(--surface-sunk)] border border-[var(--line-2)] flex items-center justify-center shrink-0">
+          <div className="w-20 h-20 rounded-[var(--radius-full)] overflow-hidden border border-[var(--line)] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--surface-sunk)' }}>
             {form.photo ? (
               <img src={form.photo} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-2xl font-serif text-[var(--text-3)]">{(form.name || '?')[0]}</span>
+              <span className="text-2xl text-[var(--text-3)]" style={{ fontFamily: 'var(--font-human)' }}>{(form.name || '?')[0]}</span>
             )}
           </div>
-          <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-[var(--line-2)] text-sm font-body text-[var(--text)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors cursor-pointer">
+          <label className="inline-flex items-center gap-2 h-11 px-5 rounded-[var(--radius-s)] border border-[var(--line-2)] text-sm ds-type-body-m text-[var(--text-2)] hover:bg-[var(--surface-sunk)] transition-colors cursor-pointer">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             Upload photo
             <input type="file" accept="image/*" className="hidden" onChange={uploadPhoto} />
           </label>
         </div>
-      </div>
+      </Card>
 
       {/* Basic fields */}
-      <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6 mb-5">
-        <p className="text-xs uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-4">Profile details</p>
+      <Card tone="raised" className="mb-4">
+        <p className="ds-type-label text-[var(--text-3)] mb-4">Profile details</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {[
             { label: 'Full name', key: 'name', type: 'text' },
@@ -150,23 +151,21 @@ export default function AttorneyProfilePage() {
             { label: 'Education', key: 'education', type: 'text' },
             { label: 'Bar admission', key: 'bar_admission', type: 'text' },
           ].map(({ label, key, type }) => (
-            <div key={key}>
-              <label className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body block mb-1.5">{label}</label>
-              <input
-                type={type}
-                value={form[key] ?? ''}
-                onChange={e => set(key, type === 'number' ? (e.target.value === '' ? '' : parseFloat(e.target.value)) : e.target.value)}
-                className="w-full border border-[var(--line-2)] px-4 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--text)] transition-colors font-body"
-              />
-            </div>
+            <Field
+              key={key}
+              label={label}
+              type={type}
+              value={form[key] ?? ''}
+              onChange={e => set(key, type === 'number' ? (e.target.value === '' ? '' : parseFloat(e.target.value)) : e.target.value)}
+            />
           ))}
           <div className="sm:col-span-2">
-            <label className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body block mb-1.5">Practice areas</label>
+            <label className="ds-type-label text-[var(--text-3)] block mb-2">Practice areas</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {PRACTICE_AREAS.map(a => (
                 <label key={a} className="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" checked={(form.practice_areas || []).includes(a)} onChange={() => toggleArea(a)} className="accent-[var(--accent)] w-4 h-4" />
-                  <span className="text-sm font-body text-[var(--text)]">{AREAS[a]}</span>
+                  <input type="checkbox" checked={(form.practice_areas || []).includes(a)} onChange={() => toggleArea(a)} className="w-4 h-4 accent-[var(--accent)]" />
+                  <span className="text-sm ds-type-body-m text-[var(--text)]">{AREAS[a]}</span>
                 </label>
               ))}
             </div>
@@ -174,76 +173,64 @@ export default function AttorneyProfilePage() {
         </div>
 
         <div className="mt-5">
-          <label className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body block mb-1.5">Bio</label>
-          <textarea
-            rows={5}
-            value={form.bio || ''}
-            onChange={e => set('bio', e.target.value)}
-            className="w-full border border-[var(--line-2)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--text)] resize-none font-body"
-          />
+          <Field label="Bio" type="textarea" rows={5} value={form.bio || ''} onChange={e => set('bio', e.target.value)} />
         </div>
-      </div>
+      </Card>
 
       {/* Languages & communication */}
-      <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6 mb-6">
-        <p className="text-xs uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-4">Languages & communication support</p>
+      <Card tone="raised" className="mb-4">
+        <p className="ds-type-label text-[var(--text-3)] mb-4">Languages &amp; communication support</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
           {ALL_LANGUAGES.map(lang => (
             <label key={lang} className="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" checked={(form.languages_spoken || []).includes(lang)} onChange={() => toggleLang(lang)} className="accent-[var(--accent)] w-4 h-4" />
-              <span className="text-sm font-body text-[var(--text)]">{LANG_LABEL[lang]}</span>
+              <input type="checkbox" checked={(form.languages_spoken || []).includes(lang)} onChange={() => toggleLang(lang)} className="w-4 h-4 accent-[var(--accent)]" />
+              <span className="text-sm ds-type-body-m text-[var(--text)]">{LANG_LABEL[lang]}</span>
             </label>
           ))}
         </div>
-        <div className="border-t border-[var(--line-2)] pt-4 space-y-3">
+        <div className="border-t border-[var(--line)] pt-4 space-y-3">
           {[
             { field: 'bilingual_staff', label: 'Bilingual support staff' },
             { field: 'interpreter_available', label: 'Professional interpreters available' },
             { field: 'translated_documents', label: 'Translated legal documents' },
           ].map(({ field, label }) => (
             <label key={field} className="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" checked={!!form[field]} onChange={() => toggleComm(field)} className="accent-[var(--accent)] w-4 h-4" />
-              <span className="text-sm font-body text-[var(--text)]">{label}</span>
+              <input type="checkbox" checked={!!form[field]} onChange={() => toggleComm(field)} className="w-4 h-4 accent-[var(--accent)]" />
+              <span className="text-sm ds-type-body-m text-[var(--text)]">{label}</span>
             </label>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Team */}
-      <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6 mb-6">
-        <p className="text-xs uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-1">Team</p>
-        <p className="text-sm text-[var(--text-3)] font-body mb-4">Add office staff who already have a Brief account. They'll see your firm's booking pipeline the next time they log in.</p>
-        <form onSubmit={addStaff} className="flex flex-wrap items-center gap-3">
-          <input
-            type="email"
-            value={staffEmail}
-            onChange={e => setStaffEmail(e.target.value)}
-            placeholder="staff@yourfirm.com"
-            className="flex-1 min-w-[220px] border border-[var(--line-2)] px-4 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--text)] transition-colors font-body"
-          />
-          <button
-            type="submit"
-            disabled={addingStaff || !staffEmail.trim()}
-            className="inline-flex items-center gap-2 px-5 py-2.5 border border-[var(--text)] text-sm font-body text-[var(--text)] hover:bg-[var(--text)] hover:text-[var(--ground)] transition-colors disabled:opacity-40"
-          >
+      <Card tone="raised" className="mb-4">
+        <p className="ds-type-label text-[var(--text-3)] mb-1">Team</p>
+        <p className="text-sm text-[var(--text-3)] ds-type-body-m mb-4">Add office staff who already have a Brief account. They'll see your firm's booking pipeline the next time they log in.</p>
+        <form onSubmit={addStaff} className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[220px]">
+            <Field
+              label="Staff email"
+              type="email"
+              value={staffEmail}
+              onChange={e => setStaffEmail(e.target.value)}
+              placeholder="staff@yourfirm.com"
+            />
+          </div>
+          <Button variant="secondary" type="submit" disabled={addingStaff || !staffEmail.trim()}>
             {addingStaff ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add to team'}
-          </button>
+          </Button>
         </form>
         {addStaffResult && (
-          <p className={`text-sm font-body mt-3 ${addStaffResult.ok ? 'text-green-600' : 'text-[var(--text-3)]'}`}>{addStaffResult.text}</p>
+          <p className="text-sm ds-type-body-m mt-3" style={{ color: addStaffResult.ok ? 'var(--confirmed)' : 'var(--text-3)' }}>{addStaffResult.text}</p>
         )}
-      </div>
+      </Card>
 
       <div className="flex items-center gap-4">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="inline-flex items-center gap-2 px-8 py-3 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-colors disabled:opacity-40 font-body"
-        >
+        <Button variant="primary" onClick={save} disabled={saving}>
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save changes'}
-        </button>
+        </Button>
         {saved && (
-          <span className="inline-flex items-center gap-1.5 text-sm text-green-600 font-body">
+          <span className="inline-flex items-center gap-1.5 text-sm ds-type-body-m" style={{ color: 'var(--confirmed)' }}>
             <Check className="w-4 h-4" /> Profile saved
           </span>
         )}

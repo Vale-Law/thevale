@@ -8,7 +8,12 @@
 // vars. Until they're set, this no-ops and returns false; every caller
 // treats that as non-fatal, matching how the rest of the app already
 // handles email being unconfigured.
-export async function sendEmail(to, subject, text) {
+//
+// `html` is optional so existing plain-text-only call sites keep working
+// unchanged; Resend sends a proper multipart message when both text and
+// html are present, satisfying DS v2 Section 13's plain-text-alternative
+// requirement.
+export async function sendEmail(to, subject, text, html) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM_EMAIL;
   if (!apiKey || !from || !to) return false;
@@ -17,7 +22,7 @@ export async function sendEmail(to, subject, text) {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to, subject, text }),
+      body: JSON.stringify(html ? { from, to, subject, text, html } : { from, to, subject, text }),
     });
     return res.ok;
   } catch {
@@ -32,19 +37,4 @@ export function manageLinks(origin, tokens) {
     reschedule: `${base}/${tokens.reschedule}`,
     cancel: `${base}/${tokens.cancel}`,
   };
-}
-
-export function bookingEmailBody({ clientName, attorneyName, when, links, reminder }) {
-  const heading = reminder
-    ? `This is a reminder: your consultation with ${attorneyName} is coming up on ${when}.`
-    : `Your consultation with ${attorneyName} is booked for ${when}.`;
-  return (
-    `Hi ${clientName},\n\n${heading}\n\n` +
-    `Confirm your appointment: ${links.confirm}\n` +
-    `Need to change it? Reschedule: ${links.reschedule}\n` +
-    `Cancel: ${links.cancel}\n\n` +
-    `Brief is not a law firm. Booking a consultation does not create an attorney-client relationship. ` +
-    `Any attorney-client relationship is formed only between you and the attorney, on terms you agree with them directly.\n\n` +
-    `The Brief Team`
-  );
 }

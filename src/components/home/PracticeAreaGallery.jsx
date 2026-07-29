@@ -14,7 +14,7 @@ const areas = [
     description: { en: 'Divorce, custody, adoption, and domestic matters.', es: 'Divorcio, custodia, adopción y asuntos familiares.' },
     icon: Heart,
     query: 'Family Law',
-    bgColor: '#EAF2FB',
+    bgColor: 'var(--accent-soft)',
   },
   {
     nameKey: 'area.immigration',
@@ -22,7 +22,7 @@ const areas = [
     description: { en: 'Visas, green cards, citizenship, and deportation defense.', es: 'Visas, green cards, ciudadanía y defensa contra deportación.' },
     icon: Plane,
     query: 'Immigration',
-    bgColor: '#F5F0E8',
+    bgColor: 'var(--ground)',
   },
   {
     nameKey: 'area.personalInjury',
@@ -30,7 +30,7 @@ const areas = [
     description: { en: 'Accidents, negligence claims — no fee unless you win.', es: 'Accidentes, negligencia — no pagas a menos que ganes.' },
     icon: Scale,
     query: 'Personal Injury',
-    bgColor: '#EAF2FB',
+    bgColor: 'var(--accent-soft)',
   },
   {
     nameKey: 'area.businessFormation',
@@ -38,7 +38,7 @@ const areas = [
     description: { en: 'LLCs, contracts, trademarks, and startup legal strategy.', es: 'LLCs, contratos, marcas y estrategia legal para startups.' },
     icon: Building,
     query: 'Business Formation',
-    bgColor: '#F5F0E8',
+    bgColor: 'var(--ground)',
   },
 ];
 
@@ -63,7 +63,7 @@ function CircleCard({ area, index, onClick, t, language }) {
           height: 'clamp(140px, 20vw, 220px)',
           borderRadius: '50%',
           backgroundColor: area.bgColor,
-          border: '1px solid #E5E2DC',
+          border: '1px solid var(--line-2)',
           boxShadow: hovered && animate
             ? '0 8px 32px rgba(10,61,98,0.16)'
             : '0 4px 16px rgba(10,61,98,0.10)',
@@ -83,7 +83,7 @@ function CircleCard({ area, index, onClick, t, language }) {
           style={{
             width: '34%',
             height: '34%',
-            color: '#111418',
+            color: 'var(--text)',
             opacity: 0.65,
             transform: hovered && animate ? 'scale(1.08)' : 'scale(1)',
             transition: 'transform 300ms ease',
@@ -95,11 +95,11 @@ function CircleCard({ area, index, onClick, t, language }) {
       <div className="text-center">
         <h3
           className="font-serif text-[18px] leading-tight transition-colors duration-200"
-          style={{ color: hovered && animate ? '#0a5dc2' : '#111418' }}
+          style={{ color: hovered && animate ? 'var(--accent)' : 'var(--text)' }}
         >
           {t(area.nameKey)}
         </h3>
-        <p className="text-[13px] text-[#8A8578] font-body mt-1 leading-snug max-w-[180px]">
+        <p className="text-[13px] text-[var(--text-3)] font-body mt-1 leading-snug max-w-[180px]">
           {area.description[language] || area.description.en}
         </p>
       </div>
@@ -112,11 +112,11 @@ export default function PracticeAreaGallery({ onSelect }) {
   const { t, language } = useLanguage();
 
   return (
-    <section className="py-24 lg:py-32 px-6 lg:px-8 bg-[#F5F0E8]" ref={ref}>
+    <section className="py-24 lg:py-32 px-6 lg:px-8 bg-[var(--ground)]" ref={ref}>
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-16 fade-up-child">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-3 font-body">Practice Areas</p>
-          <h2 className="font-serif font-bold text-[40px] lg:text-[52px] text-[#111418] leading-[1.05]">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-3 font-body">Practice Areas</p>
+          <h2 className="font-serif font-bold text-[40px] lg:text-[52px] text-[var(--text)] leading-[1.05]">
             Every Issue. Every Budget.
           </h2>
         </div>

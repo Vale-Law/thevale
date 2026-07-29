@@ -3,7 +3,11 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import HeroSearchCard from './HeroSearchCard';
 
-const HERO_GIF = '/images/hero-nyc.gif';
+// ASCII-mosaic rendering of the Temple of Hephaestus — the visual anchor
+// for the brand ("the law as an old, steady institution"). Also used as
+// the search-card backdrop below.
+const HERO_IMAGE = '/images/hero-temple.jpg';
+const HERO_LOGO = '/brand/logo-dark.png';
 
 
 
@@ -74,20 +78,27 @@ export default function Hero({ onSearch }) {
 
   return (
     <section className="relative w-full overflow-hidden min-h-[440px] lg:min-h-[600px] flex items-center justify-center">
-      {/* Full-width GIF background */}
+      {/* Full-width temple artwork background */}
       <img
-        src={HERO_GIF}
+        src={HERO_IMAGE}
         alt=""
         aria-hidden="true"
         className="absolute inset-0 w-full h-full"
-        style={{ objectFit: 'cover', objectPosition: 'center' }}
+        style={{ objectFit: 'cover', objectPosition: 'center 62%' }}
       />
 
-      {/* Dark scrim overlay */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.45))' }} />
+      {/* Dark scrim overlay — keeps white text readable over the artwork */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(16,28,23,0.45), rgba(16,28,23,0.58))' }} />
 
       {/* Centered content */}
-      <div className="relative z-10 flex flex-col items-center w-full max-w-[1200px] mx-auto px-6 lg:px-8 py-20 lg:py-28">
+      <div className="relative z-10 flex flex-col items-center w-full max-w-[1200px] mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        {/* Brand mark over the artwork, slightly darkened so it sits into the image */}
+        <img
+          src={HERO_LOGO}
+          alt="Brief"
+          className="h-14 sm:h-16 lg:h-20 w-auto object-contain mb-6"
+          style={{ filter: 'brightness(0.88) drop-shadow(0 2px 12px rgba(16,28,23,0.45))' }}
+        />
         {/* Headline — fixed height reserved via invisible longest-variant (ES) span */}
         <h1
           className="relative font-rounded font-bold text-[40px] sm:text-[52px] lg:text-[60px] text-white text-center leading-[1.05] tracking-[-0.02em] mb-4 min-h-[88px] sm:min-h-[114px] lg:min-h-[130px] flex items-center justify-center"
@@ -115,7 +126,7 @@ export default function Hero({ onSearch }) {
             <span className="absolute inset-0 flex items-center justify-center">
               {typedHeadline}
               {typingPhase === 'headline' && (
-                <span className="inline-block w-[3px] h-[0.85em] bg-white ml-1 align-middle animate-pulse" />
+                <span className="inline-block w-[3px] h-[0.85em] bg-[var(--surface)] ml-1 align-middle animate-pulse" />
               )}
             </span>
           )}
@@ -165,7 +176,7 @@ export default function Hero({ onSearch }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
           <button
             onClick={() => navigate('/areas-of-help')}
-            className="px-8 py-4 bg-white text-[#111418] text-sm font-medium hover:bg-[#0a5dc2] hover:text-white transition-all duration-300 hover:scale-[1.02] min-w-[180px]"
+            className="px-8 py-4 bg-[var(--surface)] text-[var(--text)] text-sm font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-on)] transition-all duration-300 hover:scale-[1.02] min-w-[180px]"
           >
             {t('hero.bookConsultation')}
           </button>

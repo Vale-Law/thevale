@@ -9,7 +9,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-16 px-4 bg-white">
+    <section className="py-16 px-4 bg-[var(--surface)]">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-2xl font-bold text-foreground mb-2 text-center">How PACTO works</h2>
         <p className="text-muted-foreground text-center mb-12">From search to consultation in four simple steps</p>

@@ -20,12 +20,12 @@ export default function StepDetails({ data, onChange, onNext, onBack }) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="font-serif text-2xl text-[#111418] mb-1">{t('booking.aboutCase')}</p>
-        <p className="text-sm text-[#8A8578] font-body">{t('booking.aboutCaseSub')}</p>
+        <p className="font-serif text-2xl text-[var(--text)] mb-1">{t('booking.aboutCase')}</p>
+        <p className="text-sm text-[var(--text-3)] font-body">{t('booking.aboutCaseSub')}</p>
       </div>
 
       <div>
-        <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-3">{t('booking.urgency')}</label>
+        <label className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body block mb-3">{t('booking.urgency')}</label>
         <div className="flex flex-wrap gap-2">
           {URGENCY_OPTIONS.map(u => (
             <button
@@ -33,8 +33,8 @@ export default function StepDetails({ data, onChange, onNext, onBack }) {
               onClick={() => update('urgency', u.value)}
               className={`px-4 py-2 text-sm border transition-all font-body ${
                 form.urgency === u.value
-                  ? 'bg-[#111418] text-white border-[#111418]'
-                  : 'border-[#E5E2DC] text-[#8A8578] hover:border-[#111418] hover:text-[#111418]'
+                  ? 'bg-[var(--text)] text-[var(--ground)] border-[var(--text)]'
+                  : 'border-[var(--line-2)] text-[var(--text-3)] hover:border-[var(--text)] hover:text-[var(--text)]'
               }`}
             >
               {t(u.labelKey)}
@@ -44,7 +44,7 @@ export default function StepDetails({ data, onChange, onNext, onBack }) {
       </div>
 
       <div>
-        <label className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body block mb-1.5">
+        <label className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body block mb-1.5">
           {t('booking.description')}
         </label>
         <textarea
@@ -52,9 +52,9 @@ export default function StepDetails({ data, onChange, onNext, onBack }) {
           onChange={e => update('issue', e.target.value)}
           placeholder={t('booking.descriptionPlaceholder')}
           rows={5}
-          className="w-full border border-[#E5E2DC] px-4 py-3 text-sm text-[#111418] outline-none focus:border-[#111418] transition-colors resize-none font-body bg-white"
+          className="w-full border border-[var(--line-2)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--text)] transition-colors resize-none font-body bg-[var(--surface)]"
         />
-        <p className="text-[11px] text-[#8A8578] mt-1.5 font-body flex items-center gap-1">
+        <p className="text-[11px] text-[var(--text-3)] mt-1.5 font-body flex items-center gap-1">
           <span>🔒</span> {t('booking.privilege')}
         </p>
       </div>
@@ -62,13 +62,13 @@ export default function StepDetails({ data, onChange, onNext, onBack }) {
       <div className="flex gap-3">
         <button
           onClick={onBack}
-          className="flex-1 py-4 border border-[#E5E2DC] text-[#111418] text-sm font-medium hover:border-[#111418] transition-colors font-body"
+          className="flex-1 py-4 border border-[var(--line-2)] text-[var(--text)] text-sm font-medium hover:border-[var(--text)] transition-colors font-body"
         >
           {t('booking.back')}
         </button>
         <button
           onClick={onNext}
-          className="flex-1 py-4 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-all duration-300 font-body"
+          className="flex-1 py-4 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-all duration-300 font-body"
         >
           {t('booking.continue')}
         </button>

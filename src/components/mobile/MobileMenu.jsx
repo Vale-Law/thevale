@@ -30,7 +30,7 @@ export default function MobileMenu() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="w-12 h-12 flex items-center justify-center -mr-1 text-[#111418]"
+        className="w-12 h-12 flex items-center justify-center -mr-1 text-[var(--text)]"
       >
         <Menu className="w-8 h-8" strokeWidth={1.8} />
       </button>
@@ -47,7 +47,7 @@ export default function MobileMenu() {
               onClick={close}
             />
             <motion.aside
-              className="fixed top-0 right-0 bottom-0 z-[1400] w-[82vw] max-w-[340px] bg-[#FAF9F7] flex flex-col safe-pt"
+              className="fixed top-0 right-0 bottom-0 z-[1400] w-[82vw] max-w-[340px] bg-[var(--ground)] flex flex-col safe-pt"
               style={{ touchAction: 'pan-y' }}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -60,9 +60,9 @@ export default function MobileMenu() {
                 if (info.offset.x > 90 || info.velocity.x > 500) close();
               }}
             >
-              <div className="flex items-center justify-between px-5 border-b border-[#E5E2DC]" style={{ height: 'var(--mobile-header-h)' }}>
-                <span className="font-serif text-[#111418] text-lg leading-none">Menu</span>
-                <button onClick={close} aria-label="Close menu" className="w-10 h-10 flex items-center justify-center -mr-2 text-[#111418]">
+              <div className="flex items-center justify-between px-5 border-b border-[var(--line-2)]" style={{ height: 'var(--mobile-header-h)' }}>
+                <span className="font-serif text-[var(--text)] text-lg leading-none">Menu</span>
+                <button onClick={close} aria-label="Close menu" className="w-10 h-10 flex items-center justify-center -mr-2 text-[var(--text)]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -74,18 +74,18 @@ export default function MobileMenu() {
                     <button
                       key={item.to}
                       onClick={() => go(item.to)}
-                      className="w-full flex items-center gap-4 px-3 py-3.5 rounded-xl hover:bg-white active:bg-white transition-colors text-left"
+                      className="w-full flex items-center gap-4 px-3 py-3.5 rounded-xl hover:bg-[var(--surface)] active:bg-[var(--surface)] transition-colors text-left"
                     >
-                      <span className="w-9 h-9 rounded-full flex items-center justify-center bg-white border border-[#E5E2DC] shrink-0">
-                        <Icon className="w-4 h-4 text-[#0a5dc2]" />
+                      <span className="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--surface)] border border-[var(--line-2)] shrink-0">
+                        <Icon className="w-4 h-4 text-[var(--accent)]" />
                       </span>
-                      <span className="font-body text-[17px] text-[#111418]">{item.label}</span>
+                      <span className="font-body text-[17px] text-[var(--text)]">{item.label}</span>
                     </button>
                   );
                 })}
 
                 <div className="mt-5 px-3">
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] font-body mb-2">Language</p>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body mb-2">Language</p>
                   <div className="flex gap-2">
                     {langs.map((opt) => {
                       const active = language === opt.code;
@@ -95,9 +95,9 @@ export default function MobileMenu() {
                           onClick={() => changeLanguage(opt.code)}
                           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-body transition-colors"
                           style={{
-                            borderColor: active ? '#0a5dc2' : '#E5E2DC',
-                            background: active ? '#EAF2FB' : '#fff',
-                            color: active ? '#0a5dc2' : '#111418',
+                            borderColor: active ? 'var(--accent)' : 'var(--line-2)',
+                            background: active ? 'var(--accent-soft)' : '#fff',
+                            color: active ? 'var(--accent)' : 'var(--text)',
                           }}
                         >
                           <span>{opt.flag}</span>

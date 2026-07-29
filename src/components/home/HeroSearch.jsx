@@ -29,7 +29,7 @@ export default function HeroSearch() {
           Vetted attorneys · Transparent pricing · Flexible payment plans
         </p>
 
-        <div className="bg-white rounded-xl shadow-md border border-border p-3 flex flex-col sm:flex-row gap-3">
+        <div className="bg-[var(--surface)] rounded-xl shadow-md border border-border p-3 flex flex-col sm:flex-row gap-3">
           <Select value={practiceArea} onValueChange={setPracticeArea}>
             <SelectTrigger className="sm:w-56 border-0 bg-muted focus:ring-0">
               <SelectValue placeholder="Legal issue" />

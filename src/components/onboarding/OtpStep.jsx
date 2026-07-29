@@ -46,12 +46,12 @@ export default function OtpStep({ email, onVerified, onBack }) {
 
   return (
     <div key="otp" className="px-6 py-8 animate-fade-up">
-      <button onClick={onBack} className="text-sm text-[#8A8578] hover:text-[#111418] mb-4 flex items-center gap-1 font-body">
+      <button onClick={onBack} className="text-sm text-[var(--text-3)] hover:text-[var(--text)] mb-4 flex items-center gap-1 font-body">
         <ArrowLeft className="w-4 h-4" /> {t('onboarding.back')}
       </button>
-      <h2 className="font-serif text-[28px] text-[#111418] leading-tight mb-2">{t('onboarding.verifyEmail')}</h2>
-      <p className="text-sm text-[#8A8578] font-body mb-6">
-        {t('onboarding.sentCodeTo')} <span className="text-[#111418] font-medium">{email}</span>
+      <h2 className="font-serif text-[28px] text-[var(--text)] leading-tight mb-2">{t('onboarding.verifyEmail')}</h2>
+      <p className="text-sm text-[var(--text-3)] font-body mb-6">
+        {t('onboarding.sentCodeTo')} <span className="text-[var(--text)] font-medium">{email}</span>
       </p>
 
       {error && (
@@ -76,18 +76,18 @@ export default function OtpStep({ email, onVerified, onBack }) {
       <button
         onClick={handleVerify}
         disabled={loading || otp.length < 6}
-        className="w-full py-3.5 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-body flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-body flex items-center justify-center gap-2"
         style={{ borderRadius: 8 }}
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('onboarding.verify')}
       </button>
 
-      <p className="text-center text-sm text-[#8A8578] font-body mt-4">
+      <p className="text-center text-sm text-[var(--text-3)] font-body mt-4">
         {countdown > 0 ? (
           <>{t('onboarding.didntReceive')} {t('onboarding.resendIn')} {countdown}s</>
         ) : (
           <>{t('onboarding.didntReceive')}{' '}
-            <button onClick={handleResend} className="text-[#0a5dc2] font-medium hover:underline">{t('onboarding.resendCode')}</button>
+            <button onClick={handleResend} className="text-[var(--accent)] font-medium hover:underline">{t('onboarding.resendCode')}</button>
           </>
         )}
       </p>

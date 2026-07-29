@@ -63,12 +63,12 @@ export default function AttorneyCarousel({ attorneys }) {
         {/* Left edge fade */}
         <div
           className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none transition-opacity duration-300"
-          style={{ background: 'linear-gradient(to right, #F5F0E8 0%, transparent 100%)', opacity: showLeft ? 1 : 0 }}
+          style={{ background: 'linear-gradient(to right, var(--ground) 0%, transparent 100%)', opacity: showLeft ? 1 : 0 }}
         />
         {/* Right edge fade */}
         <div
           className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none transition-opacity duration-300"
-          style={{ background: 'linear-gradient(to left, #F5F0E8 0%, transparent 100%)', opacity: showRight ? 1 : 0 }}
+          style={{ background: 'linear-gradient(to left, var(--ground) 0%, transparent 100%)', opacity: showRight ? 1 : 0 }}
         />
 
         <div

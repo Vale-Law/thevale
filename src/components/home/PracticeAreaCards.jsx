@@ -32,7 +32,7 @@ export default function PracticeAreaCards() {
             <button
               key={title}
               onClick={() => navigate(`/?area=${encodeURIComponent(title)}`)}
-              className="bg-white border border-border rounded-xl p-6 text-left hover:border-primary hover:shadow-md transition-all group"
+              className="bg-[var(--surface)] border border-border rounded-xl p-6 text-left hover:border-primary hover:shadow-md transition-all group"
             >
               <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
                 <Icon className="w-6 h-6 text-primary" />

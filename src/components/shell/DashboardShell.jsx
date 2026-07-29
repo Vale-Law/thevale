@@ -11,37 +11,29 @@ const LOGO = { light: '/brand/logo-light.png', dark: '/brand/logo-dark.png' };
 // used by both AttorneyShell and AdminShell now that admin's own pages
 // are DS v2-retrofitted. `theme="legacy"` is unused by any live caller as
 // of this change (kept only so an old integration doesn't silently break)
-// and keeps rendering the original wide labeled sidebar.
+// and keeps rendering the original wide labeled sidebar -- now on tokens
+// too, since the legacy hex palette was migrated to DS v2 everywhere.
 //
-// `accent` is deliberately NOT a bare `var(--accent)` reference in the
-// tokens theme: the whole attorney route tree (src/routes/attorney.jsx)
-// is wrapped in LegacyAccentScope, which re-pins --accent to a bare HSL
-// triplet ("215 87% 40%", meant for hsl(var(--accent)) in legacy shadcn
-// components) for every descendant, including this shell. Using that
-// bare triplet directly as a `color`/`backgroundColor` value is invalid
-// CSS and silently drops -- there is no CSS-only escape from an ancestor
-// override on an inherited custom property. useThemeOverride() below
-// picks tokens.css's own light/dark --accent hex directly instead.
+// Bare `var(--accent)` is safe here: LegacyAccentScope no longer re-pins
+// --accent to an HSL triplet (the shadcn components read --ui-accent
+// instead -- see src/index.css + tailwind.config.js), so the DS hex value
+// from tokens.css is inherited unmodified everywhere in the app.
 const THEME = {
   legacy: {
-    pageBg: '#F7F8FA', surfaceBg: '#FFFFFF', line: '#E5E2DC',
-    text: '#111418', textMuted: '#8A8578', textFaint: '#B8B4AC',
-    accent: '#0a5dc2', accentSoftBg: '#EAF2FB', hoverBg: '#F4F2EE',
-    fontHuman: undefined, bodyFont: "'Poppins', ui-sans-serif, system-ui, sans-serif",
+    pageBg: 'var(--ground)', surfaceBg: 'var(--surface)', line: 'var(--line)',
+    text: 'var(--text)', textMuted: 'var(--text-3)', textFaint: 'var(--text-4)',
+    accent: 'var(--accent)', accentSoftBg: 'var(--accent-soft)', hoverBg: 'var(--surface-sunk)',
+    fontHuman: 'var(--font-human)', bodyFont: 'var(--font-system)',
   },
   tokens: {
     pageBg: 'var(--ground)', surfaceBg: 'var(--surface)', line: 'var(--line)',
     text: 'var(--text)', textMuted: 'var(--text-3)', textFaint: 'var(--text-4)',
-    accentSoftBg: 'var(--surface-sunk)', hoverBg: 'var(--surface-sunk)',
+    accent: 'var(--accent)', accentSoftBg: 'var(--accent-soft)', hoverBg: 'var(--surface-sunk)',
     fontHuman: 'var(--font-human)', bodyFont: 'var(--font-system)',
   },
 };
 
-// tokens.css's own --accent values (src/styles/tokens.css), duplicated
-// here only because LegacyAccentScope makes the CSS variable itself
-// unusable for direct color/backgroundColor assignment inside the
-// attorney route tree.
-const ACCENT_HEX = { light: '#6B8A5E', dark: '#8FAF80' };
+
 
 function getInitials(name) {
   if (!name) return '?';
@@ -130,11 +122,8 @@ export default function DashboardShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef(null);
   const { isDark, toggle } = useThemeOverride();
-  const c = {
-    ...(THEME[theme] || THEME.legacy),
-    accent: theme === 'tokens' ? (isDark ? ACCENT_HEX.dark : ACCENT_HEX.light) : THEME.legacy.accent,
-  };
-  const logoSrc = theme === 'tokens' && isDark ? LOGO.dark : LOGO.light;
+  const c = THEME[theme] || THEME.legacy;
+  const logoSrc = isDark ? LOGO.dark : LOGO.light;
 
   const initials = getInitials(user?.full_name);
   const handleLogout = () => logout('/');

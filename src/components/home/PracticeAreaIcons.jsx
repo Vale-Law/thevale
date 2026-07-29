@@ -25,11 +25,11 @@ export default function PracticeAreaIcons({ onSelect }) {
   }, []);
 
   return (
-    <section className="py-20 lg:py-24 px-6 lg:px-8 bg-white" ref={ref}>
+    <section className="py-20 lg:py-24 px-6 lg:px-8 bg-[var(--surface)]" ref={ref}>
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 text-center">
-          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[#111418] leading-[1.1]">{t('practiceIcons.heading')}</h2>
-          <p className="text-[#8A8578] font-body mt-2">{t('practiceIcons.subheading')}</p>
+          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">{t('practiceIcons.heading')}</h2>
+          <p className="text-[var(--text-3)] font-body mt-2">{t('practiceIcons.subheading')}</p>
         </div>
 
         {/* Quick-pick pills */}
@@ -65,7 +65,7 @@ export default function PracticeAreaIcons({ onSelect }) {
                     width: 'clamp(100px, 14vw, 150px)',
                     height: 'clamp(100px, 14vw, 150px)',
                     borderRadius: '23%',
-                    backgroundColor: '#F5F0E8',
+                    backgroundColor: 'var(--ground)',
                     boxShadow: isHovered ? '0 12px 40px rgba(10,61,98,0.15)' : '0 4px 16px rgba(10,61,98,0.08)',
                     transform: isHovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)'
                   }}>
@@ -87,7 +87,7 @@ export default function PracticeAreaIcons({ onSelect }) {
                 </div>
                 <span
                   className="font-serif font-medium text-[14px] lg:text-[15px] text-center transition-colors duration-200"
-                  style={{ color: isHovered ? '#0a5dc2' : '#111418' }}>
+                  style={{ color: isHovered ? 'var(--accent)' : 'var(--text)' }}>
 
                   {t(`practiceIcons.${card.key}`)}
                 </span>

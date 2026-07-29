@@ -95,7 +95,7 @@ export default function MobileTabBar() {
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-[1100] bg-white rounded-t-2xl border-t border-[#E5E2DC] shadow-[0_-2px_12px_rgba(17,20,24,0.06)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-[1100] bg-[var(--surface)] rounded-t-2xl border-t border-[var(--line-2)] shadow-[0_-2px_12px_rgba(17,20,24,0.06)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-stretch justify-around h-[60px]">
@@ -110,12 +110,12 @@ export default function MobileTabBar() {
               aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
               className="relative flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px] py-1"
-              style={{ color: active ? '#0a5dc2' : '#8A8578' }}
+              style={{ color: active ? 'var(--accent)' : 'var(--text-3)' }}
             >
               {active && (
                 <motion.span
                   layoutId="tabIndicator"
-                  className="absolute top-0 left-0 right-0 mx-auto h-[3px] w-6 rounded-full bg-[#0a5dc2]"
+                  className="absolute top-0 left-0 right-0 mx-auto h-[3px] w-6 rounded-full bg-[var(--accent)]"
                   transition={spring}
                 />
               )}
@@ -129,7 +129,7 @@ export default function MobileTabBar() {
               <span
                 className="text-[10px] font-body leading-none"
                 style={{
-                  color: active ? '#0a5dc2' : '#8A8578',
+                  color: active ? 'var(--accent)' : 'var(--text-3)',
                   fontWeight: active ? 600 : 400,
                 }}
               >

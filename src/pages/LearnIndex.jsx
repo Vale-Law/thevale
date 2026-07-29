@@ -44,16 +44,16 @@ export default function LearnIndex() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
 
       <section className="py-24 lg:py-32 px-6 lg:px-8">
         <div className="max-w-[1200px] mx-auto">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">{t('learnIndex.label')}</p>
-          <h1 className="font-serif text-[48px] lg:text-[64px] text-[#111418] leading-[1.02] mb-4 max-w-2xl">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-4 font-body">{t('learnIndex.label')}</p>
+          <h1 className="font-serif text-[48px] lg:text-[64px] text-[var(--text)] leading-[1.02] mb-4 max-w-2xl">
             {t('learnIndex.heading')}
           </h1>
-          <p className="text-lg text-[#8A8578] font-body max-w-lg leading-relaxed mb-16">
+          <p className="text-lg text-[var(--text-3)] font-body max-w-lg leading-relaxed mb-16">
             {t('learnIndex.desc')}
           </p>
 
@@ -63,21 +63,21 @@ export default function LearnIndex() {
                 {a.available ? (
                   <Link
                     to={a.slug}
-                    className="block bg-white border border-[#E5E2DC] p-8 hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-300 group"
+                    className="block bg-[var(--surface)] border border-[var(--line-2)] p-8 hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-300 group"
                   >
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-[#0a5dc2] font-body mb-3">{a.label}</p>
-                    <h2 className="font-serif text-2xl text-[#111418] leading-[1.15] mb-3 group-hover:text-[#0a5dc2] transition-colors">
+                    <p className="text-[11px] uppercase tracking-[0.1em] text-[var(--accent)] font-body mb-3">{a.label}</p>
+                    <h2 className="font-serif text-2xl text-[var(--text)] leading-[1.15] mb-3 group-hover:text-[var(--accent)] transition-colors">
                       {a.title}
                     </h2>
-                    <p className="text-sm text-[#8A8578] font-body leading-relaxed mb-4">{a.desc}</p>
-                    <p className="text-xs text-[#8A8578] font-body">{a.readTime}</p>
+                    <p className="text-sm text-[var(--text-3)] font-body leading-relaxed mb-4">{a.desc}</p>
+                    <p className="text-xs text-[var(--text-3)] font-body">{a.readTime}</p>
                   </Link>
                 ) : (
-                  <div className="bg-white border border-[#E5E2DC] p-8 opacity-60">
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-3">{a.label}</p>
-                    <h2 className="font-serif text-2xl text-[#111418] leading-[1.15] mb-3">{a.title}</h2>
-                    <p className="text-sm text-[#8A8578] font-body leading-relaxed mb-4">{a.desc}</p>
-                    <span className="inline-block text-[10px] uppercase tracking-[0.1em] border border-[#E5E2DC] text-[#8A8578] px-2 py-1 font-body">
+                  <div className="bg-[var(--surface)] border border-[var(--line-2)] p-8 opacity-60">
+                    <p className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-3">{a.label}</p>
+                    <h2 className="font-serif text-2xl text-[var(--text)] leading-[1.15] mb-3">{a.title}</h2>
+                    <p className="text-sm text-[var(--text-3)] font-body leading-relaxed mb-4">{a.desc}</p>
+                    <span className="inline-block text-[10px] uppercase tracking-[0.1em] border border-[var(--line-2)] text-[var(--text-3)] px-2 py-1 font-body">
                       {t('learnIndex.comingSoon')}
                     </span>
                   </div>

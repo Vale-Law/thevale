@@ -22,7 +22,7 @@ function Bubble({ role, text }) {
   if (role === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%] min-w-0 bg-[#0a5dc2] text-white text-sm font-body px-4 py-2.5 rounded-2xl rounded-br-md whitespace-pre-wrap break-words">
+        <div className="max-w-[80%] min-w-0 bg-[var(--accent)] text-[var(--accent-on)] text-sm font-body px-4 py-2.5 rounded-2xl rounded-br-md whitespace-pre-wrap break-words">
           {text}
         </div>
       </div>
@@ -30,7 +30,7 @@ function Bubble({ role, text }) {
   }
   return (
     <div className="flex justify-start">
-      <div className="max-w-[90%] min-w-0 bg-white border border-[#E5E2DC] text-[#111418] text-sm font-body px-4 py-3 rounded-2xl rounded-bl-md break-words">
+      <div className="max-w-[90%] min-w-0 bg-[var(--surface)] border border-[var(--line-2)] text-[var(--text)] text-sm font-body px-4 py-3 rounded-2xl rounded-bl-md break-words">
         {text}
       </div>
     </div>
@@ -41,7 +41,7 @@ function OptionButton({ label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-4 py-3 border border-[#E5E2DC] bg-white text-sm text-[#111418] font-body hover:border-[#0a5dc2] hover:text-[#0a5dc2] transition-colors rounded-xl break-words"
+      className="w-full text-left px-4 py-3 border border-[var(--line-2)] bg-[var(--surface)] text-sm text-[var(--text)] font-body hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors rounded-xl break-words"
     >
       {label}
     </button>
@@ -227,40 +227,40 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
   if (currentQuestion) convo.push({ role: 'assistant', text: currentQuestion });
 
   const banner = (
-    <div className="px-4 py-2.5 bg-[#EAF2FB] border border-[#0a5dc2]/15 rounded-xl">
-      <p className="text-[11px] text-[#0a5dc2] font-body leading-relaxed text-center">
+    <div className="px-4 py-2.5 bg-[var(--accent-soft)] border border-[var(--accent-soft)] rounded-xl">
+      <p className="text-[11px] text-[var(--accent)] font-body leading-relaxed text-center">
         {t('concierge.banner')}
       </p>
     </div>
   );
 
   const InputBar = (
-    <div className="shrink-0 border-t border-[#E5E2DC] bg-[#FAF9F7]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div className="shrink-0 border-t border-[var(--line-2)] bg-[var(--ground)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="px-4 pt-3">
-        <div className="flex items-center gap-2 bg-white border border-[#E5E2DC] rounded-full px-3 h-11">
+        <div className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--line-2)] rounded-full px-3 h-11">
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onFocus={scrollToBottom}
             onKeyDown={(e) => e.key === 'Enter' && submitDraft()}
             placeholder={step === 0 ? "Describe what's going on…" : 'Or type your own answer…'}
-            className="flex-1 min-w-0 bg-transparent outline-none text-sm text-[#111418] font-body placeholder:text-[#8A8578]"
+            className="flex-1 min-w-0 bg-transparent outline-none text-sm text-[var(--text)] font-body placeholder:text-[var(--text-3)]"
           />
           <button
             onClick={submitDraft}
             disabled={!draft.trim()}
-            className="w-8 h-8 rounded-full bg-[#0a5dc2] disabled:opacity-40 flex items-center justify-center text-white shrink-0"
+            className="w-8 h-8 rounded-full bg-[var(--accent)] disabled:opacity-40 flex items-center justify-center text-[var(--accent-on)] shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>
         </div>
       </div>
       <div className="px-4 py-2 flex items-center justify-between">
-        <button onClick={restart} className="text-xs text-[#8A8578] hover:text-[#111418] font-body">Start over</button>
-        <button onClick={onBrowseAreas} className="text-xs text-[#0a5dc2] hover:text-[#111418] font-body">{t('concierge.browse')}</button>
+        <button onClick={restart} className="text-xs text-[var(--text-3)] hover:text-[var(--text)] font-body">Start over</button>
+        <button onClick={onBrowseAreas} className="text-xs text-[var(--accent)] hover:text-[var(--text)] font-body">{t('concierge.browse')}</button>
       </div>
       <div className="px-4 pb-2">
-        <p className="text-[11px] text-[#8A8578] font-body leading-relaxed">{t('concierge.disclaimer')}</p>
+        <p className="text-[11px] text-[var(--text-3)] font-body leading-relaxed">{t('concierge.disclaimer')}</p>
       </div>
     </div>
   );
@@ -268,18 +268,18 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
   if (isMobile) {
     return createPortal(
       <div
-        className="fixed top-0 left-0 right-0 z-[2300] h-[100dvh] flex flex-col bg-[#FAF9F7] animate-fade-up"
+        className="fixed top-0 left-0 right-0 z-[2300] h-[100dvh] flex flex-col bg-[var(--ground)] animate-fade-up"
         style={{ isolation: 'isolate' }}
       >
         {/* A. Fixed top bar */}
         <div
-          className="shrink-0 flex items-center justify-between h-14 px-3 border-b border-[#E5E2DC] bg-[#FAF9F7]"
+          className="shrink-0 flex items-center justify-between h-14 px-3 border-b border-[var(--line-2)] bg-[var(--ground)]"
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
           <button onClick={onReset} aria-label="Back" className="w-10 h-10 flex items-center justify-center -ml-1">
-            <ArrowLeft className="w-5 h-5 text-[#111418]" />
+            <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
           </button>
-          <p className="text-sm font-medium text-[#111418] font-body">{t('concierge.panelLabel')}</p>
+          <p className="text-sm font-medium text-[var(--text)] font-body">{t('concierge.panelLabel')}</p>
           <div className="w-10" />
         </div>
 
@@ -310,7 +310,7 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
           {isFinal && (
             <button
               onClick={seeAttorneys}
-              className="w-full inline-flex items-center justify-center gap-2 px-5 h-12 bg-[#0a5dc2] text-white text-sm font-medium font-body hover:bg-[#084a9e] transition-colors rounded-xl"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 h-12 bg-[var(--accent)] text-[var(--accent-on)] text-sm font-medium font-body hover:bg-[var(--accent-press)] transition-colors rounded-xl"
             >
               See attorneys matching these filters
               <ArrowRight className="w-4 h-4" />
@@ -328,15 +328,15 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
 
   return (
     <div className="max-w-2xl">
-      <div className="bg-[#FAF9F7] border border-[#E5E2DC] rounded-2xl flex flex-col" style={{ maxHeight: '70vh' }}>
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#E5E2DC]">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[#0a5dc2] font-body">{t('concierge.panelLabel')}</p>
-          <button onClick={onReset} aria-label="Close" className="text-[#8A8578] hover:text-[#111418]">
+      <div className="bg-[var(--ground)] border border-[var(--line-2)] rounded-2xl flex flex-col" style={{ maxHeight: '70vh' }}>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--line-2)]">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--accent)] font-body">{t('concierge.panelLabel')}</p>
+          <button onClick={onReset} aria-label="Close" className="text-[var(--text-3)] hover:text-[var(--text)]">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="px-4 py-2.5 bg-[#EAF2FB] border-b border-[#0a5dc2]/15">
-          <p className="text-[11px] text-[#0a5dc2] font-body leading-relaxed text-center">{t('concierge.banner')}</p>
+        <div className="px-4 py-2.5 bg-[var(--accent-soft)] border-b border-[var(--accent-soft)]">
+          <p className="text-[11px] text-[var(--accent)] font-body leading-relaxed text-center">{t('concierge.banner')}</p>
         </div>
         <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
           {convo.map((m, i) => (
@@ -363,36 +363,36 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
           {isFinal && (
             <button
               onClick={seeAttorneys}
-              className="w-full inline-flex items-center justify-center gap-2 px-5 h-12 bg-[#0a5dc2] text-white text-sm font-medium font-body hover:bg-[#084a9e] transition-colors rounded-xl"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 h-12 bg-[var(--accent)] text-[var(--accent-on)] text-sm font-medium font-body hover:bg-[var(--accent-press)] transition-colors rounded-xl"
             >
               See attorneys matching these filters
               <ArrowRight className="w-4 h-4" />
             </button>
           )}
         </div>
-        <div className="shrink-0 border-t border-[#E5E2DC]">
+        <div className="shrink-0 border-t border-[var(--line-2)]">
           <div className="px-4 pt-3 pb-2 space-y-2">
-            <div className="flex items-center gap-2 bg-white border border-[#E5E2DC] rounded-full px-3 h-11">
+            <div className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--line-2)] rounded-full px-3 h-11">
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submitDraft()}
                 placeholder={step === 0 ? "Describe what's going on…" : 'Or type your own answer…'}
-                className="flex-1 min-w-0 bg-transparent outline-none text-sm text-[#111418] font-body placeholder:text-[#8A8578]"
+                className="flex-1 min-w-0 bg-transparent outline-none text-sm text-[var(--text)] font-body placeholder:text-[var(--text-3)]"
               />
               <button
                 onClick={submitDraft}
                 disabled={!draft.trim()}
-                className="w-8 h-8 rounded-full bg-[#0a5dc2] disabled:opacity-40 flex items-center justify-center text-white shrink-0"
+                className="w-8 h-8 rounded-full bg-[var(--accent)] disabled:opacity-40 flex items-center justify-center text-[var(--accent-on)] shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
             <div className="flex items-center justify-between pt-1">
-              <button onClick={restart} className="text-xs text-[#8A8578] hover:text-[#111418] font-body">Start over</button>
-              <button onClick={onBrowseAreas} className="text-xs text-[#0a5dc2] hover:text-[#111418] font-body">{t('concierge.browse')}</button>
+              <button onClick={restart} className="text-xs text-[var(--text-3)] hover:text-[var(--text)] font-body">Start over</button>
+              <button onClick={onBrowseAreas} className="text-xs text-[var(--accent)] hover:text-[var(--text)] font-body">{t('concierge.browse')}</button>
             </div>
-            <p className="text-[11px] text-[#8A8578] font-body leading-relaxed">{t('concierge.disclaimer')}</p>
+            <p className="text-[11px] text-[var(--text-3)] font-body leading-relaxed">{t('concierge.disclaimer')}</p>
           </div>
         </div>
       </div>

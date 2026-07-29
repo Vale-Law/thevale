@@ -11,12 +11,12 @@ export default function FloatingInput({ id, label, type = 'text', value, onChang
         type={type}
         autoComplete={autoComplete}
         autoFocus={autoFocus}
-        className="w-full bg-white px-4 text-sm text-[#111418] outline-none transition-colors font-body"
+        className="w-full bg-[var(--surface)] px-4 text-sm text-[var(--text)] outline-none transition-colors font-body"
         style={{
           borderRadius: 8,
           borderWidth: 1,
           borderStyle: 'solid',
-          borderColor: error ? '#ef4444' : focused ? '#0a5dc2' : '#E5E2DC',
+          borderColor: error ? 'var(--noshow)' : focused ? 'var(--accent)' : 'var(--line-2)',
           paddingTop: isFloating ? 22 : 14,
           paddingBottom: isFloating ? 6 : 14,
           height: 52,
@@ -33,7 +33,7 @@ export default function FloatingInput({ id, label, type = 'text', value, onChang
         style={{
           top: isFloating ? 8 : 17,
           fontSize: isFloating ? 10 : 14,
-          color: error ? '#ef4444' : focused ? '#0a5dc2' : '#8A8578',
+          color: error ? 'var(--noshow)' : focused ? 'var(--accent)' : 'var(--text-3)',
           textTransform: isFloating ? 'uppercase' : 'none',
           letterSpacing: isFloating ? '0.05em' : 'normal',
           fontWeight: isFloating ? 500 : 400,

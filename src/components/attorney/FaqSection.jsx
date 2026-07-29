@@ -17,12 +17,12 @@ export default function FaqSection({ attorney }) {
   if (faqs.length === 0) return null;
   return (
     <div>
-      <h2 className="font-serif text-xl text-[#111418] mb-4">FAQs</h2>
-      <Accordion type="single" collapsible className="border border-[#E5E2DC] rounded-xl px-5">
+      <h2 className="font-serif text-xl text-[var(--text)] mb-4">FAQs</h2>
+      <Accordion type="single" collapsible className="border border-[var(--line-2)] rounded-xl px-5">
         {faqs.map((f, i) => (
-          <AccordionItem key={i} value={`q-${i}`} className="border-b border-[#E5E2DC] last:border-0">
-            <AccordionTrigger className="text-sm font-medium text-[#111418] font-body text-left">{f.q}</AccordionTrigger>
-            <AccordionContent className="text-sm text-[#525961] font-body">{f.a}</AccordionContent>
+          <AccordionItem key={i} value={`q-${i}`} className="border-b border-[var(--line-2)] last:border-0">
+            <AccordionTrigger className="text-sm font-medium text-[var(--text)] font-body text-left">{f.q}</AccordionTrigger>
+            <AccordionContent className="text-sm text-[var(--text-2)] font-body">{f.a}</AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

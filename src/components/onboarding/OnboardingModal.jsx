@@ -68,11 +68,11 @@ export default function OnboardingModal() {
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal / Mobile sheet */}
-      <div className="absolute inset-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[92vw] sm:max-w-[480px] bg-[#FAF9F7] overflow-y-auto max-h-screen sm:max-h-[90vh] sm:rounded-2xl sm:shadow-[0_24px_64px_rgba(0,0,0,0.2)]">
+      <div className="absolute inset-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[92vw] sm:max-w-[480px] bg-[var(--ground)] overflow-y-auto max-h-screen sm:max-h-[90vh] sm:rounded-2xl sm:shadow-[0_24px_64px_rgba(0,0,0,0.2)]">
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-[#8A8578] hover:text-[#111418] z-10 transition-colors"
+          className="absolute top-4 right-4 text-[var(--text-3)] hover:text-[var(--text)] z-10 transition-colors"
           aria-label="Close"
         >
           <X className="w-5 h-5" />

@@ -33,23 +33,34 @@ export default function HeroSearchCard({ onSearch }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.18)] w-full max-w-2xl p-3 sm:p-4">
+    <div className="relative rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.18)] w-full max-w-2xl p-3 sm:p-4">
+      {/* Temple artwork backdrop, veiled by a translucent surface wash so the
+          inputs stay readable in both light and dark mode. Rounded on the
+          layers themselves (not overflow-hidden on the root) so the absolute
+          dropdown panels below aren't clipped. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 rounded-2xl bg-cover"
+        style={{ backgroundImage: "url('/images/hero-temple.jpg')", backgroundPosition: 'center 30%' }}
+      />
+      <div aria-hidden="true" className="absolute inset-0 rounded-2xl backdrop-blur-[3px]" style={{ background: 'var(--ground-glass)' }} />
+      <div className="relative">
       {/* Main search field */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2 flex-1 px-2">
-          <Search className="w-4 h-4 text-[#8A8578] shrink-0" />
+          <Search className="w-4 h-4 text-[var(--text-3)] shrink-0" />
           <input
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
             placeholder={t('hero.searchPlaceholder')}
-            className="w-full bg-transparent outline-none text-sm text-[#111418] font-body placeholder:text-[#8A8578]"
+            className="w-full bg-transparent outline-none text-sm text-[var(--text)] font-body placeholder:text-[var(--text-3)]"
           />
         </div>
         <button
           onClick={handleSearch}
           aria-label={t('hero.search')}
-          className="w-10 h-10 rounded-full bg-[#0a5dc2] hover:bg-[#084a9e] transition-colors flex items-center justify-center text-white shrink-0"
+          className="w-10 h-10 rounded-full bg-[var(--accent)] hover:bg-[var(--accent-press)] transition-colors flex items-center justify-center text-[var(--accent-on)] shrink-0"
         >
           <ArrowRight className="w-4 h-4" />
         </button>
@@ -61,20 +72,20 @@ export default function HeroSearchCard({ onSearch }) {
         <div className="relative">
           <button
             onClick={() => setLocationOpen(o => !o)}
-            className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm font-body text-[#111418] border border-[#E5E2DC] rounded-full hover:border-[#111418] transition-colors"
+            className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm font-body text-[var(--text)] border border-[var(--line-2)] rounded-full hover:border-[var(--text)] transition-colors"
           >
-            <MapPin className="w-3.5 h-3.5 text-[#8A8578]" />
+            <MapPin className="w-3.5 h-3.5 text-[var(--text-3)]" />
             {city ? `${city}, ${stateCode}` : t('hero.selectLocation')}
-            <ChevronDown className="w-3 h-3 text-[#8A8578]" />
+            <ChevronDown className="w-3 h-3 text-[var(--text-3)]" />
           </button>
           {locationOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setLocationOpen(false)} />
-              <div className="absolute z-50 mt-2 bg-white border border-[#E5E2DC] rounded-xl shadow-xl p-3 w-60 left-0">
+              <div className="absolute z-50 mt-2 bg-[var(--surface)] border border-[var(--line-2)] rounded-xl shadow-xl p-3 w-60 left-0">
                 <select
                   value={stateCode}
                   onChange={e => { setStateCode(e.target.value); setCity(''); }}
-                  className="w-full border border-[#E5E2DC] bg-white px-3 py-2 text-sm text-[#111418] outline-none font-body appearance-none cursor-pointer mb-2"
+                  className="w-full border border-[var(--line-2)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none font-body appearance-none cursor-pointer mb-2"
                 >
                   <option value="">{t('hero.selectState')}</option>
                   {US_STATES.map(s => (
@@ -85,7 +96,7 @@ export default function HeroSearchCard({ onSearch }) {
                   value={city}
                   onChange={e => setCity(e.target.value)}
                   disabled={!stateCode}
-                  className="w-full border border-[#E5E2DC] bg-white px-3 py-2 text-sm text-[#111418] outline-none font-body appearance-none cursor-pointer disabled:opacity-40"
+                  className="w-full border border-[var(--line-2)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none font-body appearance-none cursor-pointer disabled:opacity-40"
                 >
                   <option value="">{t('hero.selectCity')}</option>
                   {cities.map(c => (
@@ -101,21 +112,21 @@ export default function HeroSearchCard({ onSearch }) {
         <div className="relative">
           <button
             onClick={() => setAreaOpen(o => !o)}
-            className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm font-body text-[#111418] border border-[#E5E2DC] rounded-full hover:border-[#111418] transition-colors"
+            className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm font-body text-[var(--text)] border border-[var(--line-2)] rounded-full hover:border-[var(--text)] transition-colors"
           >
-            <Briefcase className="w-3.5 h-3.5 text-[#8A8578]" />
+            <Briefcase className="w-3.5 h-3.5 text-[var(--text-3)]" />
             {area ? t(AREA_LABEL_KEYS[area] || area) : t('hero.addDetails')}
-            <ChevronDown className="w-3 h-3 text-[#8A8578]" />
+            <ChevronDown className="w-3 h-3 text-[var(--text-3)]" />
           </button>
           {areaOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setAreaOpen(false)} />
-              <div className="absolute z-50 mt-2 bg-white border border-[#E5E2DC] rounded-xl shadow-xl p-2 w-56 max-h-64 overflow-auto left-0">
+              <div className="absolute z-50 mt-2 bg-[var(--surface)] border border-[var(--line-2)] rounded-xl shadow-xl p-2 w-56 max-h-64 overflow-auto left-0">
                 {PRACTICE_AREAS.map(a => (
                   <button
                     key={a}
                     onClick={() => { setArea(a); setAreaOpen(false); }}
-                    className="w-full text-left px-3 py-2 text-sm font-body text-[#111418] rounded-lg hover:bg-[#F5F0E8] transition-colors"
+                    className="w-full text-left px-3 py-2 text-sm font-body text-[var(--text)] rounded-lg hover:bg-[var(--ground)] transition-colors"
                   >
                     {t(AREA_LABEL_KEYS[a] || a)}
                   </button>
@@ -124,6 +135,7 @@ export default function HeroSearchCard({ onSearch }) {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

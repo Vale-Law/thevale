@@ -1,8 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import MobileMenu from './MobileMenu';
-
-const LOGO = '/brand/logo-light.png';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 export default function MobileTopBar() {
   const navigate = useNavigate();
@@ -10,7 +9,7 @@ export default function MobileTopBar() {
   const showBack = loc.pathname !== '/';
 
   return (
-    <div className="lg:hidden fixed top-0 left-0 right-0 z-[1100] bg-[#FAF9F7] border-b border-[#E5E2DC] safe-pt">
+    <div className="lg:hidden fixed top-0 left-0 right-0 z-[1100] bg-[var(--ground)] border-b border-[var(--line-2)] safe-pt">
       <div className="flex items-center px-5" style={{ height: 'var(--mobile-header-h)' }}>
         {showBack && (
           <button
@@ -18,15 +17,11 @@ export default function MobileTopBar() {
             aria-label="Back"
             className="w-12 h-12 flex items-center justify-center -ml-1"
           >
-            <ArrowLeft className="w-7 h-7 text-[#111418]" />
+            <ArrowLeft className="w-7 h-7 text-[var(--text)]" />
           </button>
         )}
         <Link to="/" className="flex items-center">
-          <img
-            src={LOGO}
-            alt="Brief"
-            className="h-16 w-auto max-w-[60vw] object-contain"
-          />
+          <BrandLogo className="h-10 w-auto max-w-[60vw] object-contain" />
         </Link>
         <div className="flex-1" />
         <MobileMenu />

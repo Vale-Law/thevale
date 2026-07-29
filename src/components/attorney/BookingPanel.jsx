@@ -60,57 +60,57 @@ export default function BookingPanel({ attorney }) {
   const shiftWindow = (dir) => setWindowStart((d) => addDays(d, dir * 7));
 
   return (
-    <div className="bg-white border border-[#E5E2DC] rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] flex flex-col">
-      <div className="p-5 pb-4 border-b border-[#E5E2DC]">
-        <h2 className="font-serif text-lg text-[#111418] mb-3">Book a consultation</h2>
+    <div className="bg-[var(--surface)] border border-[var(--line-2)] rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] flex flex-col">
+      <div className="p-5 pb-4 border-b border-[var(--line-2)]">
+        <h2 className="font-serif text-lg text-[var(--text)] mb-3">Book a consultation</h2>
         <div className="flex items-baseline gap-2">
-          <span className="font-serif text-3xl text-[#111418]">${attorney.consult_fee}</span>
-          <span className="text-sm text-[#8A8578] font-body">{t('booking.consultationFee')}</span>
+          <span className="font-serif text-3xl text-[var(--text)]">${attorney.consult_fee}</span>
+          <span className="text-sm text-[var(--text-3)] font-body">{t('booking.consultationFee')}</span>
         </div>
         {attorney.typical_retainer && (
-          <p className="text-sm text-[#8A8578] font-body mt-1">{t('booking.typicalRetainer')} <span className="text-[#111418]">${attorney.typical_retainer.toLocaleString()}</span></p>
+          <p className="text-sm text-[var(--text-3)] font-body mt-1">{t('booking.typicalRetainer')} <span className="text-[var(--text)]">${attorney.typical_retainer.toLocaleString()}</span></p>
         )}
         {monthlyAffirm && (
-          <p className="text-xs text-[#0a5dc2] mt-1 font-body">{t('booking.financeRetainer')} ${monthlyAffirm}{t('booking.moWithAffirm')}</p>
+          <p className="text-xs text-[var(--accent)] mt-1 font-body">{t('booking.financeRetainer')} ${monthlyAffirm}{t('booking.moWithAffirm')}</p>
         )}
       </div>
 
       <div className="p-5 space-y-5">
         {areas.length > 0 && (
           <div>
-            <label className="text-xs text-[#8A8578] font-body block mb-1.5">Consultation reason</label>
-            <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full h-11 border border-[#E5E2DC] bg-white px-3 text-sm rounded-lg outline-none focus:border-[#0a5dc2] font-body">
+            <label className="text-xs text-[var(--text-3)] font-body block mb-1.5">Consultation reason</label>
+            <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full h-11 border border-[var(--line-2)] bg-[var(--surface)] px-3 text-sm rounded-lg outline-none focus:border-[var(--accent)] font-body">
               {areas.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
         )}
 
         <div>
-          <label className="text-xs text-[#8A8578] font-body block mb-1.5">Consultation type</label>
+          <label className="text-xs text-[var(--text-3)] font-body block mb-1.5">Consultation type</label>
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setConsultType('in-person')} className={`h-10 rounded-lg border text-sm font-body flex items-center justify-center gap-1.5 transition-colors ${consultType === 'in-person' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>
+            <button onClick={() => setConsultType('in-person')} className={`h-10 rounded-lg border text-sm font-body flex items-center justify-center gap-1.5 transition-colors ${consultType === 'in-person' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-on)]' : 'border-[var(--line-2)] text-[var(--text)] hover:border-[var(--text)]'}`}>
               <Building2 className="w-4 h-4" /> In person
             </button>
-            <button onClick={() => setConsultType('video')} className={`h-10 rounded-lg border text-sm font-body flex items-center justify-center gap-1.5 transition-colors ${consultType === 'video' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>
+            <button onClick={() => setConsultType('video')} className={`h-10 rounded-lg border text-sm font-body flex items-center justify-center gap-1.5 transition-colors ${consultType === 'video' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-on)]' : 'border-[var(--line-2)] text-[var(--text)] hover:border-[var(--text)]'}`}>
               <Video className="w-4 h-4" /> Video
             </button>
           </div>
         </div>
 
         <div>
-          <label className="text-xs text-[#8A8578] font-body block mb-1.5">New or returning client</label>
+          <label className="text-xs text-[var(--text-3)] font-body block mb-1.5">New or returning client</label>
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setClientType('new')} className={`h-10 rounded-lg border text-sm font-body transition-colors ${clientType === 'new' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>New client</button>
-            <button onClick={() => setClientType('returning')} className={`h-10 rounded-lg border text-sm font-body transition-colors ${clientType === 'returning' ? 'border-[#0a5dc2] bg-[#0a5dc2] text-white' : 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]'}`}>Returning client</button>
+            <button onClick={() => setClientType('new')} className={`h-10 rounded-lg border text-sm font-body transition-colors ${clientType === 'new' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-on)]' : 'border-[var(--line-2)] text-[var(--text)] hover:border-[var(--text)]'}`}>New client</button>
+            <button onClick={() => setClientType('returning')} className={`h-10 rounded-lg border text-sm font-body transition-colors ${clientType === 'returning' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-on)]' : 'border-[var(--line-2)] text-[var(--text)] hover:border-[var(--text)]'}`}>Returning client</button>
           </div>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs text-[#8A8578] font-body">Available appointments</label>
+            <label className="text-xs text-[var(--text-3)] font-body">Available appointments</label>
             <div className="flex gap-1">
-              <button onClick={() => shiftWindow(-1)} className="w-7 h-7 rounded-full border border-[#E5E2DC] flex items-center justify-center text-[#111418] hover:border-[#111418]"><ChevronLeft className="w-4 h-4" /></button>
-              <button onClick={() => shiftWindow(1)} className="w-7 h-7 rounded-full border border-[#E5E2DC] flex items-center justify-center text-[#111418] hover:border-[#111418]"><ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => shiftWindow(-1)} className="w-7 h-7 rounded-full border border-[var(--line-2)] flex items-center justify-center text-[var(--text)] hover:border-[var(--text)]"><ChevronLeft className="w-4 h-4" /></button>
+              <button onClick={() => shiftWindow(1)} className="w-7 h-7 rounded-full border border-[var(--line-2)] flex items-center justify-center text-[var(--text)] hover:border-[var(--text)]"><ChevronRight className="w-4 h-4" /></button>
             </div>
           </div>
           <div className="grid grid-cols-7 gap-1">
@@ -118,7 +118,7 @@ export default function BookingPanel({ attorney }) {
               const has = d.slots.length > 0;
               const selected = isSameDay(d.day, selectedDay);
               return (
-                <button key={i} disabled={!has} onClick={() => setSelectedDay(d.day)} className={`flex flex-col items-center py-2 rounded-lg border text-xs font-body transition-colors ${selected ? 'border-[#0a5dc2] bg-[#EAF2FB] text-[#0a5dc2]' : has ? 'border-[#E5E2DC] text-[#111418] hover:border-[#111418]' : 'border-transparent text-[#E5E2DC] cursor-not-allowed'}`}>
+                <button key={i} disabled={!has} onClick={() => setSelectedDay(d.day)} className={`flex flex-col items-center py-2 rounded-lg border text-xs font-body transition-colors ${selected ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]' : has ? 'border-[var(--line-2)] text-[var(--text)] hover:border-[var(--text)]' : 'border-transparent text-[var(--text-4)] cursor-not-allowed'}`}>
                   <span className="uppercase">{format(d.day, 'EEE')}</span>
                   <span className="text-[11px] mt-0.5">{format(d.day, 'MMM d')}</span>
                   <span className="mt-1">{has ? d.slots.length : '—'}</span>
@@ -129,21 +129,21 @@ export default function BookingPanel({ attorney }) {
         </div>
 
         <div>
-          <p className="text-xs text-[#8A8578] font-body mb-2">{format(selectedDay, 'EEEE, MMM d')}</p>
+          <p className="text-xs text-[var(--text-3)] font-body mb-2">{format(selectedDay, 'EEEE, MMM d')}</p>
           {selectedSlots.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
               {selectedSlots.map((s) => (
-                <button key={s} onClick={() => handleSlot(s)} className="h-10 rounded-lg border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] hover:bg-[#111418] hover:text-white transition-all">
+                <button key={s} onClick={() => handleSlot(s)} className="h-10 rounded-lg border border-[var(--line-2)] text-sm text-[var(--text)] font-body hover:border-[var(--text)] hover:bg-[var(--text)] hover:text-[var(--ground)] transition-all">
                   {format(new Date(s), 'h:mm a')}
                 </button>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#8A8578] font-body py-3 text-center">{t('booking.noSlots')}</p>
+            <p className="text-sm text-[var(--text-3)] font-body py-3 text-center">{t('booking.noSlots')}</p>
           )}
         </div>
 
-        <p className="text-xs text-[#8A8578] font-body leading-relaxed text-center">
+        <p className="text-xs text-[var(--text-3)] font-body leading-relaxed text-center">
           Brief is not a law firm. Booking a consultation does not create an attorney-client relationship.
         </p>
       </div>

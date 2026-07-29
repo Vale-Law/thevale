@@ -97,21 +97,21 @@ function CategorySection({ category, index }) {
       className={index === 0 ? 'pb-24 lg:pb-32' : 'pb-24 lg:pb-32'}
     >
       <div className="fade-up-child">
-        <h2 className="font-serif text-[28px] lg:text-[40px] text-[#111418] leading-[1.05] mb-2">
+        <h2 className="font-serif text-[28px] lg:text-[40px] text-[var(--text)] leading-[1.05] mb-2">
           {category.heading}
         </h2>
         {category.description && (
-          <p className="text-sm text-[#8A8578] font-body italic mb-2">
+          <p className="text-sm text-[var(--text-3)] font-body italic mb-2">
             {category.description}
           </p>
         )}
-        <div className="border-t border-[#E5E2DC] mb-8" />
+        <div className="border-t border-[var(--line-2)] mb-8" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-4">
           {category.options.map(opt => (
             <Link
               key={opt}
               to={`/?situation=${encodeURIComponent(opt)}`}
-              className="text-sm font-body text-[#111418] underline underline-offset-4 decoration-[#E5E2DC] hover:decoration-[#0a5dc2] hover:text-[#0a5dc2] transition-all w-fit"
+              className="text-sm font-body text-[var(--text)] underline underline-offset-4 decoration-[var(--line-2)] hover:decoration-[var(--accent)] hover:text-[var(--accent)] transition-all w-fit"
             >
               {opt}
             </Link>
@@ -139,20 +139,20 @@ export default function AreasOfHelp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
 
       {/* Hero */}
       <section className="pt-20 lg:pt-28 pb-16 lg:pb-20 px-6 lg:px-8" ref={ref}>
         <div className="max-w-[1200px] mx-auto">
           <div className="fade-up-child">
-            <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-4 font-body">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-4 font-body">
               Find your match
             </p>
-            <h1 className="font-serif text-[40px] lg:text-[64px] text-[#111418] leading-[1.02] mb-6 max-w-[700px]">
+            <h1 className="font-serif text-[40px] lg:text-[64px] text-[var(--text)] leading-[1.02] mb-6 max-w-[700px]">
               Explore Areas of Help
             </h1>
-            <p className="font-body text-base lg:text-lg text-[#8A8578] leading-relaxed max-w-[640px]">
+            <p className="font-body text-base lg:text-lg text-[var(--text-3)] leading-relaxed max-w-[640px]">
               Whatever you're facing, there's a lawyer for it. Find your situation below and we'll connect you with attorneys who handle it.
             </p>
             <div className="mt-10 lg:mt-12">
@@ -168,7 +168,7 @@ export default function AreasOfHelp() {
       </section>
 
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-        <div className="border-t border-[#E5E2DC]" />
+        <div className="border-t border-[var(--line-2)]" />
       </div>
 
       {/* Categories */}
@@ -181,13 +181,13 @@ export default function AreasOfHelp() {
       {/* Closing CTA */}
       <section className="px-6 lg:px-8 pb-24 lg:pb-32">
         <div className="max-w-[1200px] mx-auto">
-          <div className="fade-up-child border-t border-[#E5E2DC] pt-16 text-center">
-            <h2 className="font-serif text-[28px] lg:text-[36px] text-[#111418] leading-[1.1] mb-8">
+          <div className="fade-up-child border-t border-[var(--line-2)] pt-16 text-center">
+            <h2 className="font-serif text-[28px] lg:text-[36px] text-[var(--text)] leading-[1.1] mb-8">
               Not sure which one fits?
             </h2>
             <Link
               to="/booking"
-              className="inline-flex items-center px-8 py-4 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-all duration-300"
+              className="inline-flex items-center px-8 py-4 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-all duration-300"
             >
               Talk to us →
             </Link>

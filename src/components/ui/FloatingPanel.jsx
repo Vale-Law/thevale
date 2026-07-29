@@ -56,12 +56,12 @@ export default function FloatingPanel({ open, onClose, triggerRef, children, ali
   // exists to avoid.
   const themedStyle = theme === 'tokens'
     ? { border: '1px solid var(--line)', borderRadius: 'var(--radius-s)', boxShadow: 'var(--shadow-overlay)' }
-    : { border: '1px solid #E5E2DC', borderRadius: 8, boxShadow: '0 12px 40px rgba(0,0,0,0.12)' };
+    : { border: '1px solid var(--line-2)', borderRadius: 8, boxShadow: '0 12px 40px rgba(0,0,0,0.12)' };
 
   return createPortal(
     <div
       ref={panelRef}
-      className={theme === 'tokens' ? 'fixed z-[3000] bg-[var(--surface)]' : 'fixed z-[3000] bg-white'}
+      className={theme === 'tokens' ? 'fixed z-[3000] bg-[var(--surface)]' : 'fixed z-[3000] bg-[var(--surface)]'}
       style={{
         top: `${coords.top}px`,
         left: `${coords.left}px`,

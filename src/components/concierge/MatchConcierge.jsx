@@ -21,7 +21,7 @@ function ConciergeEntry({ onStart, t }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.18)] w-full p-3 sm:p-4">
+    <div className="bg-[var(--surface)] rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.18)] w-full p-3 sm:p-4">
       <div className="flex items-center gap-2">
         <input
           value={value}
@@ -31,11 +31,11 @@ function ConciergeEntry({ onStart, t }) {
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           placeholder={PLACEHOLDERS[idx]}
           aria-label={t('concierge.cta')}
-          className="flex-1 w-full bg-transparent outline-none text-base lg:text-lg text-[#111418] font-body placeholder:text-[#8A8578] px-2"
+          className="flex-1 w-full bg-transparent outline-none text-base lg:text-lg text-[var(--text)] font-body placeholder:text-[var(--text-3)] px-2"
         />
         <button
           onClick={submit}
-          className="shrink-0 inline-flex items-center gap-1.5 px-5 sm:px-6 h-11 rounded-full bg-[#0a5dc2] hover:bg-[#084a9e] transition-colors text-white text-sm font-medium font-body"
+          className="shrink-0 inline-flex items-center gap-1.5 px-5 sm:px-6 h-11 rounded-full bg-[var(--accent)] hover:bg-[var(--accent-press)] transition-colors text-[var(--accent-on)] text-sm font-medium font-body"
         >
           {t('concierge.cta')}
           <ArrowRight className="w-4 h-4" />
@@ -88,14 +88,14 @@ export default function MatchConcierge({ onSearchFallback, initialDescription: h
   if (phase === 'fallback') {
     return (
       <div className="max-w-2xl">
-        <h2 className="font-serif text-[24px] lg:text-[30px] text-[#111418] leading-[1.1] mb-2">
+        <h2 className="font-serif text-[24px] lg:text-[30px] text-[var(--text)] leading-[1.1] mb-2">
           {t('concierge.fallbackTitle')}
         </h2>
-        <p className="text-sm text-[#8A8578] font-body mb-6">{t('concierge.fallbackSub')}</p>
+        <p className="text-sm text-[var(--text-3)] font-body mb-6">{t('concierge.fallbackSub')}</p>
         <HeroSearchCard onSearch={onSearchFallback} />
         <button
           onClick={reset}
-          className="mt-4 text-sm text-[#0a5dc2] hover:text-[#111418] font-body"
+          className="mt-4 text-sm text-[var(--accent)] hover:text-[var(--text)] font-body"
         >
           {t('concierge.tryAgain')}
         </button>
@@ -105,10 +105,10 @@ export default function MatchConcierge({ onSearchFallback, initialDescription: h
 
   return (
     <div className="max-w-2xl">
-      <h2 className="font-serif text-[28px] lg:text-[36px] text-[#111418] leading-[1.1] mb-2">
+      <h2 className="font-serif text-[28px] lg:text-[36px] text-[var(--text)] leading-[1.1] mb-2">
         {t('concierge.heading')}
       </h2>
-      <p className="text-base lg:text-lg text-[#8A8578] font-body mb-6">
+      <p className="text-base lg:text-lg text-[var(--text-3)] font-body mb-6">
         {t('concierge.subhead')}
       </p>
       <ConciergeEntry onStart={start} t={t} />

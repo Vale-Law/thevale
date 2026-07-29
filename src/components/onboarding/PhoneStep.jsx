@@ -46,8 +46,8 @@ export default function PhoneStep({ onComplete }) {
 
   return (
     <div key="phone" className="px-6 py-8 animate-fade-up">
-      <h2 className="font-serif text-[28px] text-[#111418] leading-tight mb-2">{t('onboarding.verifyPhone')}</h2>
-      <p className="text-sm text-[#8A8578] font-body mb-6 leading-relaxed">
+      <h2 className="font-serif text-[28px] text-[var(--text)] leading-tight mb-2">{t('onboarding.verifyPhone')}</h2>
+      <p className="text-sm text-[var(--text-3)] font-body mb-6 leading-relaxed">
         {t('onboarding.phoneDesc')}
       </p>
 
@@ -55,7 +55,7 @@ export default function PhoneStep({ onComplete }) {
         <select
           value={countryCode}
           onChange={e => setCountryCode(e.target.value)}
-          className="border border-[#E5E2DC] bg-white px-3 py-3 text-sm text-[#111418] outline-none focus:border-[#0a5dc2] font-body"
+          className="border border-[var(--line-2)] bg-[var(--surface)] px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] font-body"
           style={{ borderRadius: 8 }}
         >
           {COUNTRIES.map(c => (
@@ -67,7 +67,7 @@ export default function PhoneStep({ onComplete }) {
           value={phone}
           onChange={e => setPhone(formatPhone(e.target.value))}
           placeholder="(555) 555-5555"
-          className="flex-1 border border-[#E5E2DC] bg-white px-4 py-3 text-sm text-[#111418] outline-none focus:border-[#0a5dc2] font-body"
+          className="flex-1 border border-[var(--line-2)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] font-body"
           style={{ borderRadius: 8 }}
         />
       </div>
@@ -75,7 +75,7 @@ export default function PhoneStep({ onComplete }) {
       <button
         onClick={handleSubmit}
         disabled={loading || !canSubmit}
-        className="w-full py-3.5 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-body flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-body flex items-center justify-center gap-2"
         style={{ borderRadius: 8 }}
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('onboarding.continue')}
@@ -83,7 +83,7 @@ export default function PhoneStep({ onComplete }) {
 
       <button
         onClick={onComplete}
-        className="w-full text-center text-sm text-[#8A8578] hover:text-[#111418] mt-3 font-body transition-colors"
+        className="w-full text-center text-sm text-[var(--text-3)] hover:text-[var(--text)] mt-3 font-body transition-colors"
       >
         {t('onboarding.skipForNow')}
       </button>

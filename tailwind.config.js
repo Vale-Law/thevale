@@ -33,8 +33,8 @@ module.exports = {
   				foreground: 'hsl(var(--muted-foreground))'
   			},
   			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
+  				DEFAULT: 'hsl(var(--ui-accent))',
+  				foreground: 'hsl(var(--ui-accent-foreground))'
   			},
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
@@ -62,11 +62,11 @@ module.exports = {
   			}
   		},
   		fontFamily: {
-  			heading: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			body: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			display: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			serif: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			rounded: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			heading: ['Newsreader', 'Georgia', 'serif'],
+  			body: ['Archivo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			display: ['Newsreader', 'Georgia', 'serif'],
+  			serif: ['Newsreader', 'Georgia', 'serif'],
+  			rounded: ['Newsreader', 'Georgia', 'serif'],
   			mono: ['var(--font-mono)']
   		},
   		keyframes: {

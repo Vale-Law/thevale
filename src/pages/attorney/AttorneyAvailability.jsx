@@ -98,7 +98,7 @@ export default function AttorneyAvailabilityPage() {
       if (!res.ok) throw new Error(data.error || 'Could not start the connection.');
       window.location.href = data.url;
     } catch (e) {
-      alert(e.message || 'Could not start the connection.');
+      setCalendarMessage({ text: e.message || 'Could not start the connection.', ok: false });
       setConnecting(false);
     }
   };

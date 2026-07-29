@@ -25,11 +25,11 @@ export default function CommonSituations({ onSelect }) {
   }, []);
 
   return (
-    <section className="bg-white py-20 lg:py-24 px-6 lg:px-8">
+    <section className="bg-[var(--surface)] py-20 lg:py-24 px-6 lg:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-10">
-          <h2 className="font-serif font-medium text-[26px] lg:text-[34px] text-[#111418] leading-[1.1]">{t('commonSituations.heading')}</h2>
-          <p className="text-[#8A8578] font-body mt-2">{t('commonSituations.subheading')}</p>
+          <h2 className="font-serif font-medium text-[26px] lg:text-[34px] text-[var(--text)] leading-[1.1]">{t('commonSituations.heading')}</h2>
+          <p className="text-[var(--text-3)] font-body mt-2">{t('commonSituations.subheading')}</p>
         </div>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 px-1" style={{ scrollSnapType: 'x proximity' }}>
           {SITUATIONS.map((s, i) => {
@@ -50,7 +50,7 @@ export default function CommonSituations({ onSelect }) {
                     width: 'clamp(96px, 18vw, 120px)',
                     height: 'clamp(96px, 18vw, 120px)',
                     borderRadius: '23%',
-                    backgroundColor: '#F1EEE8',
+                    backgroundColor: 'var(--surface-sunk)',
                     boxShadow: isHovered ? '0 12px 40px rgba(10,61,98,0.15)' : '0 4px 16px rgba(10,61,98,0.08)',
                     transform: isHovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)',
                   }}
@@ -71,8 +71,8 @@ export default function CommonSituations({ onSelect }) {
                   />
                 </div>
                 <span
-                  className="font-body text-[13px] text-[#111418] text-center leading-tight transition-colors duration-200"
-                  style={{ color: isHovered ? '#0a5dc2' : '#111418' }}
+                  className="font-body text-[13px] text-[var(--text)] text-center leading-tight transition-colors duration-200"
+                  style={{ color: isHovered ? 'var(--accent)' : 'var(--text)' }}
                 >
                   {label}
                 </span>

@@ -137,11 +137,11 @@ export default function PracticeAreaDropdown({ value, onChange }) {
         data-active={idx === activeIndex}
         onMouseEnter={() => setActiveIndex(idx)}
         onClick={() => selectItem(item)}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-body text-[#111418] transition-colors"
-        style={{ background: idx === activeIndex ? '#EAF2FB' : 'transparent' }}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-body text-[var(--text)] transition-colors"
+        style={{ background: idx === activeIndex ? 'var(--accent-soft)' : 'transparent' }}
       >
         <span>{item}</span>
-        {idx === activeIndex && <ChevronDown className="w-3.5 h-3.5 text-[#0a5dc2]" style={{ transform: 'rotate(-90deg)' }} />}
+        {idx === activeIndex && <ChevronDown className="w-3.5 h-3.5 text-[var(--accent)]" style={{ transform: 'rotate(-90deg)' }} />}
       </button>
     );
   };
@@ -152,13 +152,13 @@ export default function PracticeAreaDropdown({ value, onChange }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[#111418] bg-transparent outline-none border-0 border-b sm:border-b-0 sm:border-r border-[#E5E2DC] font-body cursor-pointer text-left overflow-hidden"
+        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[var(--text)] bg-transparent outline-none border-0 border-b sm:border-b-0 sm:border-r border-[var(--line-2)] font-body cursor-pointer text-left overflow-hidden"
       >
-        <Search className="w-4 h-4 text-[#8A8578] flex-shrink-0" />
-        <span className={`truncate whitespace-nowrap flex-1 ${value ? 'text-[#111418]' : 'text-[#8A8578]'}`}>
+        <Search className="w-4 h-4 text-[var(--text-3)] flex-shrink-0" />
+        <span className={`truncate whitespace-nowrap flex-1 ${value ? 'text-[var(--text)]' : 'text-[var(--text-3)]'}`}>
           {value || 'Search Legal Issues'}
         </span>
-        <ChevronDown className="w-3.5 h-3.5 text-[#8A8578] flex-shrink-0" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 200ms' }} />
+        <ChevronDown className="w-3.5 h-3.5 text-[var(--text-3)] flex-shrink-0" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 200ms' }} />
       </button>
 
       {/* Dimmed backdrop */}
@@ -166,37 +166,37 @@ export default function PracticeAreaDropdown({ value, onChange }) {
 
       <FloatingPanel open={open} onClose={() => setOpen(false)} triggerRef={containerRef} minWidth={440}>
         {/* Search input */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[#E5E2DC]">
-          <Search className="w-4 h-4 text-[#8A8578] flex-shrink-0" />
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--line-2)]">
+          <Search className="w-4 h-4 text-[var(--text-3)] flex-shrink-0" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search Legal Issues"
-            className="flex-1 text-sm text-[#111418] bg-transparent outline-none font-body placeholder:text-[#8A8578]"
+            className="flex-1 text-sm text-[var(--text)] bg-transparent outline-none font-body placeholder:text-[var(--text-3)]"
           />
         </div>
 
         {/* List */}
         <div ref={listRef} className="overflow-y-auto" style={{ maxHeight: 340 }}>
           {flatFiltered.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-[#8A8578] font-body">
+            <div className="px-4 py-8 text-center text-sm text-[var(--text-3)] font-body">
               No practice areas match "{query}"
             </div>
           ) : (
             <>
               {filteredPopular.length > 0 && (
                 <div className="pt-2">
-                  <p className="px-4 py-1.5 text-[10px] uppercase tracking-[0.12em] text-[#8A8578] font-body">
+                  <p className="px-4 py-1.5 text-[10px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body">
                     Popular Practice Areas
                   </p>
                   {filteredPopular.map(renderItem)}
                 </div>
               )}
               {filteredMore.length > 0 && (
-                <div className="pt-2 border-t border-[#E5E2DC]">
-                  <p className="px-4 py-1.5 text-[10px] uppercase tracking-[0.12em] text-[#8A8578] font-body">
+                <div className="pt-2 border-t border-[var(--line-2)]">
+                  <p className="px-4 py-1.5 text-[10px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body">
                     More Areas (A–Z)
                   </p>
                   {filteredMore.map(renderItem)}

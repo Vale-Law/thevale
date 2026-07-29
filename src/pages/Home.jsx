@@ -248,7 +248,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
       <Hero onSearch={handleHeroSearch} />
       <PracticeAreaIcons onSelect={handleGallerySelect} />

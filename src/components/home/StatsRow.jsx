@@ -7,12 +7,12 @@ const stats = [
 
 export default function StatsRow() {
   return (
-    <section className="py-12 px-4 bg-primary">
+    <section className="py-12 px-4 bg-[var(--accent)]">
       <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
         {stats.map(({ value, label }) => (
           <div key={label}>
-            <div className="text-3xl font-bold text-white mb-1">{value}</div>
-            <div className="text-sm text-white/70">{label}</div>
+            <div className="text-3xl font-bold text-[var(--accent-on)] mb-1">{value}</div>
+            <div className="text-sm text-[var(--accent-on)] opacity-75">{label}</div>
           </div>
         ))}
       </div>

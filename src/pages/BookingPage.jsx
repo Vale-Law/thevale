@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/api/supabaseClient';
+import { computeAvailableSlots } from '@/lib/availability';
 import { Button, Field, Card, TimeSlot, Halftone } from '@/components/primitives';
 import { Checkbox } from '@/components/ui/checkbox';
 import MinimalFooter from '@/components/layout/MinimalFooter';
@@ -44,10 +45,29 @@ export default function BookingPage() {
   useEffect(() => {
     if (attorney === undefined || attorney === null) return;
     setLoadingSlots(true);
+
+    // The serverless endpoint is the preferred source (it merges Google
+    // Calendar free/busy). When it isn't available — e.g. the deployment
+    // is missing SUPABASE_SERVICE_ROLE_KEY and it 503s — fall back to the
+    // anon-safe RPC and compute slots in the browser with the same engine.
+    const fallback = async () => {
+      const { data } = await supabase.rpc('get_public_booking_page', { p_slug: slug });
+      if (!data?.working_hours || !data?.timezone) return { slots: [], timezone: null };
+      const slots = computeAvailableSlots({
+        workingHours: data.working_hours,
+        bufferMinutes: data.buffer_minutes ?? 15,
+        minNoticeHours: data.min_notice_hours ?? 24,
+        dailyCap: data.daily_cap,
+        timezone: data.timezone,
+        existingRanges: data.booked || [],
+      });
+      return { attorneyId: data.attorney_id, timezone: data.timezone, slots };
+    };
+
     fetch(`/api/availability?slug=${encodeURIComponent(slug)}`)
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('availability api unavailable'))))
       .then((data) => setAvail(data))
-      .catch(() => setAvail({ slots: [], timezone: null }))
+      .catch(() => fallback().then(setAvail).catch(() => setAvail({ slots: [], timezone: null })))
       .finally(() => setLoadingSlots(false));
   }, [attorney, slug]);
 
@@ -164,14 +184,24 @@ export default function BookingPage() {
   return (
     <Shell>
       <div className="max-w-[680px] mx-auto px-6 py-12">
-        <Halftone className="rounded-[var(--radius-l)] border border-[var(--line)] bg-[var(--surface)] px-6 py-6 mb-8 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-[var(--surface-sunk)] border border-[var(--line)] flex items-center justify-center shrink-0">
-            {attorney.photo ? <img src={attorney.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xl text-[var(--text-3)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name?.[0]}</span>}
+        <Halftone className="rounded-[var(--radius-l)] border border-[var(--line)] bg-[var(--surface)] px-6 py-6 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full overflow-hidden bg-[var(--surface-sunk)] border border-[var(--line)] flex items-center justify-center shrink-0">
+              {attorney.photo ? <img src={attorney.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xl text-[var(--text-3)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name?.[0]}</span>}
+            </div>
+            <div>
+              <h1 className="text-2xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name}</h1>
+              <p className="text-sm text-[var(--text-3)] ds-type-body-m">{(attorney.practice_areas?.length ? attorney.practice_areas : [attorney.practice_area]).filter(Boolean).join(' · ')}</p>
+              {attorney.office_location && (
+                <p className="text-xs text-[var(--text-4)] ds-type-body-m mt-0.5">{attorney.office_location}</p>
+              )}
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name}</h1>
-            <p className="text-sm text-[var(--text-3)] ds-type-body-m">{(attorney.practice_areas?.length ? attorney.practice_areas : [attorney.practice_area]).filter(Boolean).join(' · ')}</p>
-          </div>
+          {attorney.bio && (
+            <p className="text-sm text-[var(--text-2)] ds-type-body-m leading-relaxed mt-4 pt-4 border-t border-[var(--line)] line-clamp-4">
+              {attorney.bio}
+            </p>
+          )}
         </Halftone>
 
         <StepIndicator step={step} />

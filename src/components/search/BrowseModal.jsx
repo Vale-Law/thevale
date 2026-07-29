@@ -77,26 +77,26 @@ export default function BrowseModal({ open, onClose }) {
 
   return (
     <BottomSheet open={open} onClose={onClose} desktopMaxWidth={680}>
-      <div className="flex items-center justify-between px-6 border-b border-[#E5E2DC]">
+      <div className="flex items-center justify-between px-6 border-b border-[var(--line-2)]">
         <div className="flex gap-6">
           <button
             onClick={() => setTab('areas')}
             className="pb-3 pt-4 text-sm font-body relative transition-colors"
-            style={{ color: tab === 'areas' ? '#111418' : '#8A8578' }}
+            style={{ color: tab === 'areas' ? 'var(--text)' : 'var(--text-3)' }}
           >
             {t('browseModal.practiceAreas')}
-            {tab === 'areas' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[#111418]" />}
+            {tab === 'areas' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[var(--text)]" />}
           </button>
           <button
             onClick={() => setTab('situations')}
             className="pb-3 pt-4 text-sm font-body relative transition-colors"
-            style={{ color: tab === 'situations' ? '#111418' : '#8A8578' }}
+            style={{ color: tab === 'situations' ? 'var(--text)' : 'var(--text-3)' }}
           >
             {t('browseModal.commonSituations')}
-            {tab === 'situations' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[#111418]" />}
+            {tab === 'situations' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[var(--text)]" />}
           </button>
         </div>
-        <button onClick={onClose} className="text-[#8A8578] hover:text-[#111418] transition-colors mb-3 mt-4 p-2 -mr-2" aria-label="Close">
+        <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text)] transition-colors mb-3 mt-4 p-2 -mr-2" aria-label="Close">
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -104,23 +104,23 @@ export default function BrowseModal({ open, onClose }) {
       <div className="p-6 overflow-y-auto">
         {tab === 'areas' ? (
           <>
-            <h3 className="font-serif text-[22px] text-[#111418] mb-5">{t('browseModal.browseAreas')}</h3>
+            <h3 className="font-serif text-[22px] text-[var(--text)] mb-5">{t('browseModal.browseAreas')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
               {PRACTICE_AREAS.map(area => (
                 <Link
                   key={area}
                   to={`/?area=${encodeURIComponent(area)}`}
                   onClick={onClose}
-                  className="text-sm font-body text-[#111418] underline underline-offset-4 decoration-[#E5E2DC] hover:decoration-[#111418] transition-all"
+                  className="text-sm font-body text-[var(--text)] underline underline-offset-4 decoration-[var(--line-2)] hover:decoration-[var(--text)] transition-all"
                 >
                   {labelFor(area, AREA_LABELS)}
                 </Link>
               ))}
             </div>
-            <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
+            <div className="mt-6 pt-5 border-t border-[var(--line-2)]">
               <button
                 onClick={handleExplore}
-                className="text-sm font-body font-medium text-[#0a5dc2] hover:text-[#111418] transition-colors"
+                className="text-sm font-body font-medium text-[var(--accent)] hover:text-[var(--text)] transition-colors"
               >
                 {t('browseModal.explore')}
               </button>
@@ -128,23 +128,23 @@ export default function BrowseModal({ open, onClose }) {
           </>
         ) : (
           <>
-            <h3 className="font-serif text-[22px] text-[#111418] mb-5">{t('browseModal.browseSituations')}</h3>
+            <h3 className="font-serif text-[22px] text-[var(--text)] mb-5">{t('browseModal.browseSituations')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
               {SITUATIONS.map(sit => (
                 <Link
                   key={sit}
                   to={`/?situation=${encodeURIComponent(sit)}`}
                   onClick={onClose}
-                  className="text-sm font-body text-[#111418] underline underline-offset-4 decoration-[#E5E2DC] hover:decoration-[#111418] transition-all"
+                  className="text-sm font-body text-[var(--text)] underline underline-offset-4 decoration-[var(--line-2)] hover:decoration-[var(--text)] transition-all"
                 >
                   {labelFor(sit, SITUATION_LABELS)}
                 </Link>
               ))}
             </div>
-            <div className="mt-6 pt-5 border-t border-[#E5E2DC]">
+            <div className="mt-6 pt-5 border-t border-[var(--line-2)]">
               <button
                 onClick={handleExplore}
-                className="text-sm font-body font-medium text-[#0a5dc2] hover:text-[#111418] transition-colors"
+                className="text-sm font-body font-medium text-[var(--accent)] hover:text-[var(--text)] transition-colors"
               >
                 {t('browseModal.explore')}
               </button>

@@ -13,8 +13,8 @@ export default function ClientShell() {
 
   if (isLoadingAuth && !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7]">
-        <div className="w-6 h-6 border-2 border-[#E5E2DC] border-t-[#111418] rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--ground)]">
+        <div className="w-6 h-6 border-2 border-[var(--line-2)] border-t-[var(--text)] rounded-full animate-spin" />
       </div>
     );
   }

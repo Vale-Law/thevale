@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { LayoutDashboard, ClipboardCheck, Scale, CalendarClock, Users } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, Scale, CalendarClock, Users, MessageSquare } from 'lucide-react';
 import DashboardShell from '@/components/shell/DashboardShell';
 import { useAuth } from '@/lib/AuthContext';
 import { homeForRole } from '@/lib/roleUtils';
@@ -26,6 +26,7 @@ export default function AdminShell() {
     { to: '/admin/attorneys', label: 'Attorneys', icon: Scale },
     { to: '/admin/bookings', label: 'Bookings', icon: CalendarClock },
     { to: '/admin/users', label: 'Users', icon: Users },
+    { to: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
   ];
 
   return (

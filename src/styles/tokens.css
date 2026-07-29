@@ -21,6 +21,9 @@
   --brass:#A8834C; --oxblood:#6E2B34;
   --line:rgba(16,28,23,.10); --line-2:rgba(16,28,23,.16);
   --dot:rgba(107,138,94,.16);
+  /* Supplemental (legacy-migration) tokens: soft accent wash for chips /
+     selected states, and a translucent ground for blurred sticky bars. */
+  --accent-soft:rgba(107,138,94,.14); --ground-glass:rgba(241,242,237,.90);
 
   --pending:#B07A16; --confirmed:#2F6B47; --completed:#6B7A72; --noshow:#93321F;
 
@@ -54,6 +57,7 @@
     --brass:#C9A46A; --oxblood:#B4636F;
     --line:rgba(233,236,228,.12); --line-2:rgba(233,236,228,.20);
     --dot:rgba(143,175,128,.20);
+    --accent-soft:rgba(143,175,128,.18); --ground-glass:rgba(12,21,18,.90);
     --pending:#E0A93C; --confirmed:#5BB183; --completed:#8A9A91; --noshow:#D4705C;
     --shadow-raised:none;
     --shadow-overlay:0 4px 16px rgba(0,0,0,.40), 0 12px 32px rgba(0,0,0,.30);
@@ -68,6 +72,7 @@
   --brass:#C9A46A; --oxblood:#B4636F;
   --line:rgba(233,236,228,.12); --line-2:rgba(233,236,228,.20);
   --dot:rgba(143,175,128,.20);
+  --accent-soft:rgba(143,175,128,.18); --ground-glass:rgba(12,21,18,.90);
   --pending:#E0A93C; --confirmed:#5BB183; --completed:#8A9A91; --noshow:#D4705C;
   --shadow-raised:none;
 }
@@ -88,6 +93,7 @@
   --brass:#A8834C; --oxblood:#6E2B34;
   --line:rgba(16,28,23,.10); --line-2:rgba(16,28,23,.16);
   --dot:rgba(107,138,94,.16);
+  --accent-soft:rgba(107,138,94,.14); --ground-glass:rgba(241,242,237,.90);
 
   --pending:#B07A16; --confirmed:#2F6B47; --completed:#6B7A72; --noshow:#93321F;
 

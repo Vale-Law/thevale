@@ -99,10 +99,10 @@ export default function AttorneyProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F7]">
+      <div className="min-h-screen bg-[var(--ground)]">
         <Header />
         <div className="flex items-center justify-center py-32">
-          <Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" />
+          <Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" />
         </div>
         <Footer />
       </div>
@@ -111,9 +111,9 @@ export default function AttorneyProfile() {
 
   if (!attorney) {
     return (
-      <div className="min-h-screen bg-[#FAF9F7]">
+      <div className="min-h-screen bg-[var(--ground)]">
         <Header />
-        <div className="text-center py-32 text-[#8A8578] font-body">{t('profile.notFound')}</div>
+        <div className="text-center py-32 text-[var(--text-3)] font-body">{t('profile.notFound')}</div>
         <Footer />
       </div>
     );
@@ -122,12 +122,12 @@ export default function AttorneyProfile() {
   const nextLabel = nextAvailableLabel(attorney);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
       <MiniHeader attorney={attorney} visible={miniVisible} onBook={handleBook} />
 
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8 lg:py-10 pb-40 lg:pb-10">
-        <Link to="/?browse=1" className="inline-flex items-center gap-1.5 text-sm text-[#8A8578] hover:text-[#0a5dc2] mb-8 transition-colors font-body">
+        <Link to="/?browse=1" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-3)] hover:text-[var(--accent)] mb-8 transition-colors font-body">
           <ArrowLeft className="w-4 h-4" />
           {t('profile.backToResults')}
         </Link>
@@ -148,7 +148,7 @@ export default function AttorneyProfile() {
 
             <div className="space-y-10 mt-8">
               <section id="highlights" className="scroll-mt-40">
-                <h2 className="font-serif text-xl text-[#111418] mb-4">Highlights</h2>
+                <h2 className="font-serif text-xl text-[var(--text)] mb-4">Highlights</h2>
                 <Highlights attorney={attorney} />
               </section>
 
@@ -173,7 +173,7 @@ export default function AttorneyProfile() {
               </section>
             </div>
 
-            <p className="text-xs text-[#8A8578] font-body mt-10 leading-relaxed">
+            <p className="text-xs text-[var(--text-3)] font-body mt-10 leading-relaxed">
               Attorneys pay a flat fee to be listed on Brief. Brief does not recommend or endorse any attorney and does not give legal advice.
             </p>
           </div>
@@ -194,13 +194,13 @@ export default function AttorneyProfile() {
           almost entirely buried underneath it and the Book online button
           could not be tapped at all. 64px matches .mobile-shell-pad's
           clearance for the same tab bar. */}
-      <div className="lg:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom))] inset-x-0 z-40 bg-white border-t border-[#E5E2DC]">
+      <div className="lg:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom))] inset-x-0 z-40 bg-[var(--surface)] border-t border-[var(--line-2)]">
         <div className="px-5 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs text-[#8A8578] font-body">Consultation</p>
-            <p className="text-sm font-medium text-[#111418] font-body">${attorney.consult_fee}{nextLabel ? ` · Next available ${nextLabel}` : ''}</p>
+            <p className="text-xs text-[var(--text-3)] font-body">Consultation</p>
+            <p className="text-sm font-medium text-[var(--text)] font-body">${attorney.consult_fee}{nextLabel ? ` · Next available ${nextLabel}` : ''}</p>
           </div>
-          <button onClick={() => setMobileSheet(true)} className="px-5 py-3 rounded-lg bg-[#0a5dc2] hover:bg-[#084a9e] text-white text-sm font-medium font-body transition-colors shrink-0">
+          <button onClick={() => setMobileSheet(true)} className="px-5 py-3 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-press)] text-[var(--accent-on)] text-sm font-medium font-body transition-colors shrink-0">
             Book online
           </button>
         </div>
@@ -213,10 +213,10 @@ export default function AttorneyProfile() {
       {mobileSheet && (
         <div className="lg:hidden fixed inset-0 z-[1200] flex items-end">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSheet(false)} />
-          <div className="relative w-full max-h-[92vh] bg-[#FAF9F7] rounded-t-2xl flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E2DC]">
-              <p className="font-serif text-lg text-[#111418]">Book a consultation</p>
-              <button onClick={() => setMobileSheet(false)} aria-label="Close booking sheet" className="w-9 h-9 flex items-center justify-center text-[#111418]"><X className="w-5 h-5" /></button>
+          <div className="relative w-full max-h-[92vh] bg-[var(--ground)] rounded-t-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--line-2)]">
+              <p className="font-serif text-lg text-[var(--text)]">Book a consultation</p>
+              <button onClick={() => setMobileSheet(false)} aria-label="Close booking sheet" className="w-9 h-9 flex items-center justify-center text-[var(--text)]"><X className="w-5 h-5" /></button>
             </div>
             <div className="overflow-y-auto overscroll-contain p-5 safe-pb">
               <BookingPanel attorney={attorney} />

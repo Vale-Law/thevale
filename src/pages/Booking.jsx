@@ -66,21 +66,21 @@ export default function Booking() {
   };
 
   if (loadingAtty) return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" />
+        <Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" />
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
       <div className="max-w-[640px] mx-auto px-6 py-12">
         <BookingProgressBar step={step} />
         <BookingSummaryBar attorney={attorney} slot={slot} />
-        <div className="bg-white border border-[#E5E2DC] p-8">
+        <div className="bg-[var(--surface)] border border-[var(--line-2)] p-8">
           {step === 1 && (
             <StepInfo data={info} onChange={setInfo} onNext={() => setStep(2)} />
           )}

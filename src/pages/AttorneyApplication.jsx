@@ -269,11 +269,11 @@ export default function AttorneyApplication() {
         </div>
 
         {licenseSelected && !licenseAccepted && (
-          <div className="p-5 rounded-lg bg-[#EAF2FB] border border-[#0a5dc2]/15">
-            <p className="font-serif text-lg text-[#111418] mb-2">
+          <div className="p-5 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-soft)]">
+            <p className="font-serif text-lg text-[var(--text)] mb-2">
               Brief is currently accepting attorneys licensed in {ACCEPTED_STATES.join(", ")}.
             </p>
-            <p className="text-sm text-[#8A8578] font-body mb-4">
+            <p className="text-sm text-[var(--text-3)] font-body mb-4">
               We're expanding state by state — leave your email and we'll notify you when Brief opens in {form.licenseState}.
             </p>
             {waitlistDone ? (
@@ -384,7 +384,7 @@ export default function AttorneyApplication() {
               <div className="grid grid-cols-2 gap-3">
                 {PRACTICE_AREAS.map((area) => (
                   <label key={area.value} className="flex items-center gap-2.5 cursor-pointer border border-border rounded-lg px-4 py-3 hover:border-primary transition-colors">
-                    <input type="checkbox" checked={practiceAreas.includes(area.value)} onChange={() => toggleArea(area.value)} className="accent-[#0a5dc2] w-4 h-4" />
+                    <input type="checkbox" checked={practiceAreas.includes(area.value)} onChange={() => toggleArea(area.value)} className="accent-[var(--accent)] w-4 h-4" />
                     <span className="text-sm font-body text-foreground">{t(area.labelKey)}</span>
                   </label>
                 ))}
@@ -454,8 +454,8 @@ function FileUpload({ label, file, onChange, chooseFileLabel }) {
     <div>
       <Label className="mb-2 block">{label}</Label>
       <label className="flex items-center gap-3 border border-dashed border-border rounded-lg px-4 py-3 cursor-pointer hover:border-primary transition-colors">
-        <div className="w-9 h-9 rounded-full bg-[#EAF2FB] flex items-center justify-center shrink-0">
-          <Upload className="w-4 h-4 text-[#0a5dc2]" />
+        <div className="w-9 h-9 rounded-full bg-[var(--accent-soft)] flex items-center justify-center shrink-0">
+          <Upload className="w-4 h-4 text-[var(--accent)]" />
         </div>
         <div className="flex-1 min-w-0">
           {file ? (

@@ -6,17 +6,17 @@ export default function FilterSidebar({ filters, onChange }) {
     <aside className="lg:w-56 flex-shrink-0">
       <div className="sticky top-32 space-y-6">
         <div className="flex items-center gap-2 mb-2">
-          <Sliders className="w-4 h-4 text-[#8A8578]" />
-          <span className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] font-body">Filters</span>
+          <Sliders className="w-4 h-4 text-[var(--text-3)]" />
+          <span className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body">Filters</span>
         </div>
 
         {/* Practice Area */}
         <div>
-          <label className="text-xs text-[#111418] font-medium mb-2 block font-body">Practice Area</label>
+          <label className="text-xs text-[var(--text)] font-medium mb-2 block font-body">Practice Area</label>
           <select
             value={filters.area}
             onChange={e => onChange({ ...filters, area: e.target.value })}
-            className="w-full text-sm border border-[#E5E2DC] bg-white px-3 py-2.5 text-[#111418] outline-none focus:border-[#111418] transition-colors font-body appearance-none cursor-pointer"
+            className="w-full text-sm border border-[var(--line-2)] bg-[var(--surface)] px-3 py-2.5 text-[var(--text)] outline-none focus:border-[var(--text)] transition-colors font-body appearance-none cursor-pointer"
           >
             <option value="all">All areas</option>
             <option value="Family Law">Family Law</option>
@@ -27,8 +27,8 @@ export default function FilterSidebar({ filters, onChange }) {
 
         {/* Max fee */}
         <div>
-          <label className="text-xs text-[#111418] font-medium mb-2 block font-body">
-            Max consultation fee — <span className="text-[#0a5dc2]">${filters.maxFee}</span>
+          <label className="text-xs text-[var(--text)] font-medium mb-2 block font-body">
+            Max consultation fee — <span className="text-[var(--accent)]">${filters.maxFee}</span>
           </label>
           <Slider
             min={50}
@@ -42,11 +42,11 @@ export default function FilterSidebar({ filters, onChange }) {
 
         {/* Language */}
         <div>
-          <label className="text-xs text-[#111418] font-medium mb-2 block font-body">Language</label>
+          <label className="text-xs text-[var(--text)] font-medium mb-2 block font-body">Language</label>
           <select
             value={filters.language}
             onChange={e => onChange({ ...filters, language: e.target.value })}
-            className="w-full text-sm border border-[#E5E2DC] bg-white px-3 py-2.5 text-[#111418] outline-none focus:border-[#111418] transition-colors font-body appearance-none cursor-pointer"
+            className="w-full text-sm border border-[var(--line-2)] bg-[var(--surface)] px-3 py-2.5 text-[var(--text)] outline-none focus:border-[var(--text)] transition-colors font-body appearance-none cursor-pointer"
           >
             <option value="all">Any language</option>
             <option value="English">English</option>
@@ -59,7 +59,7 @@ export default function FilterSidebar({ filters, onChange }) {
 
         {/* Min rating */}
         <div>
-          <label className="text-xs text-[#111418] font-medium mb-2 block font-body">Minimum rating</label>
+          <label className="text-xs text-[var(--text)] font-medium mb-2 block font-body">Minimum rating</label>
           <div className="flex flex-wrap gap-2">
             {['all', '4.5', '4.7', '4.9'].map(r => (
               <button
@@ -67,8 +67,8 @@ export default function FilterSidebar({ filters, onChange }) {
                 onClick={() => onChange({ ...filters, minRating: r })}
                 className={`text-xs px-3 py-1.5 border transition-all duration-200 font-body ${
                   filters.minRating === r
-                    ? 'bg-[#111418] text-white border-[#111418]'
-                    : 'border-[#E5E2DC] text-[#8A8578] hover:border-[#111418] hover:text-[#111418]'
+                    ? 'bg-[var(--text)] text-[var(--ground)] border-[var(--text)]'
+                    : 'border-[var(--line-2)] text-[var(--text-3)] hover:border-[var(--text)] hover:text-[var(--text)]'
                 }`}
               >
                 {r === 'all' ? 'Any' : `${r}+`}

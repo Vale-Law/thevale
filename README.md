@@ -10,7 +10,7 @@ Two sides:
 
 Re-synced 2026-07-26 from the cofounder's latest Base44 export. Admin/vetting, role-based route protection, a mobile shell, an AI matching concierge, and structured intake persistence (`CaseSummary`) are now built. See [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md) for the full breakdown of what's functional vs. stubbed vs. missing, including:
 
-- No calendar sync (attorney availability is still a manually-managed slot list, not Google/Microsoft OAuth-backed)
+- Google Calendar sync is built (OAuth free/busy via `/api/calendar-connect` + `/api/calendar-callback`, merged into `/api/availability`) but needs the Google OAuth env vars below configured in Vercel before the "Connect Google Calendar" button works; Microsoft is still unbuilt
 - No real payment processing (booking flow records a selection, doesn't charge)
 - No mechanism to transition a booking to "completed" — the event that's supposed to trigger the attorney's flat fee
 - Reviews are read-only (no submission flow yet)
@@ -44,11 +44,26 @@ This is still a **frontend-only repository** hosted on Base44 — see [`docs/MIG
 
 Other useful scripts: `npm run build`, `npm run lint`, `npm run lint:fix`, `npm run typecheck`.
 
+## Deployment env vars (Vercel)
+
+The frontend needs (build-time):
+
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — the Supabase project URL + anon key.
+
+The serverless functions under `/api` additionally need (server-only, never `VITE_`-prefixed):
+
+- `SUPABASE_SERVICE_ROLE_KEY` — **currently unset in production**, which makes `/api/availability` (and public booking creation / transactional email) return 503. The booking page now falls back to an anon-safe RPC (`get_public_booking_page`) so open slots still render, but bookings/emails need this key.
+- `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` — a Google Cloud OAuth 2.0 Web client with `https://<your-domain>/api/calendar-callback` as an authorized redirect URI (scope used: `calendar.freebusy` only).
+- `CALENDAR_TOKEN_ENCRYPTION_KEY` — 32 random bytes, base64 (`node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`).
+- `RESEND_API_KEY` — for transactional email (`/api/send-email`).
+
+Until the three Google vars are set, the attorney portal's "Connect Google Calendar" button reports that calendar connection isn't configured; everything else works without it.
+
 ## Known gaps / TODOs
 
 Full details in [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md). Highlights:
 
-- [ ] Build real attorney calendar sync (Google Calendar + Microsoft Graph OAuth) — availability is currently a manual slot list
+- [ ] Configure Google Calendar sync env vars in Vercel (code is built — see "Deployment env vars" below); Microsoft Graph OAuth still unbuilt
 - [ ] Wire real payment processing (Stripe) into the booking flow
 - [ ] Define and build the "completed consultation" transition that triggers the attorney's flat fee
 - [ ] Build a review-submission flow (reads already work, writes don't exist)

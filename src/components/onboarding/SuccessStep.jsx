@@ -15,15 +15,15 @@ export default function SuccessStep({ pendingUrl }) {
     <div key="success" className="px-6 py-16 text-center animate-fade-up">
       <div className="flex justify-center mb-6">
         <div
-          className="w-16 h-16 bg-[#EAF2FB] flex items-center justify-center"
+          className="w-16 h-16 bg-[var(--accent-soft)] flex items-center justify-center"
           style={{ borderRadius: '50%' }}
         >
-          <CheckCircle2 className="w-8 h-8 text-[#0a5dc2]" />
+          <CheckCircle2 className="w-8 h-8 text-[var(--accent)]" />
         </div>
       </div>
-      <h2 className="font-serif text-[28px] text-[#111418] mb-2">{t('onboarding.accountVerified')}</h2>
-      <p className="text-sm text-[#8A8578] font-body">{t('onboarding.allSet')}</p>
-      <p className="text-sm text-[#8A8578] font-body mt-1">{t('onboarding.takingBack')}</p>
+      <h2 className="font-serif text-[28px] text-[var(--text)] mb-2">{t('onboarding.accountVerified')}</h2>
+      <p className="text-sm text-[var(--text-3)] font-body">{t('onboarding.allSet')}</p>
+      <p className="text-sm text-[var(--text-3)] font-body mt-1">{t('onboarding.takingBack')}</p>
     </div>
   );
 }

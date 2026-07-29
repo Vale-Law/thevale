@@ -82,20 +82,20 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
     <div key={mode} className="px-6 py-8 animate-fade-up">
       {mode === 'register' ? (
         <>
-          <h2 className="font-serif text-[28px] text-[#111418] leading-tight mb-2">{t('onboarding.tellUs')}</h2>
-          <p className="text-sm text-[#8A8578] font-body mb-6">{t('onboarding.createAccount')}</p>
+          <h2 className="font-serif text-[28px] text-[var(--text)] leading-tight mb-2">{t('onboarding.tellUs')}</h2>
+          <p className="text-sm text-[var(--text-3)] font-body mb-6">{t('onboarding.createAccount')}</p>
         </>
       ) : (
         <>
-          <h2 className="font-serif text-[28px] text-[#111418] leading-tight mb-2">{t('onboarding.welcomeBack')}</h2>
-          <p className="text-sm text-[#8A8578] font-body mb-6">{t('onboarding.signInContinue')}</p>
+          <h2 className="font-serif text-[28px] text-[var(--text)] leading-tight mb-2">{t('onboarding.welcomeBack')}</h2>
+          <p className="text-sm text-[var(--text-3)] font-body mb-6">{t('onboarding.signInContinue')}</p>
         </>
       )}
 
       {/* Social buttons */}
       <button
         onClick={handleGoogle}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-white border border-[#E5E2DC] text-sm font-medium text-[#111418] hover:bg-[#FAF9F7] transition-colors font-body mb-3"
+        className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--surface)] border border-[var(--line-2)] text-sm font-medium text-[var(--text)] hover:bg-[var(--ground)] transition-colors font-body mb-3"
         style={{ borderRadius: 12 }}
       >
         <GoogleIcon className="w-5 h-5" />
@@ -103,7 +103,7 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
       </button>
       <button
         onClick={handleApple}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-black text-sm font-medium text-white hover:bg-[#111418] transition-colors font-body mb-4"
+        className="w-full flex items-center justify-center gap-2 py-3 bg-black text-sm font-medium text-[var(--ground)] hover:bg-[var(--text)] transition-colors font-body mb-4"
         style={{ borderRadius: 12 }}
       >
         <AppleIcon className="w-5 h-5" />
@@ -113,10 +113,10 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
       {/* OR divider */}
       <div className="relative mb-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#E5E2DC]" />
+          <div className="w-full border-t border-[var(--line-2)]" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-[#FAF9F7] px-3 text-xs uppercase text-[#8A8578] font-body">{t('onboarding.or')}</span>
+          <span className="bg-[var(--ground)] px-3 text-xs uppercase text-[var(--text-3)] font-body">{t('onboarding.or')}</span>
         </div>
       </div>
 
@@ -141,9 +141,9 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
           <>
             {password.length > 0 && !isPasswordValid && (
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-body pt-1">
-                <span className={pwChecks.length ? 'text-green-600' : 'text-[#8A8578]'}>{pwChecks.length ? '✓' : '○'} {t('onboarding.pwLength')}</span>
-                <span className={pwChecks.uppercase ? 'text-green-600' : 'text-[#8A8578]'}>{pwChecks.uppercase ? '✓' : '○'} {t('onboarding.pwUppercase')}</span>
-                <span className={pwChecks.number ? 'text-green-600' : 'text-[#8A8578]'}>{pwChecks.number ? '✓' : '○'} {t('onboarding.pwNumber')}</span>
+                <span className={pwChecks.length ? 'text-green-600' : 'text-[var(--text-3)]'}>{pwChecks.length ? '✓' : '○'} {t('onboarding.pwLength')}</span>
+                <span className={pwChecks.uppercase ? 'text-green-600' : 'text-[var(--text-3)]'}>{pwChecks.uppercase ? '✓' : '○'} {t('onboarding.pwUppercase')}</span>
+                <span className={pwChecks.number ? 'text-green-600' : 'text-[var(--text-3)]'}>{pwChecks.number ? '✓' : '○'} {t('onboarding.pwNumber')}</span>
               </div>
             )}
             <FloatingInput id="confirmPassword" label={t('onboarding.confirmPassword')} type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" error={!passwordsMatch && confirmPassword ? 'Passwords do not match' : ''} />
@@ -153,13 +153,13 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={e => setAgreeTerms(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-[#0a5dc2] cursor-pointer"
+                className="mt-0.5 w-4 h-4 accent-[var(--accent)] cursor-pointer"
               />
-              <span className="text-xs text-[#8A8578] font-body leading-relaxed">
+              <span className="text-xs text-[var(--text-3)] font-body leading-relaxed">
                 {t('onboarding.terms')}{' '}
-                <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#0a5dc2] hover:underline">{t('onboarding.termsOfService')}</a>
+                <a href="#" target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">{t('onboarding.termsOfService')}</a>
                 {' '}{t('onboarding.and')}{' '}
-                <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#0a5dc2] hover:underline">{t('onboarding.privacyPolicy')}</a>
+                <a href="#" target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">{t('onboarding.privacyPolicy')}</a>
               </span>
             </label>
           </>
@@ -168,7 +168,7 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
         <button
           type="submit"
           disabled={loading || !canSubmit}
-          className="w-full py-3.5 bg-[#111418] text-white text-sm font-medium hover:bg-[#0a5dc2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-body flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-body flex items-center justify-center gap-2"
           style={{ borderRadius: 8 }}
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (mode === 'register' ? t('onboarding.continue') : t('onboarding.signIn'))}
@@ -176,14 +176,14 @@ export default function RegistrationStep({ email, setEmail, firstName, setFirstN
       </form>
 
       {/* Toggle mode */}
-      <p className="text-center text-sm text-[#8A8578] font-body mt-4">
+      <p className="text-center text-sm text-[var(--text-3)] font-body mt-4">
         {mode === 'register' ? (
           <>{t('onboarding.alreadyHaveAccount')}{' '}
-            <button onClick={() => { setMode('login'); setError(''); }} className="text-[#0a5dc2] font-medium hover:underline">{t('onboarding.signIn')}</button>
+            <button onClick={() => { setMode('login'); setError(''); }} className="text-[var(--accent)] font-medium hover:underline">{t('onboarding.signIn')}</button>
           </>
         ) : (
           <>{t('onboarding.newHere')}{' '}
-            <button onClick={() => { setMode('register'); setError(''); }} className="text-[#0a5dc2] font-medium hover:underline">{t('onboarding.createOne')}</button>
+            <button onClick={() => { setMode('register'); setError(''); }} className="text-[var(--accent)] font-medium hover:underline">{t('onboarding.createOne')}</button>
           </>
         )}
       </p>

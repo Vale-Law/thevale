@@ -71,8 +71,8 @@ export default function CarouselRow({ title, attorneys, visible }) {
     >
       {/* Row header */}
       <div className="flex items-baseline justify-between mb-5 px-6 lg:px-8">
-        <h2 className="font-serif font-medium text-[22px] lg:text-[26px] text-[#111418] leading-tight">{title}</h2>
-        <span className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body">
+        <h2 className="font-serif font-medium text-[22px] lg:text-[26px] text-[var(--text)] leading-tight">{title}</h2>
+        <span className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body">
           {attorneys.length} attorneys
         </span>
       </div>
@@ -83,7 +83,7 @@ export default function CarouselRow({ title, attorneys, visible }) {
         <div
           className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none transition-opacity duration-300"
           style={{
-            background: 'linear-gradient(to right, #FFFFFF 0%, transparent 100%)',
+            background: 'linear-gradient(to right, var(--surface) 0%, transparent 100%)',
             opacity: showLeft ? 1 : 0,
           }}
         />
@@ -91,7 +91,7 @@ export default function CarouselRow({ title, attorneys, visible }) {
         <div
           className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none transition-opacity duration-300"
           style={{
-            background: 'linear-gradient(to left, #FFFFFF 0%, transparent 100%)',
+            background: 'linear-gradient(to left, var(--surface) 0%, transparent 100%)',
             opacity: showRight ? 1 : 0,
           }}
         />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AnnouncementBar from './AnnouncementBar';
+import BrandLogo from '@/components/brand/BrandLogo';
 import BrowseModal from '@/components/search/BrowseModal';
 import LanguageSwitcher from './LanguageSwitcher';
 import AccountMenu from './AccountMenu';
@@ -45,24 +46,20 @@ export default function Header() {
       <div className="sticky top-0 z-[1100] hidden lg:block">
         <AnnouncementBar />
         <header
-          className={`bg-[#FAF9F7]/90 backdrop-blur-md transition-all duration-300 ${
-            scrolled ? 'border-b border-[#E5E2DC] shadow-[0_2px_8px_rgba(0,0,0,0.06)]' : ''
+          className={`bg-[var(--ground-glass)] backdrop-blur-md transition-all duration-300 ${
+            scrolled ? 'border-b border-[var(--line-2)] shadow-[0_2px_8px_rgba(0,0,0,0.06)]' : ''
           }`}
         >
           <div className="max-w-[1200px] mx-auto px-6 lg:px-8 h-28 flex items-center justify-between">
             <Link to="/" onClick={closeMenu} className="flex items-center relative z-[1200]">
-              <img
-                src="/brand/logo-light.png"
-                alt="Brief"
-                className="h-20 w-auto object-contain"
-              />
+              <BrandLogo className="h-12 w-auto object-contain" />
             </Link>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-6">
               <button
                 onClick={() => setBrowseOpen(true)}
-                className="text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors flex items-center gap-1"
+                className="text-sm text-[var(--text)] hover:text-[var(--accent)] transition-colors flex items-center gap-1"
               >
                 {t('nav.browse')}
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="opacity-50">
@@ -70,7 +67,7 @@ export default function Header() {
                 </svg>
               </button>
   <div className="relative" onMouseEnter={() => setLearnOpen(true)} onMouseLeave={() => setLearnOpen(false)}>
-                <button className="text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors flex items-center gap-1">
+                <button className="text-sm text-[var(--text)] hover:text-[var(--accent)] transition-colors flex items-center gap-1">
                   {t('nav.learn')}
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="opacity-50">
                     <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -80,21 +77,21 @@ export default function Header() {
                   // pt-2 (not mt-2) keeps the gap inside the hover area so the
                   // menu doesn't close while the cursor crosses to it.
                   <div className="absolute top-full left-0 pt-2 z-[1200]">
-                  <div className="w-56 bg-white border border-[#E5E2DC] shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2">
-                    <Link to="/learn/immigration-law" className="block px-4 py-2.5 text-sm text-[#111418] hover:bg-[#FAF9F7] hover:text-[#0a5dc2] transition-colors">
+                  <div className="w-56 bg-[var(--surface)] border border-[var(--line-2)] shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2">
+                    <Link to="/learn/immigration-law" className="block px-4 py-2.5 text-sm text-[var(--text)] hover:bg-[var(--ground)] hover:text-[var(--accent)] transition-colors">
                       {t('learn.immigrationLaw')}
                     </Link>
-                    <Link to="/learn/personal-injury-law" className="block px-4 py-2.5 text-sm text-[#111418] hover:bg-[#FAF9F7] hover:text-[#0a5dc2] transition-colors">
+                    <Link to="/learn/personal-injury-law" className="block px-4 py-2.5 text-sm text-[var(--text)] hover:bg-[var(--ground)] hover:text-[var(--accent)] transition-colors">
                       {t('learn.personalInjuryLaw')}
                     </Link>
-                    <Link to="/learn" className="block px-4 py-2.5 text-sm text-[#111418] hover:bg-[#FAF9F7] hover:text-[#0a5dc2] transition-colors">
+                    <Link to="/learn" className="block px-4 py-2.5 text-sm text-[var(--text)] hover:bg-[var(--ground)] hover:text-[var(--accent)] transition-colors">
                       {t('nav.allGuides')} →
                     </Link>
                   </div>
                   </div>
                 )}
               </div>
-              <Link to="/for-attorneys" className="text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors">
+              <Link to="/for-attorneys" className="text-sm text-[var(--text)] hover:text-[var(--accent)] transition-colors">
                 {t('nav.forAttorneys')}
               </Link>
               <AccountMenu />
@@ -104,7 +101,7 @@ export default function Header() {
             {/* Desktop CTA */}
             <Link
               to="/areas-of-help"
-              className="hidden md:inline-flex items-center px-5 py-2.5 border border-[#111418] text-[#111418] text-sm font-medium hover:bg-[#111418] hover:text-white transition-all duration-200 hover:scale-[1.02]"
+              className="hidden md:inline-flex items-center px-5 py-2.5 border border-[var(--text)] text-[var(--text)] text-sm font-medium hover:bg-[var(--text)] hover:text-[var(--ground)] transition-all duration-200 hover:scale-[1.02]"
             >
               {t('nav.bookConsultation')}
             </Link>
@@ -113,7 +110,7 @@ export default function Header() {
             <div className="md:hidden flex items-center gap-3 relative z-[1200]">
               <LanguageSwitcher compact />
               <button
-                className="flex items-center justify-center w-11 h-11 text-[#111418]"
+                className="flex items-center justify-center w-11 h-11 text-[var(--text)]"
                 onClick={() => setMenuOpen(o => !o)}
                 aria-label={menuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={menuOpen}
@@ -134,7 +131,7 @@ export default function Header() {
 
         {/* Mobile menu panel */}
         <div
-          className="md:hidden bg-[#FAF9F7] border-b border-[#E5E2DC] overflow-hidden transition-all duration-300 ease-in-out"
+          className="md:hidden bg-[var(--ground)] border-b border-[var(--line-2)] overflow-hidden transition-all duration-300 ease-in-out"
           style={{
             maxHeight: menuOpen ? '600px' : '0px',
             opacity: menuOpen ? 1 : 0,
@@ -144,17 +141,17 @@ export default function Header() {
           <nav className="px-6 py-4 flex flex-col gap-1">
             <button
               onClick={() => { closeMenu(); setBrowseOpen(true); }}
-              className="w-full text-left py-3 text-base text-[#111418] hover:text-[#0a5dc2] transition-colors border-b border-[#E5E2DC] flex items-center justify-between"
+              className="w-full text-left py-3 text-base text-[var(--text)] hover:text-[var(--accent)] transition-colors border-b border-[var(--line-2)] flex items-center justify-between"
             >
               {t('nav.browse')}
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none" className="opacity-50">
                 <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </button>
-            <div className="border-b border-[#E5E2DC]">
+            <div className="border-b border-[var(--line-2)]">
               <button
                 onClick={() => setMobileLearnOpen(o => !o)}
-                className="w-full py-3 text-base text-[#111418] flex items-center justify-between"
+                className="w-full py-3 text-base text-[var(--text)] flex items-center justify-between"
               >
                 {t('nav.learn')}
                 <svg width="14" height="14" viewBox="0 0 12 12" fill="none" className="opacity-50 transition-transform duration-200" style={{ transform: mobileLearnOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -163,27 +160,27 @@ export default function Header() {
               </button>
               <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: mobileLearnOpen ? '200px' : '0px' }}>
                 <div className="pl-4 pb-2 flex flex-col gap-1">
-                  <Link to="/learn/immigration-law" onClick={closeMenu} className="py-2 text-sm text-[#8A8578] hover:text-[#0a5dc2] transition-colors">
+                  <Link to="/learn/immigration-law" onClick={closeMenu} className="py-2 text-sm text-[var(--text-3)] hover:text-[var(--accent)] transition-colors">
                     {t('learn.immigrationLaw')}
                   </Link>
-                  <Link to="/learn/personal-injury-law" onClick={closeMenu} className="py-2 text-sm text-[#8A8578] hover:text-[#0a5dc2] transition-colors">
+                  <Link to="/learn/personal-injury-law" onClick={closeMenu} className="py-2 text-sm text-[var(--text-3)] hover:text-[var(--accent)] transition-colors">
                     {t('learn.personalInjuryLaw')}
                   </Link>
-                  <Link to="/learn" onClick={closeMenu} className="py-2 text-sm text-[#8A8578] hover:text-[#0a5dc2] transition-colors">
+                  <Link to="/learn" onClick={closeMenu} className="py-2 text-sm text-[var(--text-3)] hover:text-[var(--accent)] transition-colors">
                     {t('nav.allGuides')} →
                   </Link>
                 </div>
               </div>
             </div>
 
-            <Link to="/for-attorneys" onClick={closeMenu} className="py-3 text-base text-[#111418] hover:text-[#0a5dc2] transition-colors border-b border-[#E5E2DC]">
+            <Link to="/for-attorneys" onClick={closeMenu} className="py-3 text-base text-[var(--text)] hover:text-[var(--accent)] transition-colors border-b border-[var(--line-2)]">
               {t('nav.forAttorneys')}
             </Link>
-            <Link to="/login" onClick={closeMenu} className="py-3 text-base text-[#111418] hover:text-[#0a5dc2] transition-colors border-b border-[#E5E2DC]">
+            <Link to="/login" onClick={closeMenu} className="py-3 text-base text-[var(--text)] hover:text-[var(--accent)] transition-colors border-b border-[var(--line-2)]">
               Log in
             </Link>
 
-            <Link to="/areas-of-help" onClick={closeMenu} className="mt-4 py-3 px-5 border border-[#111418] text-[#111418] text-sm font-medium text-center hover:bg-[#111418] hover:text-white transition-all duration-200">
+            <Link to="/areas-of-help" onClick={closeMenu} className="mt-4 py-3 px-5 border border-[var(--text)] text-[var(--text)] text-sm font-medium text-center hover:bg-[var(--text)] hover:text-[var(--ground)] transition-all duration-200">
               {t('nav.bookConsultation')}
             </Link>
           </nav>

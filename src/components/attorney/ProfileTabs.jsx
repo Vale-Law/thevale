@@ -9,13 +9,13 @@ const TABS = [
 
 export default function ProfileTabs({ active, onSelect }) {
   return (
-    <div className="sticky mt-6 top-[calc(env(safe-area-inset-top)+var(--mobile-header-h))] lg:top-[var(--header-height)] z-30 -mx-6 lg:mx-0 px-6 lg:px-0 bg-[#FAF9F7]/95 backdrop-blur-sm border-b border-[#E5E2DC]">
+    <div className="sticky mt-6 top-[calc(env(safe-area-inset-top)+var(--mobile-header-h))] lg:top-[var(--header-height)] z-30 -mx-6 lg:mx-0 px-6 lg:px-0 bg-[var(--ground-glass)] backdrop-blur-sm border-b border-[var(--line-2)]">
       <div className="flex gap-6 overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onSelect(tab.id)}
-            className={`whitespace-nowrap py-3 text-sm font-body border-b-2 transition-colors ${active === tab.id ? 'border-[#0a5dc2] text-[#111418] font-medium' : 'border-transparent text-[#8A8578] hover:text-[#111418]'}`}
+            className={`whitespace-nowrap py-3 text-sm font-body border-b-2 transition-colors ${active === tab.id ? 'border-[var(--accent)] text-[var(--text)] font-medium' : 'border-transparent text-[var(--text-3)] hover:text-[var(--text)]'}`}
           >
             {tab.label}
           </button>

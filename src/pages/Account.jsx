@@ -74,43 +74,43 @@ export default function Account() {
   ];
 
   const renderBookingCard = (b) => (
-    <div key={b.id} className="bg-white border border-[#E5E2DC] p-5">
+    <div key={b.id} className="bg-[var(--surface)] border border-[var(--line-2)] p-5">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-serif text-[#111418]">{b.attorney_name || t('bookings.attorney')}</span>
-        <span className="text-xs uppercase tracking-[0.08em] text-[#8A8578] font-body">{b.status}</span>
+        <span className="font-serif text-[var(--text)]">{b.attorney_name || t('bookings.attorney')}</span>
+        <span className="text-xs uppercase tracking-[0.08em] text-[var(--text-3)] font-body">{b.status}</span>
       </div>
       {b.sub_area && (
-        <p className="text-sm text-[#8A8578] font-body">{b.sub_area}</p>
+        <p className="text-sm text-[var(--text-3)] font-body">{b.sub_area}</p>
       )}
       {b.slot && (
-        <p className="text-sm text-[#8A8578] font-body">
+        <p className="text-sm text-[var(--text-3)] font-body">
           {format(new Date(b.slot), 'EEE, MMM d · h:mm a')}
         </p>
       )}
       {b.case_summary && (
-        <p className="text-xs text-[#8A8578] font-body mt-2 italic">"{b.case_summary}"</p>
+        <p className="text-xs text-[var(--text-3)] font-body mt-2 italic">"{b.case_summary}"</p>
       )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-[var(--ground)]">
       <Header />
 
       {/* Mobile / tablet: single column (unchanged) */}
       <div className="lg:hidden max-w-[640px] mx-auto px-5 py-8">
-        <h1 className="font-serif text-[28px] text-[#111418] mb-6">{t('account.title')}</h1>
+        <h1 className="font-serif text-[28px] text-[var(--text)] mb-6">{t('account.title')}</h1>
 
-        <div className="bg-white border border-[#E5E2DC] p-5 mb-5">
+        <div className="bg-[var(--surface)] border border-[var(--line-2)] p-5 mb-5">
           {checked && user ? (
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body">{t('account.signedInAs')}</p>
-                <p className="font-serif text-lg text-[#111418] truncate">{user.full_name || user.email}</p>
+                <p className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body">{t('account.signedInAs')}</p>
+                <p className="font-serif text-lg text-[var(--text)] truncate">{user.full_name || user.email}</p>
               </div>
               <button
                 onClick={logout}
-                className="flex items-center gap-2 px-4 py-2.5 border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] transition-colors shrink-0"
+                className="flex items-center gap-2 px-4 py-2.5 border border-[var(--line-2)] text-sm text-[var(--text)] font-body hover:border-[var(--text)] transition-colors shrink-0"
               >
                 <LogOut className="w-4 h-4" /> {t('account.logout')}
               </button>
@@ -118,38 +118,38 @@ export default function Account() {
           ) : checked ? (
             <button
               onClick={() => navigate('/login')}
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#111418] text-white text-sm font-body"
+              className="w-full flex items-center justify-center gap-2 py-3.5 bg-[var(--text)] text-[var(--ground)] text-sm font-body"
             >
               <LogIn className="w-4 h-4" /> {t('account.login')}
             </button>
           ) : null}
         </div>
 
-        <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] font-body mb-3">{t('account.language')}</p>
-        <div className="bg-white border border-[#E5E2DC] p-5 mb-6">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body mb-3">{t('account.language')}</p>
+        <div className="bg-[var(--surface)] border border-[var(--line-2)] p-5 mb-6">
           <LanguageSwitcher />
         </div>
 
-        <div className="bg-white border border-[#E5E2DC] divide-y divide-[#E5E2DC]">
+        <div className="bg-[var(--surface)] border border-[var(--line-2)] divide-y divide-[var(--line-2)]">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className="flex items-center justify-between px-5 py-4 text-[#111418] font-body hover:bg-[#FAF9F7] transition-colors"
+              className="flex items-center justify-between px-5 py-4 text-[var(--text)] font-body hover:bg-[var(--ground)] transition-colors"
             >
               <span className="text-sm">{l.label}</span>
-              <ChevronRight className="w-4 h-4 text-[#8A8578]" />
+              <ChevronRight className="w-4 h-4 text-[var(--text-3)]" />
             </Link>
           ))}
         </div>
 
-        <div className="bg-white border border-[#E5E2DC] p-5 mt-6">
-          <h2 className="font-serif text-lg text-[#111418] mb-2">Delete my data</h2>
-          <p className="text-sm text-[#8A8578] font-body mb-4">Request deletion of your account information and any booking descriptions you've written.</p>
+        <div className="bg-[var(--surface)] border border-[var(--line-2)] p-5 mt-6">
+          <h2 className="font-serif text-lg text-[var(--text)] mb-2">Delete my data</h2>
+          <p className="text-sm text-[var(--text-3)] font-body mb-4">Request deletion of your account information and any booking descriptions you've written.</p>
           {deleteRequested ? (
             <p className="text-sm text-green-600 font-body">Request received — we'll email you a confirmation.</p>
           ) : (
-            <button onClick={requestDeletion} className="px-4 py-2.5 border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] transition-colors">Request deletion</button>
+            <button onClick={requestDeletion} className="px-4 py-2.5 border border-[var(--line-2)] text-sm text-[var(--text)] font-body hover:border-[var(--text)] transition-colors">Request deletion</button>
           )}
         </div>
       </div>
@@ -157,9 +157,9 @@ export default function Account() {
       {/* Desktop: two-column sidebar layout */}
       <div className="hidden lg:block">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-14">
-          <h1 className="font-serif text-[40px] text-[#111418] mb-10">{t('account.title')}</h1>
+          <h1 className="font-serif text-[40px] text-[var(--text)] mb-10">{t('account.title')}</h1>
           <div className="grid grid-cols-[220px_1fr] gap-12">
-            <aside className="bg-white border border-[#E5E2DC] divide-y divide-[#E5E2DC] h-fit">
+            <aside className="bg-[var(--surface)] border border-[var(--line-2)] divide-y divide-[var(--line-2)] h-fit">
               {navItems.map(({ key, label, Icon }) => {
                 const active = section === key;
                 return (
@@ -168,12 +168,12 @@ export default function Account() {
                     onClick={() => setSection(key)}
                     className="w-full flex items-center gap-3 px-5 py-4 text-left font-body text-sm transition-colors"
                     style={{
-                      background: active ? '#FAF9F7' : '#fff',
-                      color: active ? '#0a5dc2' : '#111418',
+                      background: active ? 'var(--ground)' : '#fff',
+                      color: active ? 'var(--accent)' : 'var(--text)',
                       fontWeight: active ? 600 : 400,
                     }}
                   >
-                    <Icon className="w-4 h-4" style={{ color: active ? '#0a5dc2' : '#8A8578' }} />
+                    <Icon className="w-4 h-4" style={{ color: active ? 'var(--accent)' : 'var(--text-3)' }} />
                     {label}
                   </button>
                 );
@@ -182,45 +182,45 @@ export default function Account() {
 
             <div className="max-w-[640px]">
               {!checked ? null : !user ? (
-                <div className="bg-white border border-[#E5E2DC] p-10 text-center">
-                  <p className="text-[#8A8578] font-body mb-4">{t('bookings.loginPrompt')}</p>
+                <div className="bg-[var(--surface)] border border-[var(--line-2)] p-10 text-center">
+                  <p className="text-[var(--text-3)] font-body mb-4">{t('bookings.loginPrompt')}</p>
                   <button
                     onClick={() => navigate('/login')}
-                    className="px-6 py-3 bg-[#111418] text-white text-sm font-body"
+                    className="px-6 py-3 bg-[var(--text)] text-[var(--ground)] text-sm font-body"
                   >
                     {t('account.login')}
                   </button>
                 </div>
               ) : section === 'account' ? (
                 <div className="space-y-6">
-                  <div className="bg-white border border-[#E5E2DC] p-6">
-                    <h2 className="font-serif text-[22px] text-[#111418] mb-5">{t('account.profile')}</h2>
+                  <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6">
+                    <h2 className="font-serif text-[22px] text-[var(--text)] mb-5">{t('account.profile')}</h2>
                     <dl className="space-y-4">
                       <div>
-                        <dt className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-0.5">{t('account.signedInAs')}</dt>
-                        <dd className="font-serif text-lg text-[#111418]">{user.full_name || user.email}</dd>
+                        <dt className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-0.5">{t('account.signedInAs')}</dt>
+                        <dd className="font-serif text-lg text-[var(--text)]">{user.full_name || user.email}</dd>
                       </div>
                       <div>
-                        <dt className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-0.5">{t('account.email')}</dt>
-                        <dd className="text-sm text-[#111418] font-body">{user.email}</dd>
+                        <dt className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-0.5">{t('account.email')}</dt>
+                        <dd className="text-sm text-[var(--text)] font-body">{user.email}</dd>
                       </div>
                       {user.phone ? (
                         <div>
-                          <dt className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-0.5">{t('account.phone')}</dt>
-                          <dd className="text-sm text-[#111418] font-body">{user.phone}</dd>
+                          <dt className="text-[11px] uppercase tracking-[0.1em] text-[var(--text-3)] font-body mb-0.5">{t('account.phone')}</dt>
+                          <dd className="text-sm text-[var(--text)] font-body">{user.phone}</dd>
                         </div>
                       ) : null}
                     </dl>
                   </div>
-                  <div className="bg-white border border-[#E5E2DC] divide-y divide-[#E5E2DC]">
+                  <div className="bg-[var(--surface)] border border-[var(--line-2)] divide-y divide-[var(--line-2)]">
                     {links.map((l) => (
                       <Link
                         key={l.to}
                         to={l.to}
-                        className="flex items-center justify-between px-5 py-4 text-[#111418] font-body hover:bg-[#FAF9F7] transition-colors"
+                        className="flex items-center justify-between px-5 py-4 text-[var(--text)] font-body hover:bg-[var(--ground)] transition-colors"
                       >
                         <span className="text-sm">{l.label}</span>
-                        <ChevronRight className="w-4 h-4 text-[#8A8578]" />
+                        <ChevronRight className="w-4 h-4 text-[var(--text-3)]" />
                       </Link>
                     ))}
                   </div>
@@ -228,21 +228,21 @@ export default function Account() {
               ) : section === 'bookings' ? (
                 <div className="space-y-8">
                   <div>
-                    <h2 className="font-serif text-[22px] text-[#111418] mb-4">{t('account.upcoming')}</h2>
+                    <h2 className="font-serif text-[22px] text-[var(--text)] mb-4">{t('account.upcoming')}</h2>
                     {bookingsLoading ? (
                       <div className="flex justify-center py-10">
-                        <div className="w-6 h-6 border-2 border-[#E5E2DC] border-t-[#0a5dc2] rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-[var(--line-2)] border-t-[var(--accent)] rounded-full animate-spin" />
                       </div>
                     ) : upcoming.length === 0 ? (
-                      <p className="text-sm text-[#8A8578] font-body">{t('account.noUpcoming')}</p>
+                      <p className="text-sm text-[var(--text-3)] font-body">{t('account.noUpcoming')}</p>
                     ) : (
                       <div className="space-y-3">{upcoming.map(renderBookingCard)}</div>
                     )}
                   </div>
                   <div>
-                    <h2 className="font-serif text-[22px] text-[#111418] mb-4">{t('account.past')}</h2>
+                    <h2 className="font-serif text-[22px] text-[var(--text)] mb-4">{t('account.past')}</h2>
                     {past.length === 0 ? (
-                      <p className="text-sm text-[#8A8578] font-body">{t('account.noPast')}</p>
+                      <p className="text-sm text-[var(--text-3)] font-body">{t('account.noPast')}</p>
                     ) : (
                       <div className="space-y-3">{past.map(renderBookingCard)}</div>
                     )}
@@ -250,23 +250,23 @@ export default function Account() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="bg-white border border-[#E5E2DC] p-6">
-                    <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] font-body mb-3">{t('account.language')}</p>
+                  <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6">
+                    <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body mb-3">{t('account.language')}</p>
                     <LanguageSwitcher />
                   </div>
-                  <div className="bg-white border border-[#E5E2DC] p-6">
-                    <h2 className="font-serif text-[22px] text-[#111418] mb-2">Delete my data</h2>
-                    <p className="text-sm text-[#8A8578] font-body mb-4">Request deletion of your account information and any booking descriptions you've written. We'll email you a confirmation.</p>
+                  <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6">
+                    <h2 className="font-serif text-[22px] text-[var(--text)] mb-2">Delete my data</h2>
+                    <p className="text-sm text-[var(--text-3)] font-body mb-4">Request deletion of your account information and any booking descriptions you've written. We'll email you a confirmation.</p>
                     {deleteRequested ? (
                       <p className="text-sm text-green-600 font-body">Request received — we'll email you a confirmation.</p>
                     ) : (
-                      <button onClick={requestDeletion} className="px-4 py-2.5 border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] transition-colors">Request deletion</button>
+                      <button onClick={requestDeletion} className="px-4 py-2.5 border border-[var(--line-2)] text-sm text-[var(--text)] font-body hover:border-[var(--text)] transition-colors">Request deletion</button>
                     )}
                   </div>
-                  <div className="bg-white border border-[#E5E2DC] p-6">
+                  <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6">
                     <button
                       onClick={logout}
-                      className="flex items-center gap-2 px-4 py-2.5 border border-[#E5E2DC] text-sm text-[#111418] font-body hover:border-[#111418] transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 border border-[var(--line-2)] text-sm text-[var(--text)] font-body hover:border-[var(--text)] transition-colors"
                     >
                       <LogOut className="w-4 h-4" /> {t('account.logout')}
                     </button>

@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-const BRIEF_LOGO = "/brand/logo-light.png";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 export default function AuthLayout({ title, subtitle, footer, children, maxWidth = "max-w-md", logoPosition = "center" }) {
   const isLeft = logoPosition === "left";
@@ -11,11 +10,7 @@ export default function AuthLayout({ title, subtitle, footer, children, maxWidth
       {isLeft && (
         <div className="px-6 lg:px-10 pt-6 lg:pt-8">
           <Link to="/" className="inline-block">
-            <img
-              src={BRIEF_LOGO}
-              alt="Brief"
-              className="h-24 w-auto object-contain"
-            />
+            <BrandLogo className="h-12 w-auto object-contain" />
           </Link>
         </div>
       )}
@@ -24,7 +19,7 @@ export default function AuthLayout({ title, subtitle, footer, children, maxWidth
           {!isLeft && (
             <div className="text-center mb-10">
               <Link to="/" className="inline-block mb-6">
-                <img src={BRIEF_LOGO} alt="Brief" className="h-14 w-auto object-contain mx-auto" />
+                <BrandLogo className="h-12 w-auto object-contain mx-auto" />
               </Link>
               {title && <h1 className="font-serif text-3xl font-medium tracking-tight text-foreground">{title}</h1>}
               {subtitle && <p className="text-muted-foreground mt-2 font-body text-[15px]">{subtitle}</p>}

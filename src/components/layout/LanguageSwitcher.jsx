@@ -19,7 +19,7 @@ export default function LanguageSwitcher({ compact = false }) {
     <div ref={triggerRef} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 text-sm text-[#111418] hover:text-[#0a5dc2] transition-colors font-body whitespace-nowrap"
+        className="flex items-center gap-1.5 text-sm text-[var(--text)] hover:text-[var(--accent)] transition-colors font-body whitespace-nowrap"
         aria-label="Change language"
       >
         <Globe className="w-4 h-4" />
@@ -36,13 +36,13 @@ export default function LanguageSwitcher({ compact = false }) {
             <button
               key={opt.code}
               onClick={() => { changeLanguage(opt.code); setOpen(false); }}
-              className="w-full flex items-center justify-between px-4 py-2 text-sm text-[#111418] hover:bg-[#FAF9F7] transition-colors font-body"
+              className="w-full flex items-center justify-between px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--ground)] transition-colors font-body"
             >
               <span className="flex items-center gap-2">
                 <span>{opt.flag}</span>
                 {opt.label}
               </span>
-              {language === opt.code && <Check className="w-3.5 h-3.5 text-[#0a5dc2]" />}
+              {language === opt.code && <Check className="w-3.5 h-3.5 text-[var(--accent)]" />}
             </button>
           ))}
         </div>

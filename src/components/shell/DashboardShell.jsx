@@ -6,45 +6,26 @@ import { useAuth } from '@/lib/AuthContext';
 
 const LOGO = { light: '/brand/logo-light.png', dark: '/brand/logo-dark.png' };
 
-// `theme="tokens"` opts a caller into tokens.css (light/dark aware) --
-// used by AttorneyShell, whose page content is already retrofitted to DS
-// v2. `theme="legacy"` (default) keeps the original hardcoded light-only
-// colors, for AdminShell, whose page content (src/pages/admin/**) hasn't
-// been retrofitted yet -- flipping just the shell dark-aware while its
-// pages stay hardcoded light would reproduce the exact same mismatch this
-// change exists to fix, just on the admin portal instead.
-//
-// `accent` is deliberately NOT a bare `var(--accent)` reference in the
-// tokens theme: the whole attorney route tree (src/routes/attorney.jsx)
-// is wrapped in LegacyAccentScope, which re-pins --accent to a bare HSL
-// triplet ("215 87% 40%", meant for hsl(var(--accent)) in legacy shadcn
-// components) for every descendant, including this shell. Using that
-// bare triplet directly as a `color`/`backgroundColor` value is invalid
-// CSS and silently drops -- there is no CSS-only escape from an ancestor
-// override on an inherited custom property. usePrefersDark() below picks
-// tokens.css's own light/dark --accent hex directly instead.
+// Both shells now run on tokens.css (light/dark aware): the legacy hex
+// palette was migrated to DS v2 tokens across src/pages/admin/** and
+// src/pages/attorney/** alike, and LegacyAccentScope no longer re-pins
+// --accent (shadcn components read --ui-accent instead), so bare
+// var(--accent) is valid everywhere. `theme="legacy"` is kept as an alias
+// so callers didn't need to change.
 const THEME = {
   legacy: {
-    pageBg: '#F7F8FA', surfaceBg: '#FFFFFF', line: '#E5E2DC',
-    text: '#111418', textMuted: '#8A8578', textFaint: '#B8B4AC',
-    accent: '#0a5dc2', accentSoftBg: '#EAF2FB', hoverBg: '#F4F2EE',
-    fontHuman: undefined, bodyFont: "'Poppins', ui-sans-serif, system-ui, sans-serif",
+    pageBg: 'var(--ground)', surfaceBg: 'var(--surface)', line: 'var(--line)',
+    text: 'var(--text)', textMuted: 'var(--text-3)', textFaint: 'var(--text-4)',
+    accent: 'var(--accent)', accentSoftBg: 'var(--accent-soft)', hoverBg: 'var(--surface-sunk)',
+    fontHuman: 'var(--font-human)', bodyFont: 'var(--font-system)',
   },
   tokens: {
     pageBg: 'var(--ground)', surfaceBg: 'var(--surface)', line: 'var(--line)',
     text: 'var(--text)', textMuted: 'var(--text-3)', textFaint: 'var(--text-4)',
-    accentSoftBg: 'var(--surface-sunk)', hoverBg: 'var(--surface-sunk)',
+    accent: 'var(--accent)', accentSoftBg: 'var(--accent-soft)', hoverBg: 'var(--surface-sunk)',
     fontHuman: 'var(--font-human)', bodyFont: 'var(--font-system)',
   },
 };
-
-// tokens.css's own --accent values (src/styles/tokens.css), duplicated
-// here only because LegacyAccentScope makes the CSS variable itself
-// unusable for direct color/backgroundColor assignment inside the
-// attorney route tree. The app has no manual light/dark toggle anywhere
-// (grepped for `data-theme` writes -- none), so prefers-color-scheme is
-// the only signal that ever applies.
-const ACCENT_HEX = { light: '#6B8A5E', dark: '#8FAF80' };
 
 function usePrefersDark() {
   const [prefersDark, setPrefersDark] = useState(
@@ -115,11 +96,8 @@ export default function DashboardShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef(null);
   const prefersDark = usePrefersDark();
-  const c = {
-    ...(THEME[theme] || THEME.legacy),
-    accent: theme === 'tokens' ? (prefersDark ? ACCENT_HEX.dark : ACCENT_HEX.light) : THEME.legacy.accent,
-  };
-  const logoSrc = theme === 'tokens' && prefersDark ? LOGO.dark : LOGO.light;
+  const c = THEME[theme] || THEME.legacy;
+  const logoSrc = prefersDark ? LOGO.dark : LOGO.light;
 
   const initials = getInitials(user?.full_name);
   const handleLogout = () => logout('/');

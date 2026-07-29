@@ -37,25 +37,25 @@ export default function BookingWidget({ attorney }) {
   };
 
   return (
-    <div className="bg-white border border-[#E5E2DC] p-6 sticky top-32">
-      <div className="mb-5 pb-5 border-b border-[#E5E2DC]">
+    <div className="bg-[var(--surface)] border border-[var(--line-2)] p-6 sticky top-32">
+      <div className="mb-5 pb-5 border-b border-[var(--line-2)]">
         <div className="flex items-baseline gap-2 mb-1">
-          <span className="font-serif text-4xl text-[#111418]">${attorney.consult_fee}</span>
-          <span className="text-sm text-[#8A8578] font-body">{t('booking.consultationFee')}</span>
+          <span className="font-serif text-4xl text-[var(--text)]">${attorney.consult_fee}</span>
+          <span className="text-sm text-[var(--text-3)] font-body">{t('booking.consultationFee')}</span>
         </div>
         {attorney.typical_retainer && (
-          <p className="text-sm text-[#8A8578] font-body mt-1">
-            {t('booking.typicalRetainer')} <span className="text-[#111418]">${attorney.typical_retainer.toLocaleString()}</span>
+          <p className="text-sm text-[var(--text-3)] font-body mt-1">
+            {t('booking.typicalRetainer')} <span className="text-[var(--text)]">${attorney.typical_retainer.toLocaleString()}</span>
           </p>
         )}
         {monthlyAffirm && (
-          <p className="text-xs text-[#0a5dc2] mt-1 font-body">
+          <p className="text-xs text-[var(--accent)] mt-1 font-body">
             {t('booking.financeRetainer')} ${monthlyAffirm}{t('booking.moWithAffirm')}
           </p>
         )}
       </div>
 
-      <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-3 font-body">
+      <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-3 font-body">
         {t('booking.nextAvailable')}
       </p>
       {slots.length > 0 ? (
@@ -64,17 +64,17 @@ export default function BookingWidget({ attorney }) {
             <button
               key={value}
               onClick={() => handleSlot(value)}
-              className="text-xs px-3 py-2 border border-[#E5E2DC] text-[#111418] hover:bg-[#111418] hover:text-white hover:border-[#111418] transition-all duration-200 font-body text-left"
+              className="text-xs px-3 py-2 border border-[var(--line-2)] text-[var(--text)] hover:bg-[var(--text)] hover:text-[var(--ground)] hover:border-[var(--text)] transition-all duration-200 font-body text-left"
             >
               {label}
             </button>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-[#8A8578] text-center py-4 font-body">{t('booking.noSlots')}</p>
+        <p className="text-sm text-[var(--text-3)] text-center py-4 font-body">{t('booking.noSlots')}</p>
       )}
 
-      <p className="text-[11px] text-[#8A8578] text-center mt-5 font-body leading-relaxed">
+      <p className="text-[11px] text-[var(--text-3)] text-center mt-5 font-body leading-relaxed">
         {t('booking.notCharged')}
       </p>
     </div>

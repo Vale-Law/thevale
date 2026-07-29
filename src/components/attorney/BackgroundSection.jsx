@@ -3,9 +3,9 @@ import { format } from 'date-fns';
 function Row({ label, children }) {
   if (!children) return null;
   return (
-    <div className="border-b border-[#E5E2DC] py-4 last:border-0">
-      <p className="text-sm font-medium text-[#111418] font-body">{label}</p>
-      <div className="text-sm text-[#525961] font-body mt-1">{children}</div>
+    <div className="border-b border-[var(--line-2)] py-4 last:border-0">
+      <p className="text-sm font-medium text-[var(--text)] font-body">{label}</p>
+      <div className="text-sm text-[var(--text-2)] font-body mt-1">{children}</div>
     </div>
   );
 }
@@ -21,7 +21,7 @@ export default function BackgroundSection({ attorney }) {
 
   return (
     <div>
-      <h2 className="font-serif text-xl text-[#111418] mb-2">Education and background</h2>
+      <h2 className="font-serif text-xl text-[var(--text)] mb-2">Education and background</h2>
       <Row label="Bar admissions">
         {attorney.bar_admission && <p>{attorney.bar_admission}</p>}
         {attorney.bar_state && <p>Licensed in {attorney.bar_state}{attorney.bar_number ? ` · Bar #${attorney.bar_number}` : ''}</p>}

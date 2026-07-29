@@ -185,7 +185,7 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
     if (answers.city) p.set('city', answers.city);
     if (answers.language) p.set('lang', answers.language);
     if (answers.maxFee && answers.maxFee !== 999) p.set('maxFee', String(answers.maxFee));
-    navigate(`/?${p.toString()}`);
+    navigate(`/bookings?${p.toString()}`);
   };
 
   const QUESTIONS = [

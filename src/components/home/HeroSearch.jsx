@@ -15,7 +15,7 @@ export default function HeroSearch() {
     if (practiceArea && practiceArea !== 'all') params.set('area', practiceArea);
     if (location) params.set('location', location);
     const area = params.get('area');
-    navigate(area ? `/?area=${encodeURIComponent(area)}` : '/?browse=1');
+    navigate(area ? `/bookings?area=${encodeURIComponent(area)}` : '/bookings?browse=1');
   };
 
   return (

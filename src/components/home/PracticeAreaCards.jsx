@@ -31,7 +31,7 @@ export default function PracticeAreaCards() {
           {areas.map(({ icon: Icon, title, desc }) => (
             <button
               key={title}
-              onClick={() => navigate(`/?area=${encodeURIComponent(title)}`)}
+              onClick={() => navigate(`/bookings?area=${encodeURIComponent(title)}`)}
               className="bg-[var(--surface)] border border-border rounded-xl p-6 text-left hover:border-primary hover:shadow-md transition-all group"
             >
               <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">

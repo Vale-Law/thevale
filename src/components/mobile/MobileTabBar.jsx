@@ -68,8 +68,8 @@ export default function MobileTabBar() {
     {
       key: 'home',
       label: t('tab.home'),
-      active: loc.pathname === '/' && !isBrowse,
-      onClick: () => navigate('/'),
+      active: loc.pathname === '/bookings' && !isBrowse,
+      onClick: () => navigate('/bookings'),
     },
     {
       key: 'browse',
@@ -80,8 +80,8 @@ export default function MobileTabBar() {
     {
       key: 'bookings',
       label: t('tab.upcoming'),
-      active: loc.pathname === '/bookings',
-      onClick: () => navigate('/bookings'),
+      active: loc.pathname === '/my-bookings',
+      onClick: () => navigate('/my-bookings'),
     },
     {
       key: 'account',

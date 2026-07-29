@@ -9,10 +9,10 @@ export default function Footer() {
     {
       heading: t('footer.browseCol'),
       links: [
-        { label: t('area.familyLaw'), to: '/?area=Family+Law' },
-        { label: t('area.immigration'), to: '/?area=Immigration' },
-        { label: t('area.personalInjury'), to: '/?area=Personal+Injury' },
-        { label: t('area.businessFormation'), to: '/?area=Business+Formation' },
+        { label: t('area.familyLaw'), to: '/bookings?area=Family+Law' },
+        { label: t('area.immigration'), to: '/bookings?area=Immigration' },
+        { label: t('area.personalInjury'), to: '/bookings?area=Personal+Injury' },
+        { label: t('area.businessFormation'), to: '/bookings?area=Business+Formation' },
         { label: t('footer.allAttorneys'), to: '/areas-of-help' },
         { label: t('footer.exploreAreas'), to: '/areas-of-help' },
       ],

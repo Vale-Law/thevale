@@ -27,6 +27,17 @@ body{
   text-rendering: optimizeLegibility;
 }
 
+/* Lock the page against sideways scroll: any wide child (carousels,
+   reserved-width headline spans, sticky filter rows) must scroll inside
+   its own overflow-x-auto container, never drag the viewport. `clip`
+   avoids creating a scroll container, so position:sticky keeps working;
+   hidden is the fallback for older engines. */
+html, body{
+  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 img,
 svg{
   display: block;

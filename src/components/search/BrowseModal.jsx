@@ -109,7 +109,7 @@ export default function BrowseModal({ open, onClose }) {
               {PRACTICE_AREAS.map(area => (
                 <Link
                   key={area}
-                  to={`/?area=${encodeURIComponent(area)}`}
+                  to={`/bookings?area=${encodeURIComponent(area)}`}
                   onClick={onClose}
                   className="text-sm font-body text-[var(--text)] underline underline-offset-4 decoration-[var(--line-2)] hover:decoration-[var(--text)] transition-all"
                 >
@@ -133,7 +133,7 @@ export default function BrowseModal({ open, onClose }) {
               {SITUATIONS.map(sit => (
                 <Link
                   key={sit}
-                  to={`/?situation=${encodeURIComponent(sit)}`}
+                  to={`/bookings?situation=${encodeURIComponent(sit)}`}
                   onClick={onClose}
                   className="text-sm font-body text-[var(--text)] underline underline-offset-4 decoration-[var(--line-2)] hover:decoration-[var(--text)] transition-all"
                 >

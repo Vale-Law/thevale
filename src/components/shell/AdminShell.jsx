@@ -33,6 +33,7 @@ export default function AdminShell() {
       portalLabel="Admin"
       homePath="/admin/dashboard"
       navItems={navItems}
+      theme="tokens"
     />
   );
 }

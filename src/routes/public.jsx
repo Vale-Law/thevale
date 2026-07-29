@@ -60,11 +60,19 @@ import LegacyAccentScope from './LegacyAccentScope';
  *    own page, not Brief's), and outside LegacyAccentScope so it renders
  *    with Design System v2 tokens rather than the legacy accent re-pin.
  *
- * The legacy consumer + admin routes ARE wrapped in LegacyAccentScope so
- * the shadcn-style chrome they depend on (src/components/ui/**, via
+ * The legacy consumer routes ARE wrapped in LegacyAccentScope so the
+ * shadcn-style chrome they depend on (src/components/ui/**, via
  * hsl(var(--accent))) keeps resolving the legacy accent color once
  * tokens.css's hex --accent becomes the :root default. See
  * ./legacy-accent-scope.css.
+ *
+ * The admin routes moved OUTSIDE LegacyAccentScope in Sprint v1.2 Track
+ * B's W1.8: every admin page is now retrofitted to Design System v2
+ * tokens (direct var(--accent) color usage, which the legacy HSL re-pin
+ * would silently invalidate), and the admin tree imports nothing from
+ * src/components/ui/** except FloatingPanel, which is accent-free --
+ * verified by grep before the move. Same rule as /dev/primitives and
+ * /book: DS v2 trees must not nest under the re-pin.
  */
 export default (
   <>
@@ -97,16 +105,18 @@ export default (
         <Route path="/bookings" element={<Bookings />} />
       </Route>
 
-      {/* Admin routes */}
-      <Route path="/admin" element={<AdminEntry />} />
-      <Route element={<AdminShell />}>
-        <Route path="/admin/dashboard" element={<RoleRoute allow={['admin']}><AdminDashboardPage /></RoleRoute>} />
-        <Route path="/admin/applications" element={<RoleRoute allow={['admin']}><AdminApplicationsPage /></RoleRoute>} />
-        <Route path="/admin/applications/:id" element={<RoleRoute allow={['admin']}><AdminApplicationDetailPage /></RoleRoute>} />
-        <Route path="/admin/attorneys" element={<RoleRoute allow={['admin']}><AdminAttorneysPage /></RoleRoute>} />
-        <Route path="/admin/bookings" element={<RoleRoute allow={['admin']}><AdminBookingsPage /></RoleRoute>} />
-        <Route path="/admin/users" element={<RoleRoute allow={['admin']}><AdminUsersPage /></RoleRoute>} />
-      </Route>
+    </Route>
+
+    {/* Admin routes — Design System v2 (tokens.css) end to end since the
+        W1 retrofit, so they sit outside LegacyAccentScope on purpose. */}
+    <Route path="/admin" element={<AdminEntry />} />
+    <Route element={<AdminShell />}>
+      <Route path="/admin/dashboard" element={<RoleRoute allow={['admin']}><AdminDashboardPage /></RoleRoute>} />
+      <Route path="/admin/applications" element={<RoleRoute allow={['admin']}><AdminApplicationsPage /></RoleRoute>} />
+      <Route path="/admin/applications/:id" element={<RoleRoute allow={['admin']}><AdminApplicationDetailPage /></RoleRoute>} />
+      <Route path="/admin/attorneys" element={<RoleRoute allow={['admin']}><AdminAttorneysPage /></RoleRoute>} />
+      <Route path="/admin/bookings" element={<RoleRoute allow={['admin']}><AdminBookingsPage /></RoleRoute>} />
+      <Route path="/admin/users" element={<RoleRoute allow={['admin']}><AdminUsersPage /></RoleRoute>} />
     </Route>
 
     {/* Dev-only design-system verification gallery — new Design System v2

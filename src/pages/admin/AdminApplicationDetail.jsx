@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Button, Card, StatusDot } from '@/components/primitives';
+
+const APP_STATUS = {
+  pending: { dot: 'pending', color: 'var(--pending)', label: 'Pending' },
+  verified: { dot: 'confirmed', color: 'var(--confirmed)', label: 'Approved' },
+  rejected: { dot: 'no_show', color: 'var(--noshow)', label: 'Rejected' },
+};
 
 export default function AdminApplicationDetailPage() {
   const { id } = useParams();
@@ -58,92 +65,87 @@ export default function AdminApplicationDetailPage() {
   };
 
   if (loading) {
-    return <div className="min-h-[40vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#0a5dc2] animate-spin" /></div>;
+    return <div className="min-h-[40vh] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[var(--accent)] animate-spin" /></div>;
   }
   if (!attorney) {
     return (
       <div>
-        <Link to="/admin/applications" className="inline-flex items-center gap-1.5 text-sm text-[#0a5dc2] font-body hover:underline mb-4">
+        <Link to="/admin/applications" className="inline-flex items-center gap-1.5 text-sm text-[var(--accent)] ds-type-body-m hover:underline mb-4">
           <ArrowLeft className="w-4 h-4" /> Back to applications
         </Link>
-        <p className="text-sm text-[#8A8578] font-body">Application not found.</p>
+        <p className="text-sm text-[var(--text-3)] ds-type-body-m">Application not found.</p>
       </div>
     );
   }
 
   const status = attorney.verification_status || (attorney.verified ? 'verified' : 'pending');
-  const statusColor = { pending: 'text-yellow-600', verified: 'text-green-600', rejected: 'text-red-600' }[status];
+  const s = APP_STATUS[status] || APP_STATUS.pending;
 
   return (
     <div>
-      <Link to="/admin/applications" className="inline-flex items-center gap-1.5 text-sm text-[#0a5dc2] font-body hover:underline mb-4">
+      <Link to="/admin/applications" className="inline-flex items-center gap-1.5 text-sm text-[var(--accent)] ds-type-body-m hover:underline mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to applications
       </Link>
 
-      <div className="mb-6 pb-5 border-b border-[#E5E2DC]">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-[#8A8578] mb-1 font-body">Admin</p>
+      <div className="mb-6 pb-5 border-b border-[var(--line)]">
+        <p className="ds-type-label text-[var(--text-3)] mb-1">Admin</p>
         <div className="flex items-center gap-3">
-          <h1 className="font-serif text-2xl sm:text-3xl text-[#111418]">{attorney.name}</h1>
-          <span className={`text-xs uppercase tracking-[0.08em] font-body ${statusColor}`}>{status}</span>
+          <h1 className="text-2xl sm:text-3xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name}</h1>
+          <span className="inline-flex items-center gap-1.5">
+            <StatusDot status={s.dot} className="h-1.5 w-1.5" />
+            <span className="text-[11px] uppercase tracking-[0.14em] ds-type-body-m" style={{ color: s.color }}>{s.label}</span>
+          </span>
         </div>
-        <p className="text-sm text-[#8A8578] font-body mt-1">{attorney.email}</p>
+        <p className="text-sm text-[var(--text-3)] ds-type-body-m mt-1">{attorney.email}</p>
       </div>
 
-      <div className="bg-white border border-[#E5E2DC] p-6 mb-5">
+      <Card tone="raised" className="mb-5">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 text-sm">
           <Field label="Bar number" value={attorney.bar_number} />
           <Field label="Bar state" value={attorney.bar_state} />
           <Field label="Phone" value={attorney.phone_number} />
           <Field label="Consultation fee" value={`$${attorney.consult_fee}`} />
-          <Field label="Practice area(s)" value={(attorney.practice_areas || [attorney.practice_area]).join(', ')} />
+          <Field label="Practice area(s)" value={(attorney.practice_areas || [attorney.practice_area]).filter(Boolean).join(', ')} />
           <Field label="Office location" value={attorney.office_location} />
         </div>
-      </div>
+      </Card>
 
-      <div className="bg-white border border-[#E5E2DC] p-6 mb-5">
-        <p className="text-xs uppercase tracking-[0.1em] text-[#8A8578] font-body mb-3">Verification documents</p>
+      <Card tone="raised" className="mb-5">
+        <p className="ds-type-label text-[var(--text-3)] mb-3">Verification documents</p>
         <div className="flex flex-wrap gap-3">
           {attorney.id_document ? (
-            <button onClick={() => viewDoc(attorney.id_document)} className="flex items-center gap-2 px-4 py-2.5 border border-[#E5E2DC] text-sm font-body text-[#111418] hover:border-[#0a5dc2] hover:text-[#0a5dc2] transition-colors">
+            <Button variant="secondary" size="compact" onClick={() => viewDoc(attorney.id_document)}>
               <FileText className="w-4 h-4" /> State ID <ExternalLink className="w-3 h-3" />
-            </button>
-          ) : <span className="text-sm text-[#8A8578] font-body">No ID uploaded</span>}
+            </Button>
+          ) : <span className="text-sm text-[var(--text-3)] ds-type-body-m">No ID uploaded</span>}
           {attorney.bar_card_document ? (
-            <button onClick={() => viewDoc(attorney.bar_card_document)} className="flex items-center gap-2 px-4 py-2.5 border border-[#E5E2DC] text-sm font-body text-[#111418] hover:border-[#0a5dc2] hover:text-[#0a5dc2] transition-colors">
+            <Button variant="secondary" size="compact" onClick={() => viewDoc(attorney.bar_card_document)}>
               <FileText className="w-4 h-4" /> Bar card <ExternalLink className="w-3 h-3" />
-            </button>
-          ) : <span className="text-sm text-[#8A8578] font-body">No bar card uploaded</span>}
+            </Button>
+          ) : <span className="text-sm text-[var(--text-3)] ds-type-body-m">No bar card uploaded</span>}
         </div>
-        <p className="text-xs text-[#8A8578] font-body mt-3">Tip: cross-check the name and bar number against your state's bar directory before approving.</p>
-      </div>
+        <p className="text-xs text-[var(--text-3)] ds-type-body-m mt-3">Tip: cross-check the name and bar number against your state's bar directory before approving.</p>
+      </Card>
 
       {status === 'pending' && (
         <div className="flex flex-wrap gap-3">
-          <button
-            onClick={approve}
-            disabled={!!busy}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#111418] text-white text-sm font-body hover:bg-[#0a5dc2] transition-colors disabled:opacity-40"
-          >
+          <Button variant="primary" onClick={approve} disabled={!!busy}>
             {busy === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-            Verify & approve
-          </button>
-          <button
-            onClick={reject}
-            disabled={!!busy}
-            className="inline-flex items-center gap-2 px-6 py-3 border border-[#E5E2DC] text-[#8A8578] text-sm font-body hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-40"
-          >
+            Verify &amp; approve
+          </Button>
+          <Button variant="destructive" confirmLabel="Reject this application?" onClick={reject} disabled={!!busy}>
             {busy === 'reject' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
             Reject
-          </button>
+          </Button>
         </div>
       )}
       {status === 'verified' && (
-        <div className="inline-flex items-center gap-2 text-sm text-green-600 font-body">
+        <div className="inline-flex items-center gap-2 text-sm text-[var(--confirmed)] ds-type-body-m">
           <CheckCircle2 className="w-4 h-4" /> Approved{attorney.verified_date ? ` on ${attorney.verified_date}` : ''}
         </div>
       )}
       {status === 'rejected' && (
-        <div className="inline-flex items-center gap-2 text-sm text-red-600 font-body">
+        <div className="inline-flex items-center gap-2 text-sm text-[var(--noshow)] ds-type-body-m">
           <XCircle className="w-4 h-4" /> Rejected
         </div>
       )}
@@ -154,8 +156,8 @@ export default function AdminApplicationDetailPage() {
 function Field({ label, value }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.1em] text-[#8A8578] font-body mb-1">{label}</p>
-      <p className="text-[#111418] font-body">{value || '—'}</p>
+      <p className="ds-type-label text-[var(--text-3)] mb-1">{label}</p>
+      <p className="text-[var(--text)] ds-type-body-m">{value || '—'}</p>
     </div>
   );
 }

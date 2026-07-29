@@ -12,7 +12,8 @@
 // tightens the validity window as the appointment approaches.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
 import { generateToken, hashToken } from './_lib/tokens.js';
-import { sendEmail, manageLinks, bookingEmailBody } from './_lib/mailer.js';
+import { sendEmail, manageLinks } from './_lib/mailer.js';
+import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
 
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
@@ -74,7 +75,8 @@ export default async function handler(req, res) {
       const ok = await sendEmail(
         booking.client_email,
         'Reminder: your consultation is coming up',
-        bookingEmailBody({ clientName: booking.client_name, attorneyName: attorney?.name || booking.attorney_name, when, links, reminder: true }),
+        bookingEmailText({ clientName: booking.client_name, attorneyName: attorney?.name || booking.attorney_name, when, links, reminder: true }),
+        bookingEmailHtml({ clientName: booking.client_name, attorneyName: attorney?.name || booking.attorney_name, when, links, reminder: true }),
       );
       if (ok) {
         await admin.from('email_schedule').update({ sent_at: new Date().toISOString() }).eq('id', row.id);

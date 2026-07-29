@@ -8,7 +8,8 @@
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
 import { hashToken, generateToken } from './_lib/tokens.js';
 import { computeAvailableSlots } from '../src/lib/availability.js';
-import { sendEmail, manageLinks, bookingEmailBody } from './_lib/mailer.js';
+import { sendEmail, manageLinks } from './_lib/mailer.js';
+import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
 
 async function lookupToken(admin, rawToken) {
   const { data: tok } = await admin
@@ -129,7 +130,8 @@ export default async function handler(req, res) {
       await sendEmail(
         booking.client_email,
         'Your consultation was rescheduled',
-        bookingEmailBody({ clientName: booking.client_name, attorneyName: attorney?.name || booking.attorney_name, when, links }),
+        bookingEmailText({ clientName: booking.client_name, attorneyName: attorney?.name || booking.attorney_name, when, links }),
+        bookingEmailHtml({ clientName: booking.client_name, attorneyName: attorney?.name || booking.attorney_name, when, links }),
       );
 
       res.status(200).json({ ok: true, manage: links });

@@ -16,6 +16,7 @@ import ClientReviews from '@/components/attorney/ClientReviews';
 import FaqSection from '@/components/attorney/FaqSection';
 import MiniHeader from '@/components/attorney/MiniHeader';
 import BookingPanel from '@/components/attorney/BookingPanel';
+import VerificationLabels from '@/components/verify/VerificationLabels';
 import { nextAvailableLabel } from '@/components/attorney/profileUtils';
 
 const SECTION_IDS = ['highlights', 'about', 'practice-areas', 'location', 'reviews', 'faqs'];
@@ -135,6 +136,7 @@ export default function AttorneyProfile() {
           {/* Left column */}
           <div className="flex-1 min-w-0">
             <ProfileHeader attorney={attorney} />
+            <VerificationLabels attorneyId={attorney.id} />
             <RatingCard attorney={attorney} reviews={reviews} onSeeAll={() => scrollTo('reviews')} />
 
             {/* No wrapper div: ProfileTabs is position:sticky, and a sticky

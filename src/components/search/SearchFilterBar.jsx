@@ -30,7 +30,7 @@ function Pill({ label, active, badge, onClick, children }) {
       style={{
         borderRadius: 999,
         border: `1px solid ${active ? 'var(--text)' : 'var(--line-2)'}`,
-        background: active ? 'var(--text)' : '#fff',
+        background: active ? 'var(--text)' : 'var(--surface)',
         color: active ? 'var(--ground)' : 'var(--text)',
       }}
     >
@@ -40,7 +40,7 @@ function Pill({ label, active, badge, onClick, children }) {
           className="inline-flex items-center justify-center font-body"
           style={{
             background: active ? 'rgba(255,255,255,0.25)' : 'var(--accent)',
-            color: '#fff',
+            color: 'var(--ground)',
             borderRadius: 999,
             fontSize: 10,
             minWidth: 16,
@@ -67,7 +67,7 @@ function DropdownPill({ label, active, badge, children, minWidth = 220 }) {
         style={{
           borderRadius: 999,
           border: `1px solid ${active ? 'var(--text)' : 'var(--line-2)'}`,
-          background: active ? 'var(--text)' : '#fff',
+          background: active ? 'var(--text)' : 'var(--surface)',
           color: active ? 'var(--ground)' : 'var(--text)',
         }}
       >
@@ -77,7 +77,7 @@ function DropdownPill({ label, active, badge, children, minWidth = 220 }) {
             className="inline-flex items-center justify-center font-body"
             style={{
               background: active ? 'rgba(255,255,255,0.25)' : 'var(--accent)',
-              color: '#fff',
+              color: 'var(--ground)',
               borderRadius: 999,
               fontSize: 10,
               minWidth: 16,

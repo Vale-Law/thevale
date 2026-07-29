@@ -127,7 +127,7 @@ export default function QuestionnaireModal({ open, areaLabel, location, onClose,
               style={{
                 borderRadius: 12,
                 borderColor: selected ? 'var(--accent)' : 'var(--line-2)',
-                background: selected ? 'var(--accent-soft)' : '#fff',
+                background: selected ? 'var(--accent-soft)' : 'var(--surface)',
                 color: selected ? 'var(--accent)' : 'var(--text)',
               }}
             >
@@ -160,7 +160,7 @@ export default function QuestionnaireModal({ open, areaLabel, location, onClose,
               style={{
                 borderRadius: 12,
                 borderColor: selected ? 'var(--accent)' : 'var(--line-2)',
-                background: selected ? 'var(--accent-soft)' : '#fff',
+                background: selected ? 'var(--accent-soft)' : 'var(--surface)',
                 color: selected ? 'var(--accent)' : 'var(--text)',
               }}
             >

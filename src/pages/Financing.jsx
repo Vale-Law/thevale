@@ -21,7 +21,7 @@ export default function Financing() {
             {t('financing.body')}
           </p>
           <button
-            onClick={() => navigate('/?browse=1')}
+            onClick={() => navigate('/bookings?browse=1')}
             className="inline-flex items-center px-7 py-3.5 bg-[var(--accent)] text-[var(--accent-on)] text-sm font-medium hover:bg-[var(--accent-press)] transition-colors font-body"
           >
             {t('financing.findLawyer')}

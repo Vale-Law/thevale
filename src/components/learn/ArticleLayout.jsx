@@ -115,7 +115,7 @@ export default function ArticleLayout({ label, title, readTime, sections, ctaAre
               Consultations from $130. Financing available through Klarna, Affirm, and LawFi.
             </p>
             <button
-              onClick={() => navigate(`/?area=${encodeURIComponent(ctaArea)}`)}
+              onClick={() => navigate(`/bookings?area=${encodeURIComponent(ctaArea)}`)}
               className="px-6 py-3 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-all duration-300 font-body"
             >
               Find a {ctaArea} attorney →

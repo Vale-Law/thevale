@@ -96,7 +96,7 @@ export default function MobileMenu() {
                           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-body transition-colors"
                           style={{
                             borderColor: active ? 'var(--accent)' : 'var(--line-2)',
-                            background: active ? 'var(--accent-soft)' : '#fff',
+                            background: active ? 'var(--accent-soft)' : 'var(--surface)',
                             color: active ? 'var(--accent)' : 'var(--text)',
                           }}
                         >

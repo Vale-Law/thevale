@@ -127,7 +127,7 @@ export default function AttorneyProfile() {
       <MiniHeader attorney={attorney} visible={miniVisible} onBook={handleBook} />
 
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8 lg:py-10 pb-40 lg:pb-10">
-        <Link to="/?browse=1" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-3)] hover:text-[var(--accent)] mb-8 transition-colors font-body">
+        <Link to="/bookings?browse=1" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-3)] hover:text-[var(--accent)] mb-8 transition-colors font-body">
           <ArrowLeft className="w-4 h-4" />
           {t('profile.backToResults')}
         </Link>

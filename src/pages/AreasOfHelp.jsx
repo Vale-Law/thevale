@@ -110,7 +110,7 @@ function CategorySection({ category, index }) {
           {category.options.map(opt => (
             <Link
               key={opt}
-              to={`/?situation=${encodeURIComponent(opt)}`}
+              to={`/bookings?situation=${encodeURIComponent(opt)}`}
               className="text-sm font-body text-[var(--text)] underline underline-offset-4 decoration-[var(--line-2)] hover:decoration-[var(--accent)] hover:text-[var(--accent)] transition-all w-fit"
             >
               {opt}
@@ -132,9 +132,9 @@ export default function AreasOfHelp() {
 
   const handleSearch = (area, stateCode, city) => {
     if (area) {
-      navigate(`/?area=${encodeURIComponent(area)}`);
+      navigate(`/bookings?area=${encodeURIComponent(area)}`);
     } else {
-      navigate('/?browse=1');
+      navigate('/bookings?browse=1');
     }
   };
 

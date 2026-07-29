@@ -44,6 +44,7 @@ import BookingPage from '@/pages/BookingPage';
 import ManageBooking from '@/pages/ManageBooking';
 
 import LegacyAccentScope from './LegacyAccentScope';
+import LawyerHome from '@/pages/LawyerHome';
 
 /**
  * Every route that isn't one of the four (five, see routes/attorney.jsx)
@@ -86,7 +87,12 @@ export default (
 
       {/* Client + public/auth routes (marketing shell) */}
       <Route element={<ClientShell />}>
-        <Route path="/" element={<Home />} />
+        {/* Root = lawyer-focused landing (Brief as the booking platform
+            for practices); the client marketplace that used to live here
+            moved to /bookings. The client's own appointments page moved
+            from /bookings to /my-bookings to free the path. */}
+        <Route path="/" element={<LawyerHome />} />
+        <Route path="/bookings" element={<Home />} />
         <Route path="/attorney/:id" element={<AttorneyProfile />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/confirmation" element={<Confirmation />} />
@@ -105,7 +111,7 @@ export default (
         <Route path="/auth-redirect" element={<AuthRedirect />} />
         <Route path="/auth/client-google" element={<ClientGoogleComplete />} />
         <Route path="/account" element={<Account />} />
-        <Route path="/bookings" element={<Bookings />} />
+        <Route path="/my-bookings" element={<Bookings />} />
       </Route>
 
     </Route>

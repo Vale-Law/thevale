@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Loader2, Upload, Check } from 'lucide-react';
 import { Card, Field, Button } from '@/components/primitives';
 import BillingCard from '@/components/billing/BillingCard';
+import ConnectCard from '@/components/billing/ConnectCard';
 
 const ALL_LANGUAGES = ['English', 'Spanish', 'Portuguese', 'French', 'Mandarin', 'Arabic', 'Other'];
 const LANG_LABEL = { English: 'English', Spanish: 'Spanish', Portuguese: 'Portuguese', French: 'French', Mandarin: 'Mandarin', Arabic: 'Arabic', Other: 'Other' };
@@ -204,6 +205,7 @@ export default function AttorneyProfilePage() {
       </Card>
 
       <BillingCard />
+      <ConnectCard />
 
       {/* Team */}
       <Card tone="raised" className="mb-4">

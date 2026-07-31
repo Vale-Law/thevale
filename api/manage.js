@@ -42,8 +42,13 @@ async function refundIfCharged(admin, booking) {
       paymentIntentId: charge.stripe_payment_intent_id,
     });
     await admin.from('consultation_charges').update({ status: 'reversed', refunded_at: new Date().toISOString() }).eq('id', charge.id);
-  } catch (e) {
-    await admin.from('consultation_charges').update({ dispute_reason: `Refund failed: ${e.message}` }).eq('id', charge.id);
+  } catch {
+    // Fail open, same as the booking-time payment-session failure: the
+    // cancellation itself must still go through. The charge row is left
+    // as 'charged' (not silently marked reversed) so it's visible in the
+    // attorney's pipeline as a refund that still needs to be handled
+    // manually, rather than misusing dispute_reason (a client-facing
+    // dispute concept) to log a system error.
   }
 }
 
@@ -124,6 +129,7 @@ export default async function handler(req, res) {
       }).eq('id', booking.id);
       await admin.from('email_schedule').update({ cancelled_at: new Date().toISOString() })
         .eq('booking_id', booking.id).is('sent_at', null);
+      await refundIfCharged(admin, booking);
     } else if (tok.purpose === 'reschedule') {
       if (!slotStart || !slotEnd) { res.status(400).json({ error: 'Pick a new time' }); return; }
 

@@ -1,11 +1,12 @@
 import { Navigate } from 'react-router-dom';
 import { LayoutDashboard, CalendarClock, CalendarCheck, UserCircle2 } from 'lucide-react';
 import DashboardShell from '@/components/shell/DashboardShell';
+import SubscriptionGate from '@/components/billing/SubscriptionGate';
 import { useAuth } from '@/lib/AuthContext';
 import { isAttorneyVerified, homeForRole } from '@/lib/roleUtils';
 
 export default function AttorneyShell() {
-  const { user, effectiveRole, attorney, isLoadingAuth } = useAuth();
+  const { user, effectiveRole, attorney, isLoadingAuth, subscriptionStatus } = useAuth();
 
   if (isLoadingAuth && !user) {
     return (
@@ -18,6 +19,15 @@ export default function AttorneyShell() {
   if (!user) return <Navigate to="/login" replace />;
   if (effectiveRole !== 'attorney' && effectiveRole !== 'staff') {
     return <Navigate to={homeForRole(effectiveRole, attorney)} replace />;
+  }
+
+  // Item 4a: portal access gated on the firm's platform subscription.
+  // 'active'/'trialing'/'past_due' pass through (past_due is a deliberate
+  // grace period -- SubscriptionGate still shows a banner for it via
+  // DashboardShell's own children, not a lockout). Anything else ('none',
+  // 'incomplete', 'canceled', 'unpaid') blocks with a subscribe screen.
+  if (subscriptionStatus && !['active', 'trialing', 'past_due'].includes(subscriptionStatus)) {
+    return <SubscriptionGate status={subscriptionStatus} />;
   }
 
   // Staff have no personal attorney row and no verification state -- they

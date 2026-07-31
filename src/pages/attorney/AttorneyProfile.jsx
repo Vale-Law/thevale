@@ -4,6 +4,7 @@ import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { Loader2, Upload, Check } from 'lucide-react';
 import { Card, Field, Button } from '@/components/primitives';
+import BillingCard from '@/components/billing/BillingCard';
 
 const ALL_LANGUAGES = ['English', 'Spanish', 'Portuguese', 'French', 'Mandarin', 'Arabic', 'Other'];
 const LANG_LABEL = { English: 'English', Spanish: 'Spanish', Portuguese: 'Portuguese', French: 'French', Mandarin: 'Mandarin', Arabic: 'Arabic', Other: 'Other' };
@@ -201,6 +202,8 @@ export default function AttorneyProfilePage() {
           ))}
         </div>
       </Card>
+
+      <BillingCard />
 
       {/* Team */}
       <Card tone="raised" className="mb-4">

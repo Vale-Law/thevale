@@ -5,6 +5,7 @@ import { computeAvailableSlots } from '@/lib/availability';
 import { Button, Field, Card, TimeSlot, Halftone } from '@/components/primitives';
 import { Checkbox } from '@/components/ui/checkbox';
 import MinimalFooter from '@/components/layout/MinimalFooter';
+import VerificationLabels from '@/components/verify/VerificationLabels';
 import { Loader2, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
 
 const STEPS = ['slot', 'situation', 'contact', 'confirm'];
@@ -27,17 +28,17 @@ export default function BookingPage() {
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
 
+  // Public profile card fields (including firm name) come from a narrow
+  // security-definer RPC rather than a direct table select — `firms` has
+  // no anon row policy, so a plain join would silently drop firm_name.
+  // See supabase/migrations/20260731120000_public_attorney_profile_rpc.sql.
   useEffect(() => {
     let cancelled = false;
     supabase
-      .from('attorneys')
-      .select('id, name, photo, bio, practice_area, practice_areas, office_location, verification_status, booking_page_published')
-      .eq('slug', slug)
-      .maybeSingle()
+      .rpc('get_public_attorney_profile', { p_slug: slug })
       .then(({ data }) => {
         if (cancelled) return;
-        const ok = data && data.verification_status === 'verified' && data.booking_page_published;
-        setAttorney(ok ? data : null);
+        setAttorney(data || null);
       });
     return () => { cancelled = true; };
   }, [slug]);
@@ -185,16 +186,24 @@ export default function BookingPage() {
     <Shell>
       <div className="max-w-[680px] mx-auto px-6 py-12">
         <Halftone className="rounded-[var(--radius-l)] border border-[var(--line)] bg-[var(--surface)] px-6 py-6 mb-8">
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-[var(--surface-sunk)] border border-[var(--line)] flex items-center justify-center shrink-0">
               {attorney.photo ? <img src={attorney.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xl text-[var(--text-3)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name?.[0]}</span>}
             </div>
-            <div>
+            <div className="min-w-0">
               <h1 className="text-2xl text-[var(--text)]" style={{ fontFamily: 'var(--font-human)' }}>{attorney.name}</h1>
-              <p className="text-sm text-[var(--text-3)] ds-type-body-m">{(attorney.practice_areas?.length ? attorney.practice_areas : [attorney.practice_area]).filter(Boolean).join(' · ')}</p>
-              {attorney.office_location && (
-                <p className="text-xs text-[var(--text-4)] ds-type-body-m mt-0.5">{attorney.office_location}</p>
+              {attorney.firm_name && (
+                <p className="text-sm text-[var(--text-2)] ds-type-body-m">{attorney.firm_name}</p>
               )}
+              <p className="text-sm text-[var(--text-3)] ds-type-body-m mt-0.5">{(attorney.practice_areas?.length ? attorney.practice_areas : [attorney.practice_area]).filter(Boolean).join(' · ')}</p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                {attorney.office_location && (
+                  <p className="text-xs text-[var(--text-4)] ds-type-body-m">{attorney.office_location}</p>
+                )}
+                {attorney.consult_fee != null && (
+                  <p className="text-xs text-[var(--text-4)] ds-type-body-m">${attorney.consult_fee} consultation fee</p>
+                )}
+              </div>
             </div>
           </div>
           {attorney.bio && (
@@ -202,6 +211,7 @@ export default function BookingPage() {
               {attorney.bio}
             </p>
           )}
+          <VerificationLabels attorneyId={attorney.id} />
         </Halftone>
 
         <StepIndicator step={step} />

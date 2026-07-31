@@ -126,6 +126,16 @@ export default function BookingPage() {
         setError(data.error || 'Something went wrong. Please try again.');
         return;
       }
+      // Item 4b: when the attorney's firm has Connect payments active, the
+      // API returns a Checkout URL for the consultation fee -- send the
+      // client there now rather than showing the "you're booked" screen;
+      // its success_url lands back on the existing /manage/:token page.
+      // No paymentUrl (attorney hasn't onboarded to Connect yet) just
+      // falls through to the normal confirmation screen, same as today.
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+        return;
+      }
       setResult(data);
     } catch {
       setError('Something went wrong. Please try again.');

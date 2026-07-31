@@ -8,6 +8,8 @@ import { generateToken, hashToken } from './_lib/tokens.js';
 import { sendEmail, manageLinks } from './_lib/mailer.js';
 import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
 import { attorneyNotificationText, attorneyNotificationHtml } from '../emails/attorney-notification.js';
+import { createConsultationCheckout } from './_lib/stripeConnect.js';
+import { isStripeConfigured } from './_lib/stripeClient.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -40,7 +42,7 @@ export default async function handler(req, res) {
 
   const { data: attorney, error: aErr } = await admin
     .from('attorneys')
-    .select('id, name, email, verification_status, booking_page_published')
+    .select('id, name, email, verification_status, booking_page_published, firm_id, consult_fee')
     .eq('slug', slug)
     .maybeSingle();
   if (aErr) {
@@ -138,5 +140,54 @@ export default async function handler(req, res) {
     await admin.from('email_schedule').update({ sent_at: new Date().toISOString() }).eq('booking_id', booking.id).eq('kind', 'confirmation');
   }
 
-  res.status(200).json({ booking, manage: links, emailSent: clientSent });
+  // Item 4b: client pays the consultation fee at booking, via a Stripe
+  // Connect direct charge -- only when the attorney's firm has finished
+  // Connect onboarding. An attorney who hasn't onboarded yet just doesn't
+  // get a paymentUrl; the booking proceeds exactly as it did before this
+  // feature existed (payment collected out-of-band, same as today).
+  // Exactly one consultation_charges row per booking, same
+  // upsert+ignoreDuplicates+unique-index guarantee the completed-booking
+  // path already relies on (api/manage.js is not involved here; this is
+  // the booking-time creation, status 'pending' until the Connect webhook
+  // marks it 'charged').
+  let paymentUrl = null;
+  if (attorney.consult_fee != null && attorney.firm_id) {
+    const amountCents = Math.round(Number(attorney.consult_fee) * 100);
+    if (amountCents > 0) {
+      await admin.from('consultation_charges').upsert(
+        { booking_id: booking.id, attorney_id: attorney.id, amount_cents: amountCents },
+        { onConflict: 'booking_id', ignoreDuplicates: true }
+      );
+
+      if (isStripeConfigured()) {
+        const { data: paymentAccount } = await admin
+          .from('firm_payment_accounts')
+          .select('stripe_account_id, status')
+          .eq('firm_id', attorney.firm_id)
+          .maybeSingle();
+
+        if (paymentAccount?.status === 'active') {
+          try {
+            const session = await createConsultationCheckout({
+              connectedAccountId: paymentAccount.stripe_account_id,
+              amountCents,
+              clientEmail,
+              attorneyName: attorney.name,
+              bookingId: booking.id,
+              successUrl: `${origin}/manage/${tokens.confirm}?paid=1`,
+              cancelUrl: `${origin}/manage/${tokens.confirm}?paid=canceled`,
+            });
+            paymentUrl = session.url;
+          } catch {
+            // Fail open: booking already exists and the client already got
+            // a confirmation email. A payment-session failure shouldn't
+            // undo the booking -- the attorney can still collect payment
+            // out-of-band, same as an unonboarded firm.
+          }
+        }
+      }
+    }
+  }
+
+  res.status(200).json({ booking, manage: links, emailSent: clientSent, paymentUrl });
 }

@@ -1,16 +1,11 @@
 /*
   Brief Design System v2 -- Section 17 token contract + Section 8 surface effects.
 
-  NOTE for the unit that owns index.html (outside this file's boundary):
-  index.html currently has NO Google Fonts link tags (verified -- only a
-  favicon/manifest/apple-touch-icon are present). src/index.css already loads
-  a Poppins font via an @import url(...), which this token contract does not
-  use. Section 17 calls for the following tags to be added to the head of
-  index.html so --font-system/--font-human/--font-mark resolve correctly:
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..500;1,6..72,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  index.html loads Archivo, Newsreader and Instrument Serif for
+  --font-system/--font-human/--font-mark below, plus Archivo Condensed and
+  Fraunces for the portal-only typography override in the .ds-portal-bg
+  block further down this file (owner-authorized Base44-export parity for
+  the attorney + admin portals only -- see that block's comment).
 */
 :root{
   color-scheme: light dark;
@@ -40,6 +35,10 @@
   --font-system:'Archivo',system-ui,sans-serif;
   --font-human:'Newsreader',Georgia,serif;
   --font-mark:'Instrument Serif',Georgia,serif;
+  /* --font-cond has no sitewide treatment -- it resolves to the regular-
+     width system sans everywhere except the portal scope below, which is
+     the only place the Base44 export's condensed cut (`ap-cond`) applies. */
+  --font-cond:var(--font-system);
 
   --space-1:4px;  --space-2:8px;   --space-3:12px; --space-4:16px;
   --space-6:24px; --space-8:32px;  --space-12:48px;
@@ -148,6 +147,46 @@
   0%, 100% { opacity: .6; }
   50% { opacity: 1; }
 }
+
+/* ---------------------------------------------------------------------- */
+/* Portal typography (attorney + admin dashboard shells only)             */
+/*                                                                         */
+/* Owner-authorized DS v2 override, same category as the .ds-portal-bg    */
+/* background above and the warm ground/14px radius overrides at :root:   */
+/* the export's actual typefaces win over DS v2's earlier substitution.   */
+/* DS v2 previously put Newsreader in --font-human where the Base44       */
+/* export uses a distinct editorial serif token (`ap-serif`), and dropped */
+/* the export's condensed label typeface (`ap-cond`) entirely for lack of */
+/* a DS v2 equivalent. Both are restored here, scoped to .ds-portal-bg so */
+/* nothing outside the two portals is touched -- --font-human and         */
+/* .ds-type-label keep their DS v2 values (Newsreader / plain Archivo)    */
+/* everywhere else in the app, including every public page.               */
+/*                                                                         */
+/* Substitution note: the source `base44-export/` directory this override */
+/* is meant to read was not present in the session that made this change  */
+/* (gitignored scratch content -- see .gitignore -- not part of the       */
+/* committed app, and not on disk here). Rather than block, the closest   */
+/* freely-available matches were used, chosen for fit with the existing   */
+/* stack: Fraunces (a display/editorial serif with strong tabular         */
+/* numerals, replacing Newsreader for `ap-serif`'s slot -- wordmark,      */
+/* section and time headings, "This week's tasks", stat numerals) and     */
+/* Archivo Condensed (kin to --font-system's own Archivo, replacing the   */
+/* dropped `ap-cond` for the small letter-spaced labels -- THURSDAY, JULY */
+/* 30, 2026 / THIS WEEK'S CONSULTS / THE PIPELINE / etc., i.e. anywhere   */
+/* .ds-type-label is used). Both are Google Fonts, loaded in index.html.  */
+/* If the real export surfaces later, diff its ap-serif/ap-cond           */
+/* declarations against these two and swap the values below -- nothing   */
+/* else in the app needs to change, since every portal component already */
+/* reads var(--font-human) or .ds-type-label rather than a literal name.  */
+/* Sizes, weights, letter-spacing and line-heights are deliberately       */
+/* untouched: this is a family-only swap, matching the scope of the      */
+/* override DS v2 documented for this same substitution.                 */
+/* ---------------------------------------------------------------------- */
+.ds-portal-bg{
+  --font-human:'Fraunces',Georgia,serif;
+  --font-cond:'Archivo Condensed','Archivo',system-ui,sans-serif;
+}
+.ds-portal-bg .ds-type-label{ font-family: var(--font-cond); }
 
 /* Design System v2 — Section 8: halftone / ledger / grain surface effects */
 .halftone{position:relative;isolation:isolate}

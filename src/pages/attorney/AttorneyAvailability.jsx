@@ -9,13 +9,15 @@ import { Loader2, Copy, Check, ExternalLink, CalendarClock } from 'lucide-react'
 
 const CONNECTION_STATUS_LABEL = { connected: 'Connected', error: 'Connection error', disconnected: 'Disconnected' };
 const CONNECTION_STATUS_COLOR = { connected: 'var(--confirmed)', error: 'var(--noshow)', disconnected: 'var(--text-3)' };
-const CALENDAR_ERROR_REASON = {
+const PROVIDER_LABEL = { google: 'Google Calendar', microsoft: 'Outlook Calendar' };
+const CALENDAR_ERROR_REASON = (providerLabel) => ({
   not_configured: "Calendar connection isn't set up yet.",
   invalid_state: 'That link expired — try connecting again.',
-  token_exchange_failed: 'Google declined the connection — try again.',
-  no_refresh_token: 'Google did not grant lasting access — try again and accept every permission.',
+  token_exchange_failed: `${providerLabel} declined the connection — try again.`,
+  no_refresh_token: `${providerLabel} did not grant lasting access — try again and accept every permission.`,
+  no_mailbox: 'Could not read your account email — try again.',
   save_failed: 'Something went wrong saving the connection — try again.',
-};
+});
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -42,8 +44,8 @@ export default function AttorneyAvailabilityPage() {
   const [published, setPublished] = useState(false);
   const [slugSaving, setSlugSaving] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [connection, setConnection] = useState(null);
-  const [connecting, setConnecting] = useState(false);
+  const [connections, setConnections] = useState({ google: null, microsoft: null });
+  const [connecting, setConnecting] = useState(null);
   const [calendarMessage, setCalendarMessage] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -59,39 +61,46 @@ export default function AttorneyAvailabilityPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const loadConnection = useCallback(async () => {
+  const loadConnections = useCallback(async () => {
     if (!attorney?.id) return;
-    const { data } = await supabase.from('attorney_calendar_connections').select('*').eq('attorney_id', attorney.id).eq('provider', 'google').maybeSingle();
-    setConnection(data || null);
+    const { data } = await supabase.from('attorney_calendar_connections').select('*').eq('attorney_id', attorney.id);
+    const byProvider = { google: null, microsoft: null };
+    for (const row of data || []) byProvider[row.provider] = row;
+    setConnections(byProvider);
   }, [attorney?.id]);
 
-  useEffect(() => { loadConnection(); }, [loadConnection]);
+  useEffect(() => { loadConnections(); }, [loadConnections]);
 
-  // Land back here from the Google OAuth redirect (calendar-callback.js)
-  // with ?calendar=connected or ?calendar=error&reason=... -- refresh the
-  // connection state once, then strip the params so a page reload doesn't
-  // re-show the message.
+  // Land back here from the Google/Microsoft OAuth redirect
+  // (calendar-callback.js / calendar-callback-microsoft.js) with
+  // ?calendar=connected&provider=... or ?calendar=error&provider=...&reason=...
+  // -- refresh connection state once, then strip the params so a page
+  // reload doesn't re-show the message.
   useEffect(() => {
     const calendarResult = searchParams.get('calendar');
     if (!calendarResult) return;
-    loadConnection();
+    const provider = searchParams.get('provider') === 'microsoft' ? 'microsoft' : 'google';
+    const providerLabel = PROVIDER_LABEL[provider];
+    loadConnections();
     setCalendarMessage(
       calendarResult === 'connected'
-        ? { text: 'Google Calendar connected.', ok: true }
-        : { text: CALENDAR_ERROR_REASON[searchParams.get('reason')] || 'Could not connect Google Calendar.', ok: false }
+        ? { text: `${providerLabel} connected.`, ok: true }
+        : { text: CALENDAR_ERROR_REASON(providerLabel)[searchParams.get('reason')] || `Could not connect ${providerLabel}.`, ok: false }
     );
     const next = new URLSearchParams(searchParams);
     next.delete('calendar');
+    next.delete('provider');
     next.delete('reason');
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const connectCalendar = async () => {
-    setConnecting(true);
+  const connectCalendar = async (provider) => {
+    setConnecting(provider);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('/api/calendar-connect', {
+      const endpoint = provider === 'microsoft' ? '/api/calendar-connect-microsoft' : '/api/calendar-connect';
+      const res = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await res.json();
@@ -99,14 +108,15 @@ export default function AttorneyAvailabilityPage() {
       window.location.href = data.url;
     } catch (e) {
       setCalendarMessage({ text: e.message || 'Could not start the connection.', ok: false });
-      setConnecting(false);
+      setConnecting(null);
     }
   };
 
-  const disconnectCalendar = async () => {
+  const disconnectCalendar = async (provider) => {
+    const connection = connections[provider];
     if (!connection) return;
     await supabase.from('attorney_calendar_connections').delete().eq('id', connection.id);
-    setConnection(null);
+    setConnections((prev) => ({ ...prev, [provider]: null }));
   };
 
   const saveRules = async (next) => {
@@ -174,36 +184,47 @@ export default function AttorneyAvailabilityPage() {
         </p>
       </div>
 
-      {/* Calendar connection (F-01) */}
+      {/* Calendar connections (F-01) — an attorney can connect either or
+          both; busy time from every connected provider blocks the booking
+          page. */}
       <Card tone="raised" className="mb-5">
         <p className="ds-type-label text-[var(--text-3)] mb-3">Calendar</p>
         {calendarMessage && (
           <p className={`text-sm ds-type-body-m mb-3 ${calendarMessage.ok ? 'text-[var(--accent)]' : 'text-[var(--noshow)]'}`}>{calendarMessage.text}</p>
         )}
-        {connection ? (
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: CONNECTION_STATUS_COLOR[connection.status] || 'var(--text-3)' }} />
-              <span className="text-sm ds-type-body-m text-[var(--text)]">Google Calendar — {CONNECTION_STATUS_LABEL[connection.status] || connection.status}</span>
-            </div>
-            {connection.status === 'error' && connection.last_error && (
-              <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-2">{connection.last_error}</p>
-            )}
-            <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-3">
-              {connection.last_synced_at ? `Last synced ${new Date(connection.last_synced_at).toLocaleString()}` : 'Not synced yet'}
-            </p>
-            <Button variant="destructive" size="compact" onClick={disconnectCalendar}>Disconnect</Button>
-          </div>
-        ) : (
-          <div>
-            <p className="text-sm text-[var(--text-3)] ds-type-body-m mb-3 max-w-md">
-              Connect your Google Calendar so busy time there also blocks your Brief booking page. Free/busy only — Brief never reads event details.
-            </p>
-            <Button variant="secondary" size="compact" disabled={connecting} onClick={connectCalendar}>
-              {connecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CalendarClock className="w-3.5 h-3.5" />} Connect Google Calendar
-            </Button>
-          </div>
-        )}
+        <div className="space-y-4">
+          {['google', 'microsoft'].map((provider, i) => {
+            const connection = connections[provider];
+            return (
+              <div key={provider} className={i > 0 ? 'pt-4 border-t border-[var(--line)]' : ''}>
+                {connection ? (
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: CONNECTION_STATUS_COLOR[connection.status] || 'var(--text-3)' }} />
+                      <span className="text-sm ds-type-body-m text-[var(--text)]">{PROVIDER_LABEL[provider]} — {CONNECTION_STATUS_LABEL[connection.status] || connection.status}</span>
+                    </div>
+                    {connection.status === 'error' && connection.last_error && (
+                      <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-2">{connection.last_error}</p>
+                    )}
+                    <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-3">
+                      {connection.last_synced_at ? `Last synced ${new Date(connection.last_synced_at).toLocaleString()}` : 'Not synced yet'}
+                    </p>
+                    <Button variant="destructive" size="compact" onClick={() => disconnectCalendar(provider)}>Disconnect</Button>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-[var(--text-3)] ds-type-body-m mb-3 max-w-md">
+                      Connect your {PROVIDER_LABEL[provider]} so busy time there also blocks your Brief booking page. Free/busy only — Brief never reads event details.
+                    </p>
+                    <Button variant="secondary" size="compact" disabled={connecting === provider} onClick={() => connectCalendar(provider)}>
+                      {connecting === provider ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CalendarClock className="w-3.5 h-3.5" />} Connect {PROVIDER_LABEL[provider]}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </Card>
 
       {/* Booking link */}

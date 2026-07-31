@@ -4,42 +4,49 @@
 // run server-side with the service role) and returns computed open slots
 // for the attorney's published booking page.
 //
-// If the attorney has a connected Google Calendar (F-01), a live free/busy
-// query is merged into existingRanges on every request -- there is no
-// caching layer here, so an external event is reflected the next time this
-// endpoint is hit, satisfying the "removes a slot within a defined sync
-// SLA" gate without needing a separate sync job. A refresh/free-busy
-// failure degrades to booking-only availability (fail open on the
-// client-facing side) and records the error on the connection row so the
-// attorney's own health indicator shows it.
+// If the attorney has connected Google and/or Microsoft calendars (F-01), a
+// live free/busy query is merged into existingRanges on every request --
+// there is no caching layer here, so an external event is reflected the
+// next time this endpoint is hit, satisfying the "removes a slot within a
+// defined sync SLA" gate without needing a separate sync job. A
+// refresh/free-busy failure degrades to booking-only availability (fail
+// open on the client-facing side) and records the error on the connection
+// row so the attorney's own health indicator shows it. An attorney can have
+// both providers connected at once (e.g. a personal Google calendar and a
+// firm Outlook calendar); busy ranges from every connected, non-erroring
+// provider are merged together.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
 import { computeAvailableSlots } from '../src/lib/availability.js';
-import { decryptRefreshToken, refreshAccessToken, getFreeBusy } from './_lib/googleCalendar.js';
+import { decryptRefreshToken, encryptRefreshToken } from './_lib/calendarCrypto.js';
+import { refreshAccessToken as googleRefresh, getFreeBusy as googleFreeBusy } from './_lib/googleCalendar.js';
+import { refreshAccessToken as microsoftRefresh, getFreeBusy as microsoftFreeBusy } from './_lib/microsoftCalendar.js';
 
 const DAYS_AHEAD = 14;
 
-async function loadCalendarBusyRanges(admin, attorneyId) {
-  const { data: connection } = await admin
-    .from('attorney_calendar_connections')
-    .select('*')
-    .eq('attorney_id', attorneyId)
-    .eq('provider', 'google')
-    .maybeSingle();
+const PROVIDERS = {
+  google: { refresh: googleRefresh, freeBusy: googleFreeBusy },
+  microsoft: { refresh: microsoftRefresh, freeBusy: microsoftFreeBusy },
+};
 
-  if (!connection || connection.status === 'disconnected') return [];
-
+async function loadOneConnectionBusy(admin, connection) {
+  const provider = PROVIDERS[connection.provider];
+  if (!provider) return [];
   try {
     const refreshToken = decryptRefreshToken(connection.refresh_token_encrypted);
-    const { access_token: accessToken } = await refreshAccessToken(refreshToken);
+    const refreshed = await provider.refresh(refreshToken);
     const now = new Date();
     const timeMax = new Date(now.getTime() + DAYS_AHEAD * 86400000);
-    const busy = await getFreeBusy(accessToken, connection.calendar_id, now.toISOString(), timeMax.toISOString());
+    const busy = await provider.freeBusy(refreshed.access_token, connection.calendar_id, now.toISOString(), timeMax.toISOString());
 
-    await admin
-      .from('attorney_calendar_connections')
-      .update({ status: 'connected', last_error: null, last_synced_at: new Date().toISOString() })
-      .eq('id', connection.id);
+    const update = { status: 'connected', last_error: null, last_synced_at: new Date().toISOString() };
+    // Microsoft's v2 token endpoint can rotate the refresh_token on every
+    // refresh -- if it did, the old one is invalidated, so the encrypted
+    // value on the row must be updated or the connection breaks on the
+    // next sync. Google never rotates, so refreshed.refresh_token is
+    // simply absent there and this is a no-op.
+    if (refreshed.refresh_token) update.refresh_token_encrypted = encryptRefreshToken(refreshed.refresh_token);
 
+    await admin.from('attorney_calendar_connections').update(update).eq('id', connection.id);
     return busy;
   } catch (e) {
     await admin
@@ -48,6 +55,18 @@ async function loadCalendarBusyRanges(admin, attorneyId) {
       .eq('id', connection.id);
     return [];
   }
+}
+
+async function loadCalendarBusyRanges(admin, attorneyId) {
+  const { data: connections } = await admin
+    .from('attorney_calendar_connections')
+    .select('*')
+    .eq('attorney_id', attorneyId)
+    .neq('status', 'disconnected');
+
+  if (!connections?.length) return [];
+  const results = await Promise.all(connections.map((c) => loadOneConnectionBusy(admin, c)));
+  return results.flat();
 }
 
 export default async function handler(req, res) {

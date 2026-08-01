@@ -29,6 +29,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [attorney, setAttorney] = useState(null);
   const [firmAttorneyIds, setFirmAttorneyIds] = useState([]);
+  const [firmId, setFirmId] = useState(null);
+  // null = not loaded yet, 'none' = firm has never subscribed (no row).
+  // Gating (AttorneyShell.jsx) treats 'active'/'trialing'/'past_due' as
+  // portal-accessible (past_due is a deliberate grace period, not a
+  // cutoff) and everything else -- 'none', 'incomplete', 'canceled',
+  // 'unpaid' -- as blocked.
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
@@ -43,6 +50,8 @@ export const AuthProvider = ({ children }) => {
     if (!currentUser || (role !== 'attorney' && role !== 'staff')) {
       setAttorney(null);
       setFirmAttorneyIds([]);
+      setFirmId(null);
+      setSubscriptionStatus(null);
       return;
     }
     try {
@@ -58,17 +67,28 @@ export const AuthProvider = ({ children }) => {
         .select('firm_id')
         .eq('user_id', currentUser.id)
         .maybeSingle();
-      const firmId = membership?.firm_id || ownAttorney?.firm_id || null;
+      const resolvedFirmId = membership?.firm_id || ownAttorney?.firm_id || null;
+      setFirmId(resolvedFirmId);
 
-      if (!firmId) {
+      if (!resolvedFirmId) {
         setFirmAttorneyIds(ownAttorney ? [ownAttorney.id] : []);
+        setSubscriptionStatus('none');
         return;
       }
-      const { data: firmAttorneys } = await supabase.from('attorneys').select('id').eq('firm_id', firmId);
+      const { data: firmAttorneys } = await supabase.from('attorneys').select('id').eq('firm_id', resolvedFirmId);
       setFirmAttorneyIds((firmAttorneys || []).map((a) => a.id));
+
+      const { data: subscription } = await supabase
+        .from('firm_subscriptions')
+        .select('status')
+        .eq('firm_id', resolvedFirmId)
+        .maybeSingle();
+      setSubscriptionStatus(subscription?.status || 'none');
     } catch (e) {
       setAttorney(null);
       setFirmAttorneyIds([]);
+      setFirmId(null);
+      setSubscriptionStatus(null);
     }
   }, []);
 
@@ -125,6 +145,8 @@ export const AuthProvider = ({ children }) => {
       user,
       attorney,
       firmAttorneyIds,
+      firmId,
+      subscriptionStatus,
       effectiveRole,
       attorneyVerified,
       isAuthenticated,

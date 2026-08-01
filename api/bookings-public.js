@@ -8,8 +8,11 @@ import { generateToken, hashToken } from './_lib/tokens.js';
 import { sendEmail, manageLinks } from './_lib/mailer.js';
 import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
 import { attorneyNotificationText, attorneyNotificationHtml } from '../emails/attorney-notification.js';
-import { createConsultationCheckout } from './_lib/stripeConnect.js';
-import { isStripeConfigured } from './_lib/stripeClient.js';
+// Deliberately NOT a static import: this endpoint is on the critical path
+// for every public booking, whether or not that booking involves payment.
+// The Stripe payment attempt below dynamically imports these inside its
+// own try/catch, so a broken/unconfigured/unloadable payment module can
+// never take down booking creation itself. See _lib/stripeClient.js.
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -142,32 +145,40 @@ export default async function handler(req, res) {
 
   // Item 4b: client pays the consultation fee at booking, via a Stripe
   // Connect direct charge -- only when the attorney's firm has finished
-  // Connect onboarding. An attorney who hasn't onboarded yet just doesn't
-  // get a paymentUrl; the booking proceeds exactly as it did before this
-  // feature existed (payment collected out-of-band, same as today).
+  // Connect onboarding. An attorney who hasn't onboarded yet (or Stripe
+  // isn't configured at all, or the payment tables don't exist yet, or
+  // the Stripe SDK itself fails to load) just doesn't get a paymentUrl;
+  // the booking proceeds exactly as it did before this feature existed
+  // (payment collected out-of-band, same as today). The booking and its
+  // confirmation email are already done by this point in the handler --
+  // this entire section is best-effort and must never be able to turn a
+  // successful booking into a failed request, so every step of it,
+  // including the dynamic imports themselves, is inside one try/catch.
   // Exactly one consultation_charges row per booking, same
   // upsert+ignoreDuplicates+unique-index guarantee the completed-booking
   // path already relies on (api/manage.js is not involved here; this is
   // the booking-time creation, status 'pending' until the Connect webhook
   // marks it 'charged').
   let paymentUrl = null;
-  if (attorney.consult_fee != null && attorney.firm_id) {
-    const amountCents = Math.round(Number(attorney.consult_fee) * 100);
-    if (amountCents > 0) {
-      await admin.from('consultation_charges').upsert(
-        { booking_id: booking.id, attorney_id: attorney.id, amount_cents: amountCents },
-        { onConflict: 'booking_id', ignoreDuplicates: true }
-      );
+  try {
+    if (attorney.consult_fee != null && attorney.firm_id) {
+      const amountCents = Math.round(Number(attorney.consult_fee) * 100);
+      if (amountCents > 0) {
+        await admin.from('consultation_charges').upsert(
+          { booking_id: booking.id, attorney_id: attorney.id, amount_cents: amountCents },
+          { onConflict: 'booking_id', ignoreDuplicates: true }
+        );
 
-      if (isStripeConfigured()) {
-        const { data: paymentAccount } = await admin
-          .from('firm_payment_accounts')
-          .select('stripe_account_id, status')
-          .eq('firm_id', attorney.firm_id)
-          .maybeSingle();
+        const { isStripeConfigured } = await import('./_lib/stripeClient.js');
+        if (isStripeConfigured()) {
+          const { data: paymentAccount } = await admin
+            .from('firm_payment_accounts')
+            .select('stripe_account_id, status')
+            .eq('firm_id', attorney.firm_id)
+            .maybeSingle();
 
-        if (paymentAccount?.status === 'active') {
-          try {
+          if (paymentAccount?.status === 'active') {
+            const { createConsultationCheckout } = await import('./_lib/stripeConnect.js');
             const session = await createConsultationCheckout({
               connectedAccountId: paymentAccount.stripe_account_id,
               amountCents,
@@ -178,15 +189,16 @@ export default async function handler(req, res) {
               cancelUrl: `${origin}/manage/${tokens.confirm}?paid=canceled`,
             });
             paymentUrl = session.url;
-          } catch {
-            // Fail open: booking already exists and the client already got
-            // a confirmation email. A payment-session failure shouldn't
-            // undo the booking -- the attorney can still collect payment
-            // out-of-band, same as an unonboarded firm.
           }
         }
       }
     }
+  } catch {
+    // Fail open: booking already exists and the client already got a
+    // confirmation email. Nothing about payment collection -- Stripe
+    // unconfigured, the payment tables missing, a network error, the
+    // Stripe SDK failing to load, anything -- may ever undo or block the
+    // booking itself. The attorney can still collect payment out-of-band.
   }
 
   res.status(200).json({ booking, manage: links, emailSent: clientSent, paymentUrl });

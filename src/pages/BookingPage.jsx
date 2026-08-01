@@ -32,14 +32,36 @@ export default function BookingPage() {
   // security-definer RPC rather than a direct table select — `firms` has
   // no anon row policy, so a plain join would silently drop firm_name.
   // See supabase/migrations/20260731120000_public_attorney_profile_rpc.sql.
+  //
+  // Falls back to the older direct table select (pre-firm-name/fee) if
+  // the RPC call itself errors — e.g. the migration creating it hasn't
+  // run yet. The whole public booking page must never go down because
+  // one profile-card enhancement's migration is pending; a booking must
+  // still be completable with the degraded (no firm name/fee/
+  // verification labels) card, exactly like every other integration
+  // point added alongside it.
   useEffect(() => {
     let cancelled = false;
+    const legacyFallback = () =>
+      supabase
+        .from('attorneys')
+        .select('id, name, photo, bio, practice_area, practice_areas, office_location, verification_status, booking_page_published')
+        .eq('slug', slug)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (cancelled) return;
+          const ok = data && data.verification_status === 'verified' && data.booking_page_published;
+          setAttorney(ok ? data : null);
+        });
+
     supabase
       .rpc('get_public_attorney_profile', { p_slug: slug })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return;
+        if (error) return legacyFallback();
         setAttorney(data || null);
-      });
+      })
+      .catch(() => { if (!cancelled) legacyFallback(); });
     return () => { cancelled = true; };
   }, [slug]);
 

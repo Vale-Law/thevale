@@ -7,8 +7,8 @@
 // subscription (item 4a).
 import { stripeClient } from './stripeClient.js';
 
-export function createExpressAccount(email) {
-  const stripe = stripeClient();
+export async function createExpressAccount(email) {
+  const stripe = await stripeClient();
   return stripe.accounts.create({
     type: 'express',
     email,
@@ -16,8 +16,8 @@ export function createExpressAccount(email) {
   });
 }
 
-export function createAccountLink(accountId, { refreshUrl, returnUrl }) {
-  const stripe = stripeClient();
+export async function createAccountLink(accountId, { refreshUrl, returnUrl }) {
+  const stripe = await stripeClient();
   return stripe.accountLinks.create({
     account: accountId,
     refresh_url: refreshUrl,
@@ -31,8 +31,8 @@ export function createAccountLink(accountId, { refreshUrl, returnUrl }) {
 // application_fee_amount 0. metadata.booking_id lets the Connect webhook
 // (api/webhooks-stripe-connect.js) find the matching consultation_charges
 // row without a second round trip.
-export function createConsultationCheckout({ connectedAccountId, amountCents, clientEmail, attorneyName, bookingId, successUrl, cancelUrl }) {
-  const stripe = stripeClient();
+export async function createConsultationCheckout({ connectedAccountId, amountCents, clientEmail, attorneyName, bookingId, successUrl, cancelUrl }) {
+  const stripe = await stripeClient();
   return stripe.checkout.sessions.create(
     {
       mode: 'payment',
@@ -57,7 +57,7 @@ export function createConsultationCheckout({ connectedAccountId, amountCents, cl
 // Refunds must be issued against the connected account too, same as the
 // charge itself -- this is what makes it a refund of a direct charge
 // rather than an (invalid) attempt to refund from the platform's balance.
-export function refundConsultationPayment({ connectedAccountId, paymentIntentId }) {
-  const stripe = stripeClient();
+export async function refundConsultationPayment({ connectedAccountId, paymentIntentId }) {
+  const stripe = await stripeClient();
   return stripe.refunds.create({ payment_intent: paymentIntentId }, { stripeAccount: connectedAccountId });
 }

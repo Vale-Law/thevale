@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const stripe = stripeClient();
+  const stripe = await stripeClient();
   const admin = supabaseAdmin();
   if (!admin) {
     res.status(503).json({ error: 'Not configured (SUPABASE_SERVICE_ROLE_KEY unset).' });

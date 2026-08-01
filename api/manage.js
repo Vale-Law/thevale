@@ -10,33 +10,42 @@ import { hashToken, generateToken } from './_lib/tokens.js';
 import { computeAvailableSlots } from '../src/lib/availability.js';
 import { sendEmail, manageLinks } from './_lib/mailer.js';
 import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
-import { refundConsultationPayment } from './_lib/stripeConnect.js';
-import { isStripeConfigured } from './_lib/stripeClient.js';
+// Deliberately NOT static imports: this endpoint handles confirm/cancel/
+// reschedule for every booking, whether or not it was ever paid. Loaded
+// dynamically, inside refundIfCharged()'s own try/catch below, so a
+// broken/unconfigured/unloadable payment module can never block a
+// cancellation. See _lib/stripeClient.js.
 
 // Item 4b: refund a paid consultation fee when a booking is canceled. Only
 // acts if a charge actually went through (status 'charged' with a payment
 // intent) -- a booking that was never paid (attorney not yet Connect-
-// onboarded) has nothing to refund. Failure here is logged but never
-// blocks the cancellation itself from going through.
+// onboarded) has nothing to refund. The entire function is one try/catch:
+// Stripe unconfigured, the payment tables missing, a network error, the
+// Stripe SDK failing to load, anything -- must never block the
+// cancellation itself, which the caller has already committed by the time
+// this runs.
 async function refundIfCharged(admin, booking) {
-  if (!isStripeConfigured()) return;
-  const { data: charge } = await admin
-    .from('consultation_charges')
-    .select('*')
-    .eq('booking_id', booking.id)
-    .maybeSingle();
-  if (!charge || charge.status !== 'charged' || !charge.stripe_payment_intent_id) return;
-
-  const { data: attorney } = await admin.from('attorneys').select('firm_id').eq('id', booking.attorney_id).maybeSingle();
-  if (!attorney?.firm_id) return;
-  const { data: paymentAccount } = await admin
-    .from('firm_payment_accounts')
-    .select('stripe_account_id')
-    .eq('firm_id', attorney.firm_id)
-    .maybeSingle();
-  if (!paymentAccount?.stripe_account_id) return;
-
   try {
+    const { isStripeConfigured } = await import('./_lib/stripeClient.js');
+    if (!isStripeConfigured()) return;
+
+    const { data: charge } = await admin
+      .from('consultation_charges')
+      .select('*')
+      .eq('booking_id', booking.id)
+      .maybeSingle();
+    if (!charge || charge.status !== 'charged' || !charge.stripe_payment_intent_id) return;
+
+    const { data: attorney } = await admin.from('attorneys').select('firm_id').eq('id', booking.attorney_id).maybeSingle();
+    if (!attorney?.firm_id) return;
+    const { data: paymentAccount } = await admin
+      .from('firm_payment_accounts')
+      .select('stripe_account_id')
+      .eq('firm_id', attorney.firm_id)
+      .maybeSingle();
+    if (!paymentAccount?.stripe_account_id) return;
+
+    const { refundConsultationPayment } = await import('./_lib/stripeConnect.js');
     await refundConsultationPayment({
       connectedAccountId: paymentAccount.stripe_account_id,
       paymentIntentId: charge.stripe_payment_intent_id,
@@ -44,11 +53,11 @@ async function refundIfCharged(admin, booking) {
     await admin.from('consultation_charges').update({ status: 'reversed', refunded_at: new Date().toISOString() }).eq('id', charge.id);
   } catch {
     // Fail open, same as the booking-time payment-session failure: the
-    // cancellation itself must still go through. The charge row is left
-    // as 'charged' (not silently marked reversed) so it's visible in the
-    // attorney's pipeline as a refund that still needs to be handled
-    // manually, rather than misusing dispute_reason (a client-facing
-    // dispute concept) to log a system error.
+    // cancellation itself must still go through. A charge that was
+    // actually 'charged' is left as-is (not silently marked reversed) so
+    // it's visible in the attorney's pipeline as a refund that still
+    // needs to be handled manually, rather than misusing dispute_reason
+    // (a client-facing dispute concept) to log a system error.
   }
 }
 

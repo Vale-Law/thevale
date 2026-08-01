@@ -12,7 +12,7 @@ export function platformPriceLookupKey() {
 }
 
 export async function getPlatformPrice() {
-  const stripe = stripeClient();
+  const stripe = await stripeClient();
   const lookupKey = platformPriceLookupKey();
   const { data } = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, expand: ['data.product'], limit: 1 });
   const price = data[0];

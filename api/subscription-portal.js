@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const stripe = stripeClient();
+  const stripe = await stripeClient();
   const session = await stripe.billingPortal.sessions.create({
     customer: sub.stripe_customer_id,
     return_url: `${redirectBase(req)}/attorney/profile`,

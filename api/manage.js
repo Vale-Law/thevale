@@ -10,6 +10,47 @@ import { hashToken, generateToken } from './_lib/tokens.js';
 import { computeAvailableSlots } from '../src/lib/availability.js';
 import { sendEmail, manageLinks } from './_lib/mailer.js';
 import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
+import { refundConsultationPayment } from './_lib/stripeConnect.js';
+import { isStripeConfigured } from './_lib/stripeClient.js';
+
+// Item 4b: refund a paid consultation fee when a booking is canceled. Only
+// acts if a charge actually went through (status 'charged' with a payment
+// intent) -- a booking that was never paid (attorney not yet Connect-
+// onboarded) has nothing to refund. Failure here is logged but never
+// blocks the cancellation itself from going through.
+async function refundIfCharged(admin, booking) {
+  if (!isStripeConfigured()) return;
+  const { data: charge } = await admin
+    .from('consultation_charges')
+    .select('*')
+    .eq('booking_id', booking.id)
+    .maybeSingle();
+  if (!charge || charge.status !== 'charged' || !charge.stripe_payment_intent_id) return;
+
+  const { data: attorney } = await admin.from('attorneys').select('firm_id').eq('id', booking.attorney_id).maybeSingle();
+  if (!attorney?.firm_id) return;
+  const { data: paymentAccount } = await admin
+    .from('firm_payment_accounts')
+    .select('stripe_account_id')
+    .eq('firm_id', attorney.firm_id)
+    .maybeSingle();
+  if (!paymentAccount?.stripe_account_id) return;
+
+  try {
+    await refundConsultationPayment({
+      connectedAccountId: paymentAccount.stripe_account_id,
+      paymentIntentId: charge.stripe_payment_intent_id,
+    });
+    await admin.from('consultation_charges').update({ status: 'reversed', refunded_at: new Date().toISOString() }).eq('id', charge.id);
+  } catch {
+    // Fail open, same as the booking-time payment-session failure: the
+    // cancellation itself must still go through. The charge row is left
+    // as 'charged' (not silently marked reversed) so it's visible in the
+    // attorney's pipeline as a refund that still needs to be handled
+    // manually, rather than misusing dispute_reason (a client-facing
+    // dispute concept) to log a system error.
+  }
+}
 
 async function lookupToken(admin, rawToken) {
   const { data: tok } = await admin
@@ -88,6 +129,7 @@ export default async function handler(req, res) {
       }).eq('id', booking.id);
       await admin.from('email_schedule').update({ cancelled_at: new Date().toISOString() })
         .eq('booking_id', booking.id).is('sent_at', null);
+      await refundIfCharged(admin, booking);
     } else if (tok.purpose === 'reschedule') {
       if (!slotStart || !slotEnd) { res.status(400).json({ error: 'Pick a new time' }); return; }
 

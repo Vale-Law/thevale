@@ -1,5 +1,45 @@
 # Known Gaps & Stubbed Functionality — V2 Codebase Review
 
+## Wave 0 money-loop locks (audited 2026-08-15, locked in this wave)
+
+Scope note: the 2026-08-15 money-loop audit found three critical holes. This
+section tracks those three items only; the rest of this document predates the
+Supabase/Stripe build-out and is updated in Wave 1 ("docs truth").
+
+1. **Admin self-promotion — functional (closed).** Was: `profiles_update_own`
+   RLS had no column restriction and no role trigger, so any logged-in user
+   could set their own `role = 'admin'` (the `/admin` "Enable admin access"
+   button did exactly that), and `is_admin()` then opened every admin-gated
+   policy. Now: a `protect_profiles_role` trigger
+   (`20260815170000_wave0_lock_admin_role_and_booking_status.sql`) pins
+   transitions to/from `'admin'` to existing admins and the service role; the
+   self-promote button is removed (`AdminEntry.jsx` is a dead-end "admin
+   required" screen); the only grant path is the idempotent service-role SQL
+   in `20260815170100_wave0_grant_founder_admin.sql`. Both migrations are
+   checked in but **not yet applied to production** — owner applies.
+
+2. **Directory booking never charged — functional (closed).** Was: directory
+   widgets (`BookingPanel.jsx` / `BookingWidget.jsx`) routed to the legacy
+   `/booking` page, which inserted a `bookings` row client-side, showed the
+   consultation fee, and never touched Stripe. Now: every Book control routes
+   to the attorney's Stripe-backed public page (`/book/:slug` →
+   `api/bookings-public.js`); the legacy flow is deleted and `/booking` deep
+   links redirect (`LegacyBookingRedirect.jsx`) to `/book/:slug` or the
+   directory.
+
+3. **Self-confirmable bookings / forgeable charge ledger — functional
+   (closed at the DB, pending prod migration).** Was: `bookings` RLS scoped
+   rows by ownership but not by value — the booking's own client could set
+   `status = 'confirmed'/'completed'` directly; any firm member could forge
+   `consultation_charges` billing state (`status='charged'`, payment
+   timestamps, `stripe_payment_intent_id`, arbitrary `amount_cents` — audit
+   item 7). Now: `protect_booking_status` restricts confirmed/completed to
+   firm staff, admins, and the service role, and `protect_consultation_charge`
+   limits authenticated ledger writes to create-pending / waive / dispute with
+   money-state fields frozen (same migration as item 1; **not yet applied to
+   production**).
+
+
 Reviewed: 2026-07-26
 Scope: re-sync from the cofounder's latest Base44 export ("Brief" / working title "The Vale"), replacing the V1 snapshot reviewed 2026-07-12. Measured against `docs/` product definition in Notion ("The Vale — Canonical Product Definition") and the original V1 gap list below.
 

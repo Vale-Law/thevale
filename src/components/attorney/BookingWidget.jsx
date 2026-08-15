@@ -25,9 +25,12 @@ export default function BookingWidget({ attorney }) {
   const slots = getDisplaySlots(attorney.available_slots);
   const monthlyAffirm = attorney.typical_retainer ? Math.round(attorney.typical_retainer / 12) : null;
 
+  // Wave 0 lock: route to the Stripe-backed public booking page, same as
+  // BookingPanel — the legacy /booking flow inserted a booking client-side
+  // without ever charging.
   const handleSlot = async (slot) => {
-    const bookingUrl = `/booking?attorney=${attorney.id}&slot=${encodeURIComponent(slot)}`;
-    base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
+    const bookingUrl = `/book/${attorney.slug || 'unavailable'}`;
+    base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id, slot } });
     const authed = await base44.auth.isAuthenticated();
     if (authed) {
       navigate(bookingUrl);

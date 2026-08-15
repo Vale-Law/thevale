@@ -2,8 +2,7 @@ import { Route } from 'react-router-dom';
 
 import Home from '@/pages/Home';
 import AttorneyProfile from '@/pages/AttorneyProfile';
-import Booking from '@/pages/Booking';
-import Confirmation from '@/pages/Confirmation';
+import LegacyBookingRedirect from '@/pages/LegacyBookingRedirect';
 import Financing from '@/pages/Financing';
 import ForAttorneys from '@/pages/ForAttorneys';
 import AreasOfHelp from '@/pages/AreasOfHelp';
@@ -94,8 +93,10 @@ export default (
         <Route path="/" element={<LawyerHome />} />
         <Route path="/bookings" element={<Home />} />
         <Route path="/attorney/:id" element={<AttorneyProfile />} />
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/confirmation" element={<Confirmation />} />
+        {/* Wave 0 lock: the legacy client-side booking flow (insert with
+            no charge) is removed; old /booking deep links redirect to the
+            Stripe-backed /book/:slug page or the directory. */}
+        <Route path="/booking" element={<LegacyBookingRedirect />} />
         <Route path="/financing" element={<Financing />} />
         <Route path="/for-attorneys" element={<ForAttorneys />} />
         <Route path="/areas-of-help" element={<AreasOfHelp />} />

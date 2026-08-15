@@ -49,9 +49,14 @@ export default function BookingPanel({ attorney }) {
 
   const selectedSlots = dayBuckets.find((d) => isSameDay(d.day, selectedDay))?.slots || [];
 
+  // Wave 0 lock: every Book control goes to the attorney's Stripe-backed
+  // public booking page (/book/:slug → api/bookings-public.js), never the
+  // legacy /booking client-side insert that showed a fee and charged
+  // nothing. An attorney without a published page lands on that page's
+  // honest "isn't available" state instead of a fake free booking.
   const handleSlot = async (slot) => {
-    const bookingUrl = `/booking?attorney=${attorney.id}&slot=${encodeURIComponent(slot)}`;
-    base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
+    const bookingUrl = `/book/${attorney.slug || 'unavailable'}`;
+    base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id, slot } });
     const authed = await base44.auth.isAuthenticated();
     if (authed) navigate(bookingUrl);
     else openOnboarding(bookingUrl);

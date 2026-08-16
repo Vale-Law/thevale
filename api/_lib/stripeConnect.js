@@ -49,6 +49,7 @@ export async function createConsultationCheckout({ connectedAccountId, amountCen
       metadata: { booking_id: bookingId },
       success_url: successUrl,
       cancel_url: cancelUrl,
+      allow_promotion_codes: true,
     },
     { stripeAccount: connectedAccountId }
   );

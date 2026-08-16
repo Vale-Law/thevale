@@ -4,6 +4,7 @@
 // works for both first-time onboarding and resuming an incomplete one,
 // since Account Links always regenerate the return/refresh destination.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
+import { firmHasActiveSubscription } from './_lib/subscription.js';
 import { isStripeConfigured } from './_lib/stripeClient.js';
 import { createExpressAccount, createAccountLink } from './_lib/stripeConnect.js';
 
@@ -50,6 +51,14 @@ export default async function handler(req, res) {
     .maybeSingle();
   if (!membership || membership.role !== 'owner') {
     res.status(403).json({ error: 'Only the firm owner can set up payments.' });
+    return;
+  }
+
+  // Wave 1: collecting consultation payments is part of the paid platform.
+  // A firm with no active subscription can't onboard a Connect account --
+  // same server-side rule the booking endpoint enforces.
+  if (!(await firmHasActiveSubscription(admin, membership.firm_id))) {
+    res.status(403).json({ error: 'Your firm needs an active Brief subscription before it can collect payments.' });
     return;
   }
 

@@ -5,6 +5,7 @@
 // Session URL in subscription mode. The price is read live from Stripe
 // (see _lib/subscriptionPricing.js) -- never hard-coded here.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from './_lib/subscription.js';
 import { isStripeConfigured, stripeClient } from './_lib/stripeClient.js';
 import { getPlatformPrice } from './_lib/subscriptionPricing.js';
 
@@ -60,6 +61,15 @@ export default async function handler(req, res) {
     .select('*')
     .eq('firm_id', membership.firm_id)
     .maybeSingle();
+
+  // Wave 1: a firm that is already subscribed doesn't get a second
+  // Checkout session -- payment method and cancellation live in the
+  // Billing Portal (api/subscription-portal.js), and letting Checkout
+  // through here would let one firm stack duplicate subscriptions.
+  if (existing && ACTIVE_SUBSCRIPTION_STATUSES.includes(existing.status)) {
+    res.status(409).json({ error: 'Your firm already has an active subscription. Manage it from the billing portal.' });
+    return;
+  }
 
   let customerId = existing?.stripe_customer_id;
   if (!customerId) {

@@ -189,6 +189,16 @@ staffNoteEntity.filter = async (match) => {
 
 const entities = {
   Attorney: makeEntity('attorneys'),
+  // Wave 1: the public read surface for attorneys. The blanket
+  // "verified rows are world-readable" policy on the attorneys table is
+  // gone (it exposed email/phone/bar number/uploaded documents to anyone);
+  // anonymous visitors and clients now read the attorneys_public view,
+  // which carries only the columns the directory/profile pages render.
+  // The Attorney entity above still hits the base table for the flows
+  // that legitimately need the full row: the attorney's own dashboard
+  // (attorneys_select_own), firm staff (attorneys_select_firm_members),
+  // and admin (attorneys_select_admin).
+  AttorneyPublic: makeEntity('attorneys_public'),
   Booking: bookingEntity,
   CaseSummary: caseSummaryEntity,
   Waitlist: makeEntity('waitlist'),

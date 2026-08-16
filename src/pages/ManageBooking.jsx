@@ -85,6 +85,9 @@ export default function ManageBooking() {
             {state.purpose === 'cancel' && 'Your appointment has been cancelled.'}
             {state.purpose === 'reschedule' && 'Your appointment has been moved.'}
           </h1>
+          {done.refundError ? (
+            <p className="text-sm text-[var(--noshow)] ds-type-body-m mb-2">{done.refundError}</p>
+          ) : null}
           <p className="text-sm text-[var(--text-3)] ds-type-body-m">A confirmation has been sent to your email.</p>
         </div>
       </Shell>

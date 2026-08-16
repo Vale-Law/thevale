@@ -139,7 +139,7 @@ export default function Home() {
   const processedParams = useRef(false);
 
   useEffect(() => {
-    base44.entities.Attorney.list().then(data => {
+    base44.entities.AttorneyPublic.list().then(data => {
       setAttorneys(data.filter(a => a.verification_status !== 'pending' && a.verification_status !== 'rejected'));
       setLoading(false);
     });

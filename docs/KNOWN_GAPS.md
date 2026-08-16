@@ -1,5 +1,72 @@
 # Known Gaps & Stubbed Functionality — V2 Codebase Review
 
+## Wave 1 money-loop enforcement (audit 2026-08-15, landed 2026-08-16)
+
+Status of the seven Wave 1 items after this PR. DB pieces live in
+`supabase/migrations/20260817000000_wave1_money_loop_enforcement.sql`.
+*Migrations are written but NOT applied to production — owner applies them
+(see the Wave 1 PR body for the exact checklist).*
+
+1. **Server-side subscription enforcement — FUNCTIONAL.** Was: only
+   `SubscriptionGate.jsx`/`AttorneyShell.jsx` (client-side UI) gated the
+   portal; every API accepted requests from unsubscribed firms. Now:
+   `api/bookings-public.js` 404s a booking POST when the attorney's firm
+   has no active subscription (`active`/`trialing`/`past_due`, mirroring
+   the shell), `api/connect-onboarding.js` refuses Connect onboarding
+   without one, `api/subscription-checkout.js` refuses to stack a second
+   Checkout on an already-active firm, and the DB backstop
+   (`firm_has_active_subscription()` + the `consultation_charges` insert
+   trigger) blocks a firm-member JWT from creating charge rows for a
+   cancelled or never-subscribed firm. Still open: read-only surfaces
+   (`get_public_booking_page`, `/api/availability`) still render an
+   unsubscribed firm's page/slots — the booking POST is the enforcement
+   point; calendar-connect endpoints remain UI-gated only.
+
+2. **Webhook fulfillment of unpaid sessions — FUNCTIONAL.**
+   `api/webhooks-stripe.js` only syncs a subscription off
+   `checkout.session.completed` when `payment_status` is `paid` (or
+   `no_payment_required`); `api/webhooks-stripe-connect.js` only marks a
+   consultation charge `charged` when the session is `paid`, and now also
+   handles `checkout.session.async_payment_succeeded`. Both handlers read
+   the raw body defensively (pre-buffered body used when present) so a
+   configured deploy can't hang/5xx on a valid signature; missing
+   env vars still return 503 by design until the owner sets the signing
+   secrets on Vercel.
+
+3. **Silent refund failures — FUNCTIONAL.** `refundIfCharged()` in
+   `api/manage.js` no longer has an empty `catch {}`: a failed refund is
+   logged, stamped onto the charge row (`refund_failed_at`,
+   `refund_failure_reason` — server-only columns), and returned to the
+   client screen as `refundError`. Still open: the firm pipeline UI does
+   not yet render the failure marker; it's queryable on the row.
+
+4. **Email-confirm without payment — FUNCTIONAL.** The `/manage/:token`
+   confirm path refuses (402, token left unconsumed) while the booking's
+   charge row is `pending` with a Stripe Checkout session id — covering
+   the webhook race with a live, fail-closed session lookup. Bookings
+   whose fee is collected out-of-band (no session id) confirm exactly as
+   before.
+
+5. **Caller-supplied `amount_cents` — FUNCTIONAL.** Insert-time
+   `amount_cents` from a non-server, non-admin caller is overwritten in
+   the charge trigger with the attorney's listed `consult_fee` (fallback:
+   the historical 5000 default). Post-insert changes were already locked
+   in Wave 0.
+
+6. **Anon-readable attorney PII — FUNCTIONAL.** The
+   `attorneys_select_public_verified` row policy (full row world-readable:
+   email, phone, uploaded ID/bar-card documents, `user_id`) is dropped.
+   Public surfaces (directory, profile, booking fallback, legacy
+   redirect) read the new `attorneys_public` view — public-safe columns
+   only, verified attorneys only. Firm staff keep full-row access via a
+   new firm-member policy; own/admin policies unchanged.
+
+7. **Demo seed in production — FUNCTIONAL.**
+   `20260728120000_seed_demo_booking_pipeline.sql` is now a no-op unless
+   the session sets `vale.seed_demo_pipeline = 'on'` (local/dev opt-in
+   documented in the file header), so the ordered prod migrate path can no
+   longer fabricate completed bookings, charged rows, or fake client PII.
+
 ## Wave 0 money-loop locks (audit 2026-08-15, locks landed 2026-08-16)
 
 Three critical audit findings, status after the Wave 0 PR. Scope was these
@@ -40,11 +107,10 @@ three only; everything else from the audit is Wave 1.
    `protect_consultation_charges` makes the payment-state fields
    (`charged`/`reversed` status, `charged_at`, `stripe_payment_intent_id`,
    `paid_at`, `refunded_at`, post-insert `amount_cents` changes)
-   server/admin-only. **Wave 1 residual:** insert-time `amount_cents` is
-   still caller-supplied by a firm-member JWT (UI relies on the column
-   default of 5000); server-side subscription enforcement, refund logging,
-   email-confirm payment check, and the anon-readable `attorneys` row
-   remain open as audited.
+   server/admin-only. **Wave 1 residual — now closed:** insert-time
+   `amount_cents`, server-side subscription enforcement, refund logging,
+   the email-confirm payment check, and the anon-readable `attorneys` row
+   are all addressed in the Wave 1 section above (landed 2026-08-16).
 
 Reviewed: 2026-07-26
 Scope: re-sync from the cofounder's latest Base44 export ("Brief" / working title "The Vale"), replacing the V1 snapshot reviewed 2026-07-12. Measured against `docs/` product definition in Notion ("The Vale — Canonical Product Definition") and the original V1 gap list below.

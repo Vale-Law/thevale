@@ -33,7 +33,7 @@ export default function AttorneyProfile() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.Attorney.filter({ id }),
+      base44.entities.AttorneyPublic.filter({ id }),
       base44.entities.Review.filter({ attorney_id: id }),
     ]).then(([attorneys, revs]) => {
       setAttorney(attorneys[0] || null);

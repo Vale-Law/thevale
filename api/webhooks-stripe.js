@@ -13,6 +13,16 @@ import { isStripeConfigured, stripeClient } from './_lib/stripeClient.js';
 export const config = { api: { bodyParser: false } };
 
 function readRawBody(req) {
+  // Wave 1: if the platform's request helpers already buffered the body
+  // (some runtimes ignore the bodyParser:false config above), use those
+  // exact bytes rather than waiting on a stream that will never emit --
+  // that hang surfaced as webhook timeouts/5xx on a correctly configured
+  // deploy. A body that arrives already JSON-parsed can't be
+  // byte-exactly reconstructed for signature verification, so it falls
+  // through to the stream read and, at worst, fails the signature check
+  // with a 400 -- never a hang.
+  if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
+  if (typeof req.body === 'string') return Promise.resolve(Buffer.from(req.body));
   return new Promise((resolve, reject) => {
     const chunks = [];
     req.on('data', (chunk) => chunks.push(chunk));
@@ -72,7 +82,18 @@ export default async function handler(req, res) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
+        // Wave 1: never fulfill an unpaid Checkout session. 'paid' is the
+        // normal card path; 'no_payment_required' covers a $0-due start
+        // (e.g. a 100%-off promotion code) where Stripe legitimately
+        // collects nothing at checkout. Anything else (an async method
+        // still pending, or an outright unpaid session) is skipped --
+        // the subscription row only ever moves via the
+        // customer.subscription.* events that mirror Stripe's real state.
         if (session.mode === 'subscription' && session.subscription) {
+          if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') {
+            console.error(`[webhooks-stripe] skipping unpaid checkout.session.completed ${session.id} (payment_status=${session.payment_status})`);
+            break;
+          }
           const subscription = await stripe.subscriptions.retrieve(session.subscription);
           await syncSubscriptionRow(admin, subscription);
         }

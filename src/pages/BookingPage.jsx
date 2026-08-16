@@ -44,7 +44,7 @@ export default function BookingPage() {
     let cancelled = false;
     const legacyFallback = () =>
       supabase
-        .from('attorneys')
+        .from('attorneys_public')
         .select('id, name, photo, bio, practice_area, practice_areas, office_location, verification_status, booking_page_published')
         .eq('slug', slug)
         .maybeSingle()

@@ -22,7 +22,7 @@ export default function LegacyBookingRedirect() {
     if (!attorneyId) return;
     let cancelled = false;
     supabase
-      .from('attorneys')
+      .from('attorneys_public')
       .select('slug')
       .eq('id', attorneyId)
       .maybeSingle()

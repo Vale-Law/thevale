@@ -1,6 +1,12 @@
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
+const BLOCKS = [
+  { label: 'Why write.', body: 'Listing, billing, or a problem with a booking.' },
+  { label: 'Who reads it.', body: 'The studio. Not a ticket bot.' },
+  { label: 'What to include.', body: 'Your name, the practice, what you need.' },
+];
+
 export default function Contact() {
   return (
     <div className="min-h-screen bg-[var(--ground)] flex flex-col">
@@ -8,15 +14,26 @@ export default function Contact() {
 
       <main className="flex-1 py-16 lg:py-24 px-6 lg:px-8">
         <div className="max-w-[680px] mx-auto">
-          <h1 className="font-heading text-[34px] sm:text-[44px] lg:text-[48px] text-[var(--text)] leading-[1.08] tracking-[-0.01em] mb-5">
-            Contact
+          <h1 className="font-display font-bold text-[32px] leading-[36px] tracking-[-0.025em] sm:text-[44px] sm:leading-[46px] text-[var(--text)] mb-14">
+            Write the studio.
           </h1>
-          <p className="text-base sm:text-lg text-[var(--text-2)] font-body leading-relaxed mb-8">
-            For Brief, write to the studio.
-          </p>
+
+          <div className="space-y-10 mb-14">
+            {BLOCKS.map(({ label, body }) => (
+              <div key={label}>
+                <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--text)] mb-2">
+                  {label}
+                </h2>
+                <p className="text-base sm:text-lg text-[var(--text-2)] font-body leading-[1.7]">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
+
           <a
             href="mailto:studio@faajistudios.com"
-            className="text-[var(--text)] font-body underline underline-offset-4 hover:text-[var(--accent)] transition-colors"
+            className="font-body text-[19px] text-[var(--text)] underline underline-offset-4 hover:text-[var(--accent)] transition-colors"
           >
             studio@faajistudios.com
           </a>

@@ -50,6 +50,10 @@
     --sidebar-ring: 102 19% 45%;
   }
 
+  .font-display {
+    font-stretch: 125%;
+  }
+
   /* OS-driven dark mode for the legacy shadcn variable set, mirroring the
      Design System v2 dark tokens (src/styles/tokens.css) so shadcn-styled
      surfaces (auth pages, dropdowns, dialogs) match the token-based pages.

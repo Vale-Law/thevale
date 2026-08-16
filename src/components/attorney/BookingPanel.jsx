@@ -3,12 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { format, startOfDay, addDays, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Video, Building2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useOnboarding } from '@/lib/onboardingContext';
 import { useLanguage } from '@/lib/i18n';
 
 export default function BookingPanel({ attorney }) {
   const navigate = useNavigate();
-  const { openOnboarding } = useOnboarding();
   const { t } = useLanguage();
   const areas = (attorney.practice_areas && attorney.practice_areas.length)
     ? attorney.practice_areas
@@ -49,12 +47,14 @@ export default function BookingPanel({ attorney }) {
 
   const selectedSlots = dayBuckets.find((d) => isSameDay(d.day, selectedDay))?.slots || [];
 
-  const handleSlot = async (slot) => {
-    const bookingUrl = `/booking?attorney=${attorney.id}&slot=${encodeURIComponent(slot)}`;
+  // Wave 0 lock 2 (money-loop audit 2026-08-15): every Book control routes
+  // to the attorney's public booking page — the only flow that reaches
+  // api/bookings-public.js and Stripe. The legacy /booking page inserted a
+  // booking client-side, showed the fee, and never charged. No auth gate:
+  // /book/:slug requires no login by design.
+  const handleSlot = () => {
     base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
-    const authed = await base44.auth.isAuthenticated();
-    if (authed) navigate(bookingUrl);
-    else openOnboarding(bookingUrl);
+    navigate(attorney.slug ? `/book/${attorney.slug}` : '/bookings?browse=1');
   };
 
   const shiftWindow = (dir) => setWindowStart((d) => addDays(d, dir * 7));

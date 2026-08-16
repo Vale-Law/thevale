@@ -33,7 +33,7 @@ export default function HeroSearchCard({ onSearch }) {
   };
 
   return (
-    <div className="relative rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.18)] w-full max-w-2xl p-3 sm:p-4">
+    <div className="relative rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.18)] w-full max-w-2xl p-4 sm:p-5">
       {/* Temple artwork backdrop, veiled by a translucent surface wash so the
           inputs stay readable in both light and dark mode. Rounded on the
           layers themselves (not overflow-hidden on the root) so the absolute
@@ -46,7 +46,7 @@ export default function HeroSearchCard({ onSearch }) {
       <div aria-hidden="true" className="absolute inset-0 rounded-2xl backdrop-blur-[3px]" style={{ background: 'var(--ground-glass)' }} />
       <div className="relative">
       {/* Main search field */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 flex-1 px-2">
           <Search className="w-4 h-4 text-[var(--text-3)] shrink-0" />
           <input
@@ -67,7 +67,7 @@ export default function HeroSearchCard({ onSearch }) {
       </div>
 
       {/* Pill selectors */}
-      <div className="flex flex-wrap items-center gap-2 mt-3 px-1">
+      <div className="flex flex-wrap items-center gap-2 mt-4 px-1">
         {/* Location pill */}
         <div className="relative">
           <button

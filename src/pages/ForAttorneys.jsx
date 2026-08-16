@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -20,19 +19,18 @@ const FRAMES = [
     caption: 'This is what they see.',
     line: 'They describe the matter and pick a time that is actually open.',
   },
-  {
-    src: null,
-    alt: 'A booked client on the attorney’s Brief desk',
-    caption: 'This is what you get.',
-    line: 'A pre-screened client, on your calendar.',
-  },
 ];
 
 function WalkthroughFrame({ src, alt, caption, line }) {
   return (
     <section className="py-16 lg:py-24 px-6 lg:px-8" style={FADE}>
       <div className="max-w-[1000px] mx-auto">
-        <FrameShot src={src} alt={alt} />
+        <img
+          src={src}
+          alt={alt}
+          className="w-full rounded-[var(--radius-m)] border border-[var(--line)]"
+          style={{ boxShadow: 'var(--shadow-raised)' }}
+        />
         <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)] font-body mt-6 mb-2">
           {caption}
         </p>
@@ -41,31 +39,6 @@ function WalkthroughFrame({ src, alt, caption, line }) {
         </p>
       </div>
     </section>
-  );
-}
-
-function FrameShot({ src, alt }) {
-  const [failed, setFailed] = useState(!src);
-
-  if (failed) {
-    return (
-      <div
-        className="w-full aspect-[4/3] rounded-[var(--radius-m)] border border-[var(--line)] bg-[var(--surface)]"
-        style={{ boxShadow: 'var(--shadow-raised)' }}
-        role="img"
-        aria-label={alt}
-      />
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className="w-full rounded-[var(--radius-m)] border border-[var(--line)]"
-      style={{ boxShadow: 'var(--shadow-raised)' }}
-      onError={() => setFailed(true)}
-    />
   );
 }
 

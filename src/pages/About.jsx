@@ -27,7 +27,7 @@ export default function About() {
               Brief lists attorneys for a flat monthly fee. There is no per-booking cut, no pay-per-lead auction, and no referral fee dressed up as software. Education on the consumer side stays free. We do not recommend or endorse any attorney. We do not give legal advice. Brief is an advertising platform, not a law firm and not a lawyer referral service.
             </p>
             <p>
-              We are starting in Houston. Family law, immigration, and business formation first. The product is the desk, not a marketplace costume.
+              We are starting in Houston. Family law, immigration, and business formation first. The product is the desk.
             </p>
             <p>
               If you want to see the desk:{' '}

@@ -8,15 +8,7 @@ const QUESTIONS = [
     q: 'What does Brief cost?',
     a: (
       <>
-        A flat monthly fee for the practice. The listed price is $199 a month. You are not charged a percentage of the consultation and you are not charged per booking.
-      </>
-    ),
-  },
-  {
-    q: 'Is there a per-booking cut?',
-    a: (
-      <>
-        No. Attorneys pay to be listed. Brief does not take a cut of the consultation fee and does not run pay-per-lead auctions.
+        A flat monthly fee for the practice. The listed price is $199 a month. You are not charged a percentage of the consultation, and there is no per-booking cut — Brief does not run pay-per-lead auctions.
       </>
     ),
   },

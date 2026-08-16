@@ -11,10 +11,10 @@ export default function ForAttorneys() {
       {/* Beat 1 */}
       <section className="py-16 lg:py-24 px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto">
-          <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)] font-body mb-3">
+          <p className="font-body font-semibold text-[12px] leading-[16px] tracking-[0.08em] uppercase text-[var(--text-3)] mb-3">
             For the practice
           </p>
-          <h1 className="font-heading text-[34px] sm:text-[48px] lg:text-[58px] text-[var(--text)] leading-[1.08] tracking-[-0.01em] max-w-3xl">
+          <h1 className="font-display font-bold text-[32px] leading-[36px] tracking-[-0.025em] sm:text-[44px] sm:leading-[46px] text-[var(--text)] max-w-3xl">
             The front door.
           </h1>
           <p className="text-base sm:text-lg text-[var(--text-2)] font-body mt-5 max-w-2xl leading-[1.7]">
@@ -47,7 +47,7 @@ export default function ForAttorneys() {
       {/* Beat 5 */}
       <AttorneyBeat heading="The fee goes to the firm.">
         <p>
-          The door is <span className="font-heading text-3xl text-[var(--text)] align-middle">$199</span> a month. The consult fee goes to the firm. There is no per-booking cut and no pay-per-lead auction. First month free for the first five Houston firms.
+          The door is <span className="font-display font-semibold text-[36px] leading-[40px] tracking-[-0.02em] tabular-nums text-[var(--text)] align-middle">$199</span> a month. The consult fee goes to the firm. There is no per-booking cut and no pay-per-lead auction. First month free for the first five Houston firms.
         </p>
       </AttorneyBeat>
 
@@ -61,10 +61,10 @@ export default function ForAttorneys() {
       {/* Beat 7 — sage claim band */}
       <section className="py-16 lg:py-20 px-6 lg:px-8 bg-[var(--accent)]">
         <div className="max-w-[900px] mx-auto text-center">
-          <h2 className="font-heading text-3xl sm:text-4xl text-[var(--accent-on)] mb-5">
+          <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--accent-on)] mb-5">
             Claim your booking page.
           </h2>
-          <p className="font-heading text-3xl text-[var(--accent-on)] mb-3">$199</p>
+          <p className="font-display font-semibold text-[36px] leading-[40px] tracking-[-0.02em] tabular-nums text-[var(--accent-on)] mb-3">$199</p>
           <p className="text-sm font-body text-[var(--accent-on)] opacity-90 mb-8">
             First month free for the first five.
           </p>

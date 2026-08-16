@@ -64,7 +64,7 @@ module.exports = {
   		fontFamily: {
   			heading: ['Newsreader', 'Georgia', 'serif'],
   			body: ['Archivo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			display: ['Newsreader', 'Georgia', 'serif'],
+  			display: ['Archivo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
   			serif: ['Newsreader', 'Georgia', 'serif'],
   			rounded: ['Newsreader', 'Georgia', 'serif'],
   			mono: ['var(--font-mono)']

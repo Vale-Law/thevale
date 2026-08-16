@@ -7,7 +7,7 @@ export default function ValueStrip() {
   return (
     <section className="bg-[var(--surface-sunk)] py-20 lg:py-28 px-6 lg:px-8 text-center">
       <div className="max-w-[760px] mx-auto">
-        <h2 className="font-serif font-medium text-[30px] lg:text-[44px] text-[var(--text)] leading-[1.1]">
+        <h2 className="font-heading text-[30px] lg:text-[44px] text-[var(--text)] leading-[1.1]">
           {t('valueStrip.heading')}
         </h2>
         <p className="text-[var(--text-2)] font-body mt-4 max-w-xl mx-auto leading-relaxed">

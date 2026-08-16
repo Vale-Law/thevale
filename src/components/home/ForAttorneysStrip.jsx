@@ -19,7 +19,7 @@ export default function ForAttorneysStrip() {
         </div>
         <div className="order-1 lg:order-2">
           <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body mb-3">{t('forAttorneysStrip.label')}</p>
-          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1] mb-5">
+          <h2 className="font-heading text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1] mb-5">
             {t('forAttorneysStrip.heading')}
           </h2>
           <ul className="space-y-3 mb-8">

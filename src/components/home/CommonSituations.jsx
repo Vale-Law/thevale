@@ -28,7 +28,7 @@ export default function CommonSituations({ onSelect }) {
     <section className="bg-[var(--surface)] py-20 lg:py-24 px-6 lg:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-10">
-          <h2 className="font-serif font-medium text-[26px] lg:text-[34px] text-[var(--text)] leading-[1.1]">{t('commonSituations.heading')}</h2>
+          <h2 className="font-heading text-[26px] lg:text-[34px] text-[var(--text)] leading-[1.1]">{t('commonSituations.heading')}</h2>
           <p className="text-[var(--text-3)] font-body mt-2">{t('commonSituations.subheading')}</p>
         </div>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 px-1" style={{ scrollSnapType: 'x proximity' }}>

@@ -93,7 +93,7 @@ export default function AttorneyBrowse({ attorneys, loading, filters, onChange }
         <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] font-body mb-3">{t('browse.label')}</p>
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h2 className="font-serif font-medium text-[26px] lg:text-[34px] text-[var(--text)] leading-[1.1] mb-2">{heading}</h2>
+            <h2 className="font-heading text-[26px] lg:text-[34px] text-[var(--text)] leading-[1.1] mb-2">{heading}</h2>
             <p className="text-sm text-[var(--text-3)] font-body">
               {SORT_CLAUSES[sort]} Attorneys pay a flat fee to be listed on Brief. Brief does not recommend or endorse any attorney.
             </p>
@@ -124,14 +124,14 @@ export default function AttorneyBrowse({ attorneys, loading, filters, onChange }
           <div className="max-w-[1200px] mx-auto px-6 lg:px-8 text-center py-32">
             {hasLocation ? (
               <>
-                <h2 className="font-serif font-medium text-[28px] lg:text-[34px] text-[var(--text)] mb-4">
+                <h2 className="font-heading text-[28px] lg:text-[34px] text-[var(--text)] mb-4">
                   {t('browse.addingSoon.title')} {filters.city} {t('browse.addingSoon.soon')}
                 </h2>
                 <p className="text-[var(--text-3)] font-body mb-8">{t('browse.addingSoon.desc')}</p>
               </>
             ) : (
               <>
-                <h2 className="font-serif font-medium text-[28px] lg:text-[34px] text-[var(--text)] mb-4">{t('browse.noMatch.title')}</h2>
+                <h2 className="font-heading text-[28px] lg:text-[34px] text-[var(--text)] mb-4">{t('browse.noMatch.title')}</h2>
                 <p className="text-[var(--text-3)] font-body mb-8">{t('browse.noMatch.desc')}</p>
               </>
             )}

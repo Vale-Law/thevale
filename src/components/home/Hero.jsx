@@ -101,7 +101,7 @@ export default function Hero({ onSearch }) {
         />
         {/* Headline — fixed height reserved via invisible longest-variant (ES) span */}
         <h1
-          className="relative font-rounded font-bold text-[40px] sm:text-[52px] lg:text-[60px] text-white text-center leading-[1.05] tracking-[-0.02em] mb-4 min-h-[88px] sm:min-h-[114px] lg:min-h-[130px] flex items-center justify-center"
+          className="relative font-heading text-[34px] sm:text-[48px] lg:text-[58px] text-white text-center leading-[1.08] tracking-[-0.01em] mb-4 min-h-[88px] sm:min-h-[114px] lg:min-h-[130px] flex items-center justify-center"
           style={{ textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
         >
           <span className="invisible" aria-hidden="true">
@@ -176,13 +176,13 @@ export default function Hero({ onSearch }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
           <button
             onClick={() => navigate('/areas-of-help')}
-            className="px-8 py-4 bg-[var(--surface)] text-[var(--text)] text-sm font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-on)] transition-all duration-300 hover:scale-[1.02] min-w-[180px]"
+            className="px-8 py-4 bg-[var(--surface)] text-[var(--text)] text-sm font-body font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-on)] transition-all duration-300 hover:scale-[1.02] min-w-[180px]"
           >
             {t('hero.bookConsultation')}
           </button>
           <button
             onClick={() => navigate('/financing')}
-            className="px-8 py-4 border border-white/60 text-white text-sm font-medium hover:border-white transition-all duration-200 min-w-[180px]"
+            className="px-8 py-4 border border-white/60 text-white text-sm font-body font-medium hover:border-white transition-all duration-200 min-w-[180px]"
           >
             {t('hero.seeFinancing')}
           </button>

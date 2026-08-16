@@ -21,7 +21,7 @@ const FRAMES = [
     line: 'They describe the matter and pick a time that is actually open.',
   },
   {
-    src: '/how-it-works/desk.png',
+    src: null,
     alt: 'A booked client on the attorney’s Brief desk',
     caption: 'This is what you get.',
     line: 'A pre-screened client, on your calendar.',

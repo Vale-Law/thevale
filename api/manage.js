@@ -19,45 +19,69 @@ import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
 // Item 4b: refund a paid consultation fee when a booking is canceled. Only
 // acts if a charge actually went through (status 'charged' with a payment
 // intent) -- a booking that was never paid (attorney not yet Connect-
-// onboarded) has nothing to refund. The entire function is one try/catch:
-// Stripe unconfigured, the payment tables missing, a network error, the
-// Stripe SDK failing to load, anything -- must never block the
-// cancellation itself, which the caller has already committed by the time
-// this runs.
+// onboarded) has nothing to refund. A failure must never block the
+// cancellation itself (the caller has already committed it by the time
+// this runs) -- but Wave 1 removes the silent catch {}: a failed refund
+// is logged, written onto the charge row (refund_failed_at /
+// refund_failure_reason -- server-only columns, visible in the firm's
+// pipeline), and reported back in the API response so the client screen
+// can say the refund still needs handling.
 async function refundIfCharged(admin, booking) {
+  let charge = null;
   try {
-    const { isStripeConfigured } = await import('./_lib/stripeClient.js');
-    if (!isStripeConfigured()) return;
-
-    const { data: charge } = await admin
+    const { data, error: chargeErr } = await admin
       .from('consultation_charges')
       .select('*')
       .eq('booking_id', booking.id)
       .maybeSingle();
-    if (!charge || charge.status !== 'charged' || !charge.stripe_payment_intent_id) return;
+    if (chargeErr) throw new Error(`charge lookup failed: ${chargeErr.message}`);
+    charge = data;
+    if (!charge || charge.status !== 'charged' || !charge.stripe_payment_intent_id) {
+      return { attempted: false, ok: true };
+    }
+
+    const { isStripeConfigured } = await import('./_lib/stripeClient.js');
+    if (!isStripeConfigured()) throw new Error('Stripe is not configured (STRIPE_SECRET_KEY unset)');
 
     const { data: attorney } = await admin.from('attorneys').select('firm_id').eq('id', booking.attorney_id).maybeSingle();
-    if (!attorney?.firm_id) return;
+    if (!attorney?.firm_id) throw new Error('attorney has no firm; cannot resolve Connect account');
     const { data: paymentAccount } = await admin
       .from('firm_payment_accounts')
       .select('stripe_account_id')
       .eq('firm_id', attorney.firm_id)
       .maybeSingle();
-    if (!paymentAccount?.stripe_account_id) return;
+    if (!paymentAccount?.stripe_account_id) throw new Error('firm has no Connect payment account');
 
     const { refundConsultationPayment } = await import('./_lib/stripeConnect.js');
     await refundConsultationPayment({
       connectedAccountId: paymentAccount.stripe_account_id,
       paymentIntentId: charge.stripe_payment_intent_id,
     });
-    await admin.from('consultation_charges').update({ status: 'reversed', refunded_at: new Date().toISOString() }).eq('id', charge.id);
-  } catch {
-    // Fail open, same as the booking-time payment-session failure: the
-    // cancellation itself must still go through. A charge that was
-    // actually 'charged' is left as-is (not silently marked reversed) so
-    // it's visible in the attorney's pipeline as a refund that still
-    // needs to be handled manually, rather than misusing dispute_reason
-    // (a client-facing dispute concept) to log a system error.
+    const { error: updErr } = await admin
+      .from('consultation_charges')
+      .update({ status: 'reversed', refunded_at: new Date().toISOString(), refund_failed_at: null, refund_failure_reason: null })
+      .eq('id', charge.id);
+    if (updErr) {
+      // The money moved but the ledger didn't -- log loudly; the row still
+      // shows 'charged' with a failure marker below so it gets reconciled.
+      throw new Error(`refund issued but charge row update failed: ${updErr.message}`);
+    }
+    return { attempted: true, ok: true };
+  } catch (e) {
+    const reason = String(e?.message || 'unknown refund error').slice(0, 500);
+    console.error(`[manage] refund failed for booking ${booking.id}: ${reason}`);
+    if (charge?.id) {
+      const { error: markErr } = await admin
+        .from('consultation_charges')
+        .update({ refund_failed_at: new Date().toISOString(), refund_failure_reason: reason })
+        .eq('id', charge.id);
+      if (markErr) console.error(`[manage] could not record refund failure for booking ${booking.id}: ${markErr.message}`);
+    }
+    return {
+      attempted: true,
+      ok: false,
+      error: 'Your cancellation went through, but the automatic refund of your consultation fee failed. The firm has been flagged to issue it manually.',
+    };
   }
 }
 
@@ -128,7 +152,61 @@ export default async function handler(req, res) {
     const { data: booking } = await admin.from('bookings').select('*').eq('id', tok.booking_id).maybeSingle();
     if (!booking) { res.status(404).json({ error: 'Booking not found' }); return; }
 
+    let refund = null;
     if (tok.purpose === 'confirm') {
+      // Wave 1: a booking whose consultation fee was requested through
+      // Stripe at booking time (charge row carrying a Checkout session id)
+      // cannot be confirmed while that payment doesn't exist. The webhook
+      // normally flips the charge to 'charged' before the client ever
+      // clicks confirm; the live Stripe lookup below covers the race where
+      // the client lands back from Checkout before the webhook does. A
+      // charge with NO session id is out-of-band collection (attorney not
+      // Connect-onboarded) and stays confirmable, exactly as before.
+      // Fails CLOSED: if the session can't be verified as paid, the token
+      // is left unconsumed and the client can retry after paying.
+      const { data: charge } = await admin
+        .from('consultation_charges')
+        .select('id, status, stripe_checkout_session_id, stripe_payment_intent_id')
+        .eq('booking_id', booking.id)
+        .maybeSingle();
+
+      if (charge && charge.status === 'pending' && charge.stripe_checkout_session_id) {
+        let paid = false;
+        try {
+          const { isStripeConfigured, stripeClient } = await import('./_lib/stripeClient.js');
+          if (isStripeConfigured()) {
+            const { data: attorney } = await admin.from('attorneys').select('firm_id').eq('id', booking.attorney_id).maybeSingle();
+            const { data: paymentAccount } = attorney?.firm_id
+              ? await admin.from('firm_payment_accounts').select('stripe_account_id').eq('firm_id', attorney.firm_id).maybeSingle()
+              : { data: null };
+            if (paymentAccount?.stripe_account_id) {
+              const stripe = await stripeClient();
+              const session = await stripe.checkout.sessions.retrieve(
+                charge.stripe_checkout_session_id,
+                { stripeAccount: paymentAccount.stripe_account_id },
+              );
+              if (session?.payment_status === 'paid') {
+                paid = true;
+                // Mirror what the Connect webhook would write -- idempotent
+                // if the webhook lands too.
+                await admin.from('consultation_charges').update({
+                  status: 'charged',
+                  paid_at: new Date().toISOString(),
+                  stripe_payment_intent_id: session.payment_intent || charge.stripe_payment_intent_id,
+                }).eq('id', charge.id);
+              }
+            }
+          }
+        } catch (e) {
+          console.error(`[manage] confirm payment check failed for booking ${booking.id}: ${e?.message}`);
+          paid = false;
+        }
+        if (!paid) {
+          res.status(402).json({ error: "This consultation hasn't been paid yet. Complete the payment first — this confirmation link will work right after." });
+          return;
+        }
+      }
+
       await admin.from('bookings').update({
         status: 'confirmed', confirmed_at: new Date().toISOString(), confirmed_by: 'client',
       }).eq('id', booking.id);
@@ -138,7 +216,7 @@ export default async function handler(req, res) {
       }).eq('id', booking.id);
       await admin.from('email_schedule').update({ cancelled_at: new Date().toISOString() })
         .eq('booking_id', booking.id).is('sent_at', null);
-      await refundIfCharged(admin, booking);
+      refund = await refundIfCharged(admin, booking);
     } else if (tok.purpose === 'reschedule') {
       if (!slotStart || !slotEnd) { res.status(400).json({ error: 'Pick a new time' }); return; }
 
@@ -190,7 +268,10 @@ export default async function handler(req, res) {
     }
 
     await admin.from('booking_action_tokens').update({ consumed_at: new Date().toISOString() }).eq('token_hash', hashToken(token));
-    res.status(200).json({ ok: true });
+    // A failed refund never blocks the cancellation, but it is surfaced,
+    // not swallowed: refundError tells the manage screen to warn the
+    // client, and the charge row carries the same flag for the firm.
+    res.status(200).json({ ok: true, refundError: refund && !refund.ok ? refund.error : undefined });
     return;
   }
 

@@ -4,6 +4,7 @@
 // legitimately null) and the browser's anon key has no insert path for that
 // — see the Shared Contract note in bookings_insert_client's RLS.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
+import { firmHasActiveSubscription } from './_lib/subscription.js';
 import { generateToken, hashToken } from './_lib/tokens.js';
 import { sendEmail, manageLinks } from './_lib/mailer.js';
 import { bookingEmailText, bookingEmailHtml } from '../emails/booking.js';
@@ -53,6 +54,16 @@ export default async function handler(req, res) {
     return;
   }
   if (!attorney || attorney.verification_status !== 'verified' || !attorney.booking_page_published) {
+    res.status(404).json({ error: 'This booking page is not available.' });
+    return;
+  }
+
+  // Wave 1: booking pages are a paid platform feature. A firm whose
+  // subscription is cancelled/unpaid/never-started cannot take bookings --
+  // enforced here on the server, not just by the portal's SubscriptionGate
+  // UI. Same 404 body as an unpublished page so the public response leaks
+  // nothing about the firm's billing state.
+  if (!(await firmHasActiveSubscription(admin, attorney.firm_id))) {
     res.status(404).json({ error: 'This booking page is not available.' });
     return;
   }
@@ -189,6 +200,15 @@ export default async function handler(req, res) {
               cancelUrl: `${origin}/manage/${tokens.confirm}?paid=canceled`,
             });
             paymentUrl = session.url;
+            // Wave 1: remember that payment was requested via Stripe for
+            // this booking. api/manage.js's confirm path refuses to
+            // confirm while this session is unpaid; a charge row WITHOUT
+            // a session id means payment is collected out-of-band and
+            // confirm stays ungated, exactly as before.
+            await admin
+              .from('consultation_charges')
+              .update({ stripe_checkout_session_id: session.id })
+              .eq('booking_id', booking.id);
           }
         }
       }

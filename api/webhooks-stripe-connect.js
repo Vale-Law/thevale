@@ -19,6 +19,11 @@ import { isStripeConfigured, stripeClient } from './_lib/stripeClient.js';
 export const config = { api: { bodyParser: false } };
 
 function readRawBody(req) {
+  // Wave 1: same defensive raw-body handling as api/webhooks-stripe.js --
+  // prefer already-buffered bytes so a runtime that pre-reads the body
+  // can't leave this promise hanging until the function times out.
+  if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
+  if (typeof req.body === 'string') return Promise.resolve(Buffer.from(req.body));
   return new Promise((resolve, reject) => {
     const chunks = [];
     req.on('data', (chunk) => chunks.push(chunk));
@@ -67,10 +72,20 @@ export default async function handler(req, res) {
           .eq('stripe_account_id', account.id);
         break;
       }
-      case 'checkout.session.completed': {
+      case 'checkout.session.completed':
+      case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object;
         const bookingId = session.metadata?.booking_id;
         if (session.mode === 'payment' && bookingId) {
+          // Wave 1: never mark a charge 'charged' off an unpaid session.
+          // checkout.session.completed also fires for async payment
+          // methods while payment_status is still 'unpaid' -- those
+          // complete later via checkout.session.async_payment_succeeded
+          // (handled by this same case), or never.
+          if (session.payment_status !== 'paid') {
+            console.error(`[webhooks-stripe-connect] skipping unpaid ${event.type} ${session.id} (payment_status=${session.payment_status})`);
+            break;
+          }
           await admin
             .from('consultation_charges')
             .update({

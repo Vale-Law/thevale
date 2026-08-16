@@ -70,7 +70,7 @@ export default function ConciergePanel({ initialDescription, initialState = '', 
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    base44.entities.Attorney.list().then(setAttorneys).catch(() => {});
+    base44.entities.AttorneyPublic.list().then(setAttorneys).catch(() => {});
   }, []);
 
   // Lock background scroll while the mobile overlay is open.

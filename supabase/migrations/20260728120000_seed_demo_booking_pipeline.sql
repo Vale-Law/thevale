@@ -18,6 +18,21 @@
 -- Client names/emails are fictional, reusing the same .example.com
 -- convention as supabase/seed.sql (RFC 2606 reserved domain -- these can
 -- never actually receive mail).
+--
+-- Wave 1 guard: this file is DEMO DATA and must never execute as part of
+-- the ordered production migrate path (supabase db push / migration up
+-- would otherwise fabricate completed bookings, 'charged'
+-- consultation_charges rows, and fake client PII for every real attorney
+-- with an empty pipeline). The do-block below therefore exits immediately
+-- unless the session explicitly opts in. To seed a local/dev database:
+--
+--   psql "$DB_URL" \
+--     -c "set vale.seed_demo_pipeline = 'on'" \
+--     -f supabase/migrations/20260728120000_seed_demo_booking_pipeline.sql
+--
+-- (both -c and -f run on the same connection, so the session GUC is still
+-- set when the file executes). A plain migration run never sets the GUC,
+-- so in production this file is a no-op.
 
 begin;
 
@@ -36,6 +51,11 @@ declare
   slot_ts timestamptz;
   fee numeric;
 begin
+  if coalesce(current_setting('vale.seed_demo_pipeline', true), '') <> 'on' then
+    raise notice 'seed_demo_booking_pipeline: skipped (set vale.seed_demo_pipeline = ''on'' in this session to run the demo seed; see file header)';
+    return;
+  end if;
+
   n_clients := array_length(client_names, 1);
 
   for att in select id, name, consult_fee from public.attorneys loop

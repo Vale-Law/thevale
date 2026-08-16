@@ -55,11 +55,11 @@ export default function Footer() {
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-4">
               <Link to="/" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.home')}</Link>
               <span className="text-[var(--text-4)]">·</span>
-              <Link to="/" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.about')}</Link>
+              <Link to="/about" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.about')}</Link>
               <span className="text-[var(--text-4)]">·</span>
-              <Link to="/" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.contact')}</Link>
+              <Link to="/contact" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.contact')}</Link>
               <span className="text-[var(--text-4)]">·</span>
-              <Link to="/" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.help')}</Link>
+              <Link to="/help" className="text-sm text-[var(--text-2)] hover:text-[var(--text)] transition-colors">{t('footer.help')}</Link>
             </div>
           </div>
           {cols.map(col => (

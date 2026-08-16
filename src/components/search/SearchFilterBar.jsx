@@ -156,7 +156,7 @@ export default function SearchFilterBar({ filters, onChange, attorneys }) {
 
   return (
     <div
-      className="filter-bar-sticky sticky z-40 border-b border-[var(--line-2)]"
+      className="filter-bar-sticky sticky z-40"
     >
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
         {/* Location dropdown */}

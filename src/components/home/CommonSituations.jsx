@@ -1,28 +1,20 @@
-import { useState, useEffect } from 'react';
+import { HeartCrack, Users, CreditCard, Shield, Car, AlertTriangle, KeyRound, FileCheck, Building2 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
 const SITUATIONS = [
-  { key: 'divorce', image: '/images/situations/divorce.png', area: 'Family Law' },
-  { key: 'childCustody', image: '/images/situations/child-custody.png', area: 'Family Law' },
-  { key: 'greenCard', image: '/images/situations/green-card.png', area: 'Immigration' },
-  { key: 'asylum', image: '/images/situations/asylum.png', area: 'Immigration' },
-  { key: 'carAccident', image: '/images/situations/car-accident.png', area: 'Personal Injury' },
-  { key: 'slipFall', image: '/images/situations/slip-fall.png', area: 'Personal Injury' },
-  { key: 'dui', image: '/images/situations/dui.png', area: 'Personal Injury' },
-  { key: 'expungement', image: '/images/situations/expungement.png', area: 'Personal Injury' },
-  { key: 'llcFormation', image: '/images/situations/llc-formation.png', area: 'Business Formation' },
+  { key: 'divorce', icon: HeartCrack, area: 'Family Law' },
+  { key: 'childCustody', icon: Users, area: 'Family Law' },
+  { key: 'greenCard', icon: CreditCard, area: 'Immigration' },
+  { key: 'asylum', icon: Shield, area: 'Immigration' },
+  { key: 'carAccident', icon: Car, area: 'Personal Injury' },
+  { key: 'slipFall', icon: AlertTriangle, area: 'Personal Injury' },
+  { key: 'dui', icon: KeyRound, area: 'Personal Injury' },
+  { key: 'expungement', icon: FileCheck, area: 'Personal Injury' },
+  { key: 'llcFormation', icon: Building2, area: 'Business Formation' },
 ];
 
 export default function CommonSituations({ onSelect }) {
   const { t } = useLanguage();
-  const [hovered, setHovered] = useState(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-
-  useEffect(() => {
-    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    setIsTouchDevice(window.matchMedia('(hover: none)').matches);
-  }, []);
 
   return (
     <section className="bg-[var(--surface)] py-20 lg:py-24 px-6 lg:px-8">
@@ -32,48 +24,20 @@ export default function CommonSituations({ onSelect }) {
           <p className="text-[var(--text-3)] font-body mt-2">{t('commonSituations.subheading')}</p>
         </div>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 px-1" style={{ scrollSnapType: 'x proximity' }}>
-          {SITUATIONS.map((s, i) => {
-            const isHovered = hovered === i && !isTouchDevice;
+          {SITUATIONS.map((s) => {
+            const Icon = s.icon;
             const label = t(`situation.${s.key}`);
             return (
               <button
                 key={s.key}
                 onClick={() => onSelect(s.area)}
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
                 className="flex flex-col items-center gap-3 shrink-0 group"
                 style={{ scrollSnapAlign: 'start', width: 'clamp(96px, 18vw, 120px)' }}
               >
-                <div
-                  className="overflow-hidden transition-all duration-300"
-                  style={{
-                    width: 'clamp(96px, 18vw, 120px)',
-                    height: 'clamp(96px, 18vw, 120px)',
-                    borderRadius: '23%',
-                    backgroundColor: 'var(--surface-sunk)',
-                    boxShadow: isHovered ? '0 12px 40px rgba(10,61,98,0.15)' : '0 4px 16px rgba(10,61,98,0.08)',
-                    transform: isHovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)',
-                  }}
-                >
-                  <img
-                    src={s.image}
-                    alt={label}
-                    loading="lazy"
-                    className="block"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      objectPosition: 'center',
-                      animation: prefersReducedMotion ? 'none' : 'float 3.5s ease-in-out infinite',
-                      animationDelay: `${i * 0.4}s`,
-                    }}
-                  />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--accent-soft)] flex items-center justify-center">
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[var(--accent)]" strokeWidth={1.6} />
                 </div>
-                <span
-                  className="font-body text-[13px] text-[var(--text)] text-center leading-tight transition-colors duration-200"
-                  style={{ color: isHovered ? 'var(--accent)' : 'var(--text)' }}
-                >
+                <span className="font-heading text-[13px] text-[var(--text)] text-center leading-tight transition-colors duration-200 group-hover:text-[var(--accent)]">
                   {label}
                 </span>
               </button>

@@ -170,7 +170,6 @@ export default function Hero({ onSearch }) {
 
         {/* Fine print */}
         <p className="text-xs text-white/70 font-body mt-7 text-center max-w-2xl">{t('hero.fineprint')}</p>
-        <p className="text-xs text-white/55 font-body mt-1.5 text-center max-w-2xl">{t('hero.financingSoon')}</p>
 
         {/* CTA buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-9">
@@ -179,12 +178,6 @@ export default function Hero({ onSearch }) {
             className="px-8 py-4 bg-[var(--surface)] text-[var(--text)] text-sm font-body font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-on)] transition-all duration-300 hover:scale-[1.02] min-w-[200px]"
           >
             {t('hero.bookConsultation')}
-          </button>
-          <button
-            onClick={() => navigate('/financing')}
-            className="px-8 py-4 border border-white/60 text-white text-sm font-body font-medium hover:border-white transition-all duration-200 min-w-[200px]"
-          >
-            {t('hero.seeFinancing')}
           </button>
         </div>
       </div>

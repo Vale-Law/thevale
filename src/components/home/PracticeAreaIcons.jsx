@@ -28,7 +28,7 @@ export default function PracticeAreaIcons({ onSelect }) {
     <section className="py-20 lg:py-24 px-6 lg:px-8 bg-[var(--surface)]" ref={ref}>
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 text-center">
-          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">{t('practiceIcons.heading')}</h2>
+          <h2 className="font-heading text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">{t('practiceIcons.heading')}</h2>
           <p className="text-[var(--text-3)] font-body mt-2">{t('practiceIcons.subheading')}</p>
         </div>
 

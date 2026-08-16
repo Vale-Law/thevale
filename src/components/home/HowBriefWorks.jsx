@@ -163,7 +163,7 @@ export default function HowBriefWorks() {
       <section className="bg-[var(--accent-soft)] py-14 lg:py-20 px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">How Brief works</h2>
+            <h2 className="font-heading text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">How Brief works</h2>
             <p className="text-[var(--text-3)] font-body mt-3">Four simple steps from search to consultation.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -172,7 +172,7 @@ export default function HowBriefWorks() {
                 <div className="w-14 h-14 rounded-full bg-[var(--surface)] flex items-center justify-center mb-4 shadow-sm">
                   <span className="font-body font-bold text-[24px] text-[var(--accent)] leading-none">{step.num}</span>
                 </div>
-                <h3 className="font-serif font-medium text-[17px] text-[var(--text)] mb-2">{t(`howBrief.${step.key}.title`)}</h3>
+                <h3 className="font-heading text-[17px] text-[var(--text)] mb-2">{t(`howBrief.${step.key}.title`)}</h3>
                 <p className="text-[13px] text-[var(--text-3)] font-body leading-snug max-w-[220px]">{t(`howBrief.${step.key}.desc`)}</p>
               </div>
             ))}
@@ -189,7 +189,7 @@ export default function HowBriefWorks() {
         <div className="max-w-[1100px] mx-auto w-full flex flex-col items-center">
           {/* Heading */}
           <div className="text-center mb-8 lg:mb-12 shrink-0">
-            <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">How Brief works</h2>
+            <h2 className="font-heading text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1]">How Brief works</h2>
             <p className="text-[var(--text-3)] font-body mt-3">Four simple steps from search to consultation.</p>
           </div>
 
@@ -207,7 +207,7 @@ export default function HowBriefWorks() {
                     <span className="font-body font-bold text-[18px] lg:text-[20px] text-[var(--accent)] leading-none">{step.num}</span>
                   </div>
                   <div className="hidden lg:block">
-                    <h3 className="font-serif font-medium text-[16px] text-[var(--text)]">{t(`howBrief.${step.key}.title`)}</h3>
+                    <h3 className="font-heading text-[16px] text-[var(--text)]">{t(`howBrief.${step.key}.title`)}</h3>
                     <p className="text-[13px] text-[var(--text-3)] font-body leading-snug">{t(`howBrief.${step.key}.desc`)}</p>
                   </div>
                 </motion.div>
@@ -222,7 +222,7 @@ export default function HowBriefWorks() {
                   style={{ opacity: visOps[i] }}
                   className="absolute inset-0 text-center"
                 >
-                  <h3 className="font-serif font-medium text-[15px] text-[var(--text)]">{t(`howBrief.${step.key}.title`)}</h3>
+                  <h3 className="font-heading text-[15px] text-[var(--text)]">{t(`howBrief.${step.key}.title`)}</h3>
                   <p className="text-[12px] text-[var(--text-3)] font-body leading-snug">{t(`howBrief.${step.key}.desc`)}</p>
                 </motion.div>
               ))}

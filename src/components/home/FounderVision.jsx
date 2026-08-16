@@ -59,7 +59,7 @@ export default function FounderVision() {
         {/* Text */}
         <div className="fade-up-child order-1 lg:order-2">
           <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-5 font-body">{t('founder.vision')}</p>
-          <h2 className="font-serif font-medium text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1] mb-6">
+          <h2 className="font-heading text-[28px] lg:text-[38px] text-[var(--text)] leading-[1.1] mb-6">
             {t('founder.heading')}
           </h2>
           <p className="text-[var(--text-3)] leading-relaxed mb-4">{t('founder.p1')}</p>

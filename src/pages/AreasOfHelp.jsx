@@ -186,7 +186,7 @@ export default function AreasOfHelp() {
               Not sure which one fits?
             </h2>
             <Link
-              to="/booking"
+              to="/bookings?browse=1"
               className="inline-flex items-center px-8 py-4 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-all duration-300"
             >
               Talk to us →

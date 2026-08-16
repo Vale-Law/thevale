@@ -1,5 +1,51 @@
 # Known Gaps & Stubbed Functionality — V2 Codebase Review
 
+## Wave 0 money-loop locks (audit 2026-08-15, locks landed 2026-08-16)
+
+Three critical audit findings, status after the Wave 0 PR. Scope was these
+three only; everything else from the audit is Wave 1.
+
+1. **Admin self-promotion — FUNCTIONAL (locked).** Was: `profiles_update_own`
+   let any authenticated user set their own `profiles.role = 'admin'`, and
+   `AdminEntry.jsx`'s "Enable admin access" button did it in one click. Now:
+   `protect_profiles_role` trigger
+   (`supabase/migrations/20260816000000_wave0_role_and_status_locks.sql`)
+   rejects any non-admin role change except the self-service
+   `user`/`client`/`attorney` onboarding moves; `admin` and `staff` are only
+   settable server-side (service role / `add_firm_staff`). The self-promote
+   button is gone — `/admin` is a dead-end screen for non-admins. The only
+   admin grant path is the service-role migration
+   `20260816000100_grant_founder_admin.sql` (founder email, idempotent).
+   *Note: migrations are written but NOT applied to production — owner
+   applies them.*
+
+2. **Directory booked without charging — FUNCTIONAL (locked).** Was:
+   directory/profile Book controls routed to legacy `/booking`
+   (`Booking.jsx`), a client-side `bookings` insert that displayed the fee
+   and never charged; the Stripe path (`/book/:slug` →
+   `api/bookings-public.js`) was only reachable via the attorney's shared
+   link. Now: `BookingPanel.jsx`/`BookingWidget.jsx` route to
+   `/book/:slug`, the legacy page and its step components are deleted, and
+   `/booking` is a redirect (`LegacyBookingRedirect.jsx`) that translates
+   old `?attorney=<id>` links to `/book/:slug` or the directory. The
+   `/confirmation` receipt screen for the fake flow is gone with it.
+
+3. **Client self-confirm/complete bookings — FUNCTIONAL (locked).** Was:
+   `bookings` RLS scoped by ownership only, so a client JWT could insert or
+   update its own booking to `confirmed`/`completed` (the states metrics and
+   the consultation charge hang off). Now: `protect_bookings_status` trigger
+   restricts those two transitions to firm members of the booking's
+   attorney, admins, and the server (service role — `api/manage.js` token
+   confirm, webhooks). Also locked (audit item 7, partially):
+   `protect_consultation_charges` makes the payment-state fields
+   (`charged`/`reversed` status, `charged_at`, `stripe_payment_intent_id`,
+   `paid_at`, `refunded_at`, post-insert `amount_cents` changes)
+   server/admin-only. **Wave 1 residual:** insert-time `amount_cents` is
+   still caller-supplied by a firm-member JWT (UI relies on the column
+   default of 5000); server-side subscription enforcement, refund logging,
+   email-confirm payment check, and the anon-readable `attorneys` row
+   remain open as audited.
+
 Reviewed: 2026-07-26
 Scope: re-sync from the cofounder's latest Base44 export ("Brief" / working title "The Vale"), replacing the V1 snapshot reviewed 2026-07-12. Measured against `docs/` product definition in Notion ("The Vale — Canonical Product Definition") and the original V1 gap list below.
 

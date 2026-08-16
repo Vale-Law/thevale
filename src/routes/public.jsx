@@ -2,8 +2,7 @@ import { Route } from 'react-router-dom';
 
 import Home from '@/pages/Home';
 import AttorneyProfile from '@/pages/AttorneyProfile';
-import Booking from '@/pages/Booking';
-import Confirmation from '@/pages/Confirmation';
+import LegacyBookingRedirect from '@/pages/LegacyBookingRedirect';
 import Financing from '@/pages/Financing';
 import ForAttorneys from '@/pages/ForAttorneys';
 import AreasOfHelp from '@/pages/AreasOfHelp';
@@ -94,8 +93,12 @@ export default (
         <Route path="/" element={<LawyerHome />} />
         <Route path="/bookings" element={<Home />} />
         <Route path="/attorney/:id" element={<AttorneyProfile />} />
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/confirmation" element={<Confirmation />} />
+        {/* Wave 0 lock 2: the legacy Base44 booking flow (client-side
+            insert, fee displayed, nothing charged) is gone. Old /booking
+            links are translated to the Stripe path (/book/:slug) or the
+            directory; /confirmation only existed as that flow's receipt
+            screen and is gone with it. */}
+        <Route path="/booking" element={<LegacyBookingRedirect />} />
         <Route path="/financing" element={<Financing />} />
         <Route path="/for-attorneys" element={<ForAttorneys />} />
         <Route path="/areas-of-help" element={<AreasOfHelp />} />

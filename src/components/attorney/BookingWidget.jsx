@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { format, addDays, startOfDay } from 'date-fns';
 import { base44 } from '@/api/base44Client';
-import { useOnboarding } from '@/lib/onboardingContext';
 import { useLanguage } from '@/lib/i18n';
 
 function getDisplaySlots(slots) {
@@ -20,20 +19,16 @@ function getDisplaySlots(slots) {
 
 export default function BookingWidget({ attorney }) {
   const navigate = useNavigate();
-  const { openOnboarding } = useOnboarding();
   const { t } = useLanguage();
   const slots = getDisplaySlots(attorney.available_slots);
   const monthlyAffirm = attorney.typical_retainer ? Math.round(attorney.typical_retainer / 12) : null;
 
-  const handleSlot = async (slot) => {
-    const bookingUrl = `/booking?attorney=${attorney.id}&slot=${encodeURIComponent(slot)}`;
+  // Wave 0 lock 2 (money-loop audit 2026-08-15): route to the public
+  // Stripe booking page instead of the legacy client-side-insert /booking
+  // flow. See BookingPanel.jsx for the full note.
+  const handleSlot = () => {
     base44.analytics.track({ eventName: 'Lawyer Selected', properties: { attorney_id: attorney.id } });
-    const authed = await base44.auth.isAuthenticated();
-    if (authed) {
-      navigate(bookingUrl);
-    } else {
-      openOnboarding(bookingUrl);
-    }
+    navigate(attorney.slug ? `/book/${attorney.slug}` : '/bookings?browse=1');
   };
 
   return (

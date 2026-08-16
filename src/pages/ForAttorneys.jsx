@@ -1,88 +1,115 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { useLanguage } from '@/lib/i18n';
-import { ArrowRight, Users, ShieldCheck, CalendarClock } from 'lucide-react';
 
-export default function ForAttorneys() {
-  const { t } = useLanguage();
-  const ref1 = useScrollReveal();
-  const ref3 = useScrollReveal();
+const FADE = {
+  animation: 'forAttorneysFade 0.35s cubic-bezier(0.23, 1, 0.32, 1) both',
+};
 
-  const values = [
-    { icon: Users, title: t('forAttorneys.v1Title'), desc: t('forAttorneys.v1Desc') },
-    { icon: CalendarClock, title: t('forAttorneys.v3Title'), desc: t('forAttorneys.v3Desc') },
-    { icon: ShieldCheck, title: t('forAttorneys.v4Title'), desc: t('forAttorneys.v4Desc') },
-  ];
+const FRAMES = [
+  {
+    src: '/how-it-works/booking-link.png',
+    alt: 'A Brief booking page with the attorney’s name and open consultation times',
+    caption: 'This is what you share.',
+    line: 'Put it on your site, your bar profile, your email signature.',
+  },
+  {
+    src: '/how-it-works/client-intake.png',
+    alt: 'The intake step on a Brief booking page, where a client describes the matter',
+    caption: 'This is what they see.',
+    line: 'They describe the matter and pick a time that is actually open.',
+  },
+  {
+    src: '/how-it-works/desk.png',
+    alt: 'A booked client on the attorney’s Brief desk',
+    caption: 'This is what you get.',
+    line: 'A pre-screened client, on your calendar.',
+  },
+];
+
+function WalkthroughFrame({ src, alt, caption, line }) {
+  return (
+    <section className="py-16 lg:py-24 px-6 lg:px-8" style={FADE}>
+      <div className="max-w-[1000px] mx-auto">
+        <FrameShot src={src} alt={alt} />
+        <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)] font-body mt-6 mb-2">
+          {caption}
+        </p>
+        <p className="text-base sm:text-lg text-[var(--text-2)] font-body leading-relaxed max-w-2xl">
+          {line}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function FrameShot({ src, alt }) {
+  const [failed, setFailed] = useState(!src);
+
+  if (failed) {
+    return (
+      <div
+        className="w-full aspect-[4/3] rounded-[var(--radius-m)] border border-[var(--line)] bg-[var(--surface)]"
+        style={{ boxShadow: 'var(--shadow-raised)' }}
+        role="img"
+        aria-label={alt}
+      />
+    );
+  }
 
   return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full rounded-[var(--radius-m)] border border-[var(--line)]"
+      style={{ boxShadow: 'var(--shadow-raised)' }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+export default function ForAttorneys() {
+  return (
     <div className="min-h-screen bg-[var(--ground)]">
+      <style>{`@keyframes forAttorneysFade { from { opacity: 0; } to { opacity: 1; } }`}</style>
       <Header />
 
-      {/* Hero */}
-      <section className="py-24 lg:py-32 px-6 lg:px-8 bg-[var(--ground)]">
-        <div className="max-w-[1200px] mx-auto">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-4 font-body">{t('forAttorneys.label')}</p>
-          <h1 className="font-serif font-medium text-[44px] lg:text-[72px] text-[var(--text)] leading-[1.02] max-w-4xl mb-6">
-            {t('forAttorneys.heading')}
+      <section className="py-16 lg:py-24 px-6 lg:px-8">
+        <div className="max-w-[1000px] mx-auto">
+          <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)] font-body mb-3">
+            For attorneys
+          </p>
+          <h1 className="font-heading text-[34px] sm:text-[48px] lg:text-[58px] text-[var(--text)] leading-[1.08] tracking-[-0.01em] max-w-3xl">
+            Your front desk, as a link.
           </h1>
-          <p className="text-lg text-[var(--text-3)] font-body max-w-xl leading-relaxed">
-            {t('forAttorneys.desc')}
+          <p className="text-base sm:text-lg text-[var(--text-2)] font-body mt-5 max-w-2xl leading-relaxed">
+            Availability, intake, and the consultation, behind one URL.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Link
-              to="/signup/attorney"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--text)] text-[var(--ground)] text-sm font-medium hover:bg-[var(--accent)] transition-all duration-300 font-body"
-            >
-              {t('forAttorneys.apply')}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <span className="text-sm text-[var(--text-3)] font-body">{t('forAttorneys.sub')}</span>
-          </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-24 lg:py-28 px-6 lg:px-8 bg-[var(--surface)]" ref={ref1}>
-        <div className="max-w-[1200px] mx-auto">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-3)] mb-4 font-body fade-up-child">{t('forAttorneys.whyTitle')}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 mt-10">
-            {values.map((v, i) => {
-              const Icon = v.icon;
-              return (
-                <div key={i} className="fade-up-child flex gap-5" style={{ transitionDelay: `${i * 80}ms` }}>
-                  <div className="w-12 h-12 rounded-full bg-[var(--accent-soft)] flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-[var(--accent)]" strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-xl text-[var(--text)] mb-2">{v.title}</h3>
-                    <p className="text-sm text-[var(--text-3)] font-body leading-relaxed">{v.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {FRAMES.map((frame) => (
+        <WalkthroughFrame key={frame.caption} {...frame} />
+      ))}
 
-      {/* CTA */}
-      <section className="py-24 lg:py-32 px-6 lg:px-8 bg-[var(--ground)]" ref={ref3}>
-        <div className="max-w-[700px] mx-auto text-center">
-          <h2 className="font-serif font-medium text-[32px] lg:text-[44px] text-[var(--text)] leading-[1.1] mb-4 fade-up-child">
-            {t('forAttorneys.ctaHeading')}
+      <section className="py-16 lg:py-20 px-6 lg:px-8 bg-[var(--accent)]">
+        <div className="max-w-[900px] mx-auto text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl text-[var(--accent-on)] mb-8">
+            Start collecting clients.
           </h2>
-          <p className="text-lg text-[var(--text-3)] font-body mb-10 fade-up-child">
-            {t('forAttorneys.ctaDesc')}
-          </p>
           <Link
             to="/signup/attorney"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--accent)] text-[var(--accent-on)] text-sm font-medium hover:bg-[var(--accent-press)] transition-all duration-300 font-body"
+            className="inline-flex items-center justify-center px-8 py-4 bg-[var(--text)] text-[var(--ground)] text-sm font-medium font-body hover:opacity-90 transition-opacity min-w-[200px]"
           >
-            {t('forAttorneys.ctaButton')}
-            <ArrowRight className="w-4 h-4" />
+            Claim your booking page
           </Link>
-          <p className="text-xs text-[var(--text-3)] font-body mt-6">{t('forAttorneys.ctaSub')}</p>
+          <p className="text-xs font-body text-[var(--accent-on)] opacity-75 mt-4">
+            Already listed?{' '}
+            <Link to="/login" className="underline">
+              Go to your portal
+            </Link>
+          </p>
         </div>
       </section>
 

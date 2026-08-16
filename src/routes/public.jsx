@@ -5,6 +5,9 @@ import AttorneyProfile from '@/pages/AttorneyProfile';
 import LegacyBookingRedirect from '@/pages/LegacyBookingRedirect';
 import Financing from '@/pages/Financing';
 import ForAttorneys from '@/pages/ForAttorneys';
+import About from '@/pages/About';
+import Help from '@/pages/Help';
+import Contact from '@/pages/Contact';
 import AreasOfHelp from '@/pages/AreasOfHelp';
 import LearnIndex from '@/pages/LearnIndex';
 import LearnImmigration from '@/pages/LearnImmigration';
@@ -101,6 +104,9 @@ export default (
         <Route path="/booking" element={<LegacyBookingRedirect />} />
         <Route path="/financing" element={<Financing />} />
         <Route path="/for-attorneys" element={<ForAttorneys />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/areas-of-help" element={<AreasOfHelp />} />
         <Route path="/learn" element={<LearnIndex />} />
         <Route path="/learn/immigration-law" element={<LearnImmigration />} />

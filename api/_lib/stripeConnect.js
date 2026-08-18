@@ -45,6 +45,15 @@ export async function createConsultationCheckout({ connectedAccountId, amountCen
         },
         quantity: 1,
       }],
+      // Same flag platform subscription Checkout already sets
+      // (api/subscription-checkout.js): show the promotion-code field.
+      // This is a DIRECT charge, so codes are resolved on the CONNECTED
+      // account -- a platform code like FIRSTFIVE will not apply here;
+      // the code must exist in the connected account's own Stripe
+      // Dashboard. A 100% code makes the session no_payment_required,
+      // which the Connect webhook and api/manage.js treat as settled
+      // (charge row 'waived', never 'charged').
+      allow_promotion_codes: true,
       payment_intent_data: { application_fee_amount: 0 },
       metadata: { booking_id: bookingId },
       success_url: successUrl,

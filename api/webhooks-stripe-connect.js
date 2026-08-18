@@ -81,19 +81,31 @@ export default async function handler(req, res) {
           // checkout.session.completed also fires for async payment
           // methods while payment_status is still 'unpaid' -- those
           // complete later via checkout.session.async_payment_succeeded
-          // (handled by this same case), or never.
-          if (session.payment_status !== 'paid') {
+          // (handled by this same case), or never. 'no_payment_required'
+          // is NOT unpaid: a 100% promotion code zeroed the total at
+          // Checkout, the session is settled, and Stripe creates no
+          // PaymentIntent for it -- the ledger still completes, as
+          // 'waived' with the reason on the row, never as 'charged'.
+          if (session.payment_status === 'paid') {
+            await admin
+              .from('consultation_charges')
+              .update({
+                status: 'charged',
+                paid_at: new Date().toISOString(),
+                stripe_payment_intent_id: session.payment_intent,
+              })
+              .eq('booking_id', bookingId);
+          } else if (session.payment_status === 'no_payment_required') {
+            await admin
+              .from('consultation_charges')
+              .update({
+                status: 'waived',
+                waived_reason: 'Zeroed at checkout by promotion code',
+              })
+              .eq('booking_id', bookingId);
+          } else {
             console.error(`[webhooks-stripe-connect] skipping unpaid ${event.type} ${session.id} (payment_status=${session.payment_status})`);
-            break;
           }
-          await admin
-            .from('consultation_charges')
-            .update({
-              status: 'charged',
-              paid_at: new Date().toISOString(),
-              stripe_payment_intent_id: session.payment_intent,
-            })
-            .eq('booking_id', bookingId);
         }
         break;
       }

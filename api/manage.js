@@ -194,6 +194,16 @@ export default async function handler(req, res) {
                   paid_at: new Date().toISOString(),
                   stripe_payment_intent_id: session.payment_intent || charge.stripe_payment_intent_id,
                 }).eq('id', charge.id);
+              } else if (session?.payment_status === 'no_payment_required') {
+                // A 100% promotion code zeroed the total at Checkout: the
+                // session is settled with no PaymentIntent. Same 'waived'
+                // ledger completion the Connect webhook writes -- never
+                // 'charged' for money that was never collected.
+                paid = true;
+                await admin.from('consultation_charges').update({
+                  status: 'waived',
+                  waived_reason: 'Zeroed at checkout by promotion code',
+                }).eq('id', charge.id);
               }
             }
           }

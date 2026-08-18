@@ -11,9 +11,12 @@ import { Loader2, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
 const STEPS = ['slot', 'situation', 'contact', 'confirm'];
 
 // The attorney's own public booking page — this is the v1.4 keystone
-// feature. No login required to book. Calendar sync is limited to the
-// attorney's own weekly working-hours rule (see src/lib/availability.js);
-// external Google/Microsoft free-busy sync isn't built yet.
+// feature. No login required to book. Open slots come from
+// GET /api/availability, which merges the weekly working-hours rule,
+// existing Brief bookings, and connected Google/Microsoft free/busy — and
+// fails closed (empty slots, reason 'calendar_unavailable') when a
+// connected calendar can't be read, so this page never offers hours it
+// can't verify.
 export default function BookingPage() {
   const { slug } = useParams();
 
@@ -73,9 +76,20 @@ export default function BookingPage() {
     // Calendar free/busy). When it isn't available — e.g. the deployment
     // is missing SUPABASE_SERVICE_ROLE_KEY and it 503s — fall back to the
     // anon-safe RPC and compute slots in the browser with the same engine.
+    //
+    // The fallback is weekly hours + Brief bookings ONLY — it cannot see
+    // external free/busy (refresh tokens are server-side, by design). So
+    // it may only compute slots when the RPC positively says no external
+    // calendar is connected; a connected calendar it can't consult means
+    // an honest empty state, never weekly-only hours the attorney may not
+    // have. calendar_connected !== false also covers an RPC predating the
+    // field: unknown is treated as unverifiable, same as the API does.
     const fallback = async () => {
       const { data } = await supabase.rpc('get_public_booking_page', { p_slug: slug });
       if (!data?.working_hours || !data?.timezone) return { slots: [], timezone: null };
+      if (data.calendar_connected !== false) {
+        return { attorneyId: data.attorney_id, timezone: data.timezone, slots: [], reason: 'calendar_unavailable' };
+      }
       const slots = computeAvailableSlots({
         workingHours: data.working_hours,
         bufferMinutes: data.buffer_minutes ?? 15,
@@ -90,7 +104,13 @@ export default function BookingPage() {
     fetch(`/api/availability?slug=${encodeURIComponent(slug)}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('availability api unavailable'))))
       .then((data) => setAvail(data))
-      .catch(() => fallback().then(setAvail).catch(() => setAvail({ slots: [], timezone: null })))
+      .catch(() =>
+        fallback()
+          .then(setAvail)
+          // Neither source answered: we can't verify anything is open, so
+          // say so rather than showing "no open times" as if it were fact.
+          .catch(() => setAvail({ slots: [], timezone: null, reason: 'calendar_unavailable' }))
+      )
       .finally(() => setLoadingSlots(false));
   }, [attorney, slug]);
 
@@ -255,7 +275,14 @@ export default function BookingPage() {
               <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 text-[var(--accent)] animate-spin" /></div>
             ) : days.length === 0 ? (
               <Card tone="recessed" className="text-center">
-                <p className="text-sm text-[var(--text-3)] ds-type-body-m">No open times right now. Check back soon.</p>
+                {/* Two different truths: the calendar answered and nothing is
+                    open, vs. we couldn't check the calendar at all. Never
+                    dress the second up as the first. */}
+                <p className="text-sm text-[var(--text-3)] ds-type-body-m">
+                  {avail?.reason === 'calendar_unavailable'
+                    ? "We can't show open times right now. Try again in a few minutes."
+                    : 'No open times right now. Check back soon.'}
+                </p>
               </Card>
             ) : (
               <div className="space-y-5">

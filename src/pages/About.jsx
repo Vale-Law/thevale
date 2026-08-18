@@ -9,12 +9,12 @@ export default function About() {
 
       <main className="flex-1 py-16 lg:py-24 px-6 lg:px-8">
         <article className="max-w-[720px] mx-auto">
-          <h1 className="font-display font-bold text-[32px] leading-[36px] tracking-[-0.025em] sm:text-[44px] sm:leading-[46px] text-[var(--text)] mb-14">
+          <h1 className="font-serif text-[48px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-[var(--text)] mb-14">
             The front door of a well-run practice.
           </h1>
 
           <section className="mb-12">
-            <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--text)] mb-5">
+            <h2 className="font-serif text-2xl sm:text-3xl leading-[1.15] tracking-[-0.01em] text-[var(--text)] mb-5">
               The reception problem
             </h2>
             <div className="space-y-4 text-base lg:text-lg text-[var(--text-2)] font-body leading-[1.7]">
@@ -28,7 +28,7 @@ export default function About() {
           </section>
 
           <section className="mb-12">
-            <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--text)] mb-5">
+            <h2 className="font-serif text-2xl sm:text-3xl leading-[1.15] tracking-[-0.01em] text-[var(--text)] mb-5">
               What Brief is, and is not
             </h2>
             <div className="space-y-4 text-base lg:text-lg text-[var(--text-2)] font-body leading-[1.7]">
@@ -42,7 +42,7 @@ export default function About() {
           </section>
 
           <section className="mb-14">
-            <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--text)] mb-5">
+            <h2 className="font-serif text-2xl sm:text-3xl leading-[1.15] tracking-[-0.01em] text-[var(--text)] mb-5">
               Houston
             </h2>
             <p className="text-base lg:text-lg text-[var(--text-2)] font-body leading-[1.7]">

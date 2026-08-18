@@ -80,7 +80,7 @@ export default function Help() {
         <div className="max-w-[720px] mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <CircleHelp className="w-7 h-7 text-[var(--accent)]" strokeWidth={1.6} />
-            <h1 className="font-display font-bold text-[32px] leading-[36px] tracking-[-0.025em] sm:text-[44px] sm:leading-[46px] text-[var(--text)]">
+            <h1 className="font-serif text-[48px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-[var(--text)]">
               Help.
             </h1>
           </div>
@@ -91,10 +91,10 @@ export default function Help() {
           <div className="space-y-12">
             {GROUPS.map(({ label, q, a }) => (
               <section key={label}>
-                <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--text)] mb-4">
+                <h2 className="font-body font-medium text-[11px] leading-[18px] tracking-[0.12em] uppercase text-[var(--text-3)] mb-2">
                   {label}
                 </h2>
-                <h3 className="font-body font-semibold text-[24px] leading-[30px] tracking-[-0.015em] text-[var(--text)] mb-2">
+                <h3 className="font-serif text-2xl sm:text-3xl leading-[1.15] tracking-[-0.01em] text-[var(--text)] mb-2">
                   {q}
                 </h3>
                 <p className="text-[15px] text-[var(--text-2)] font-body leading-[1.6]">

@@ -14,14 +14,14 @@ export default function Contact() {
 
       <main className="flex-1 py-16 lg:py-24 px-6 lg:px-8">
         <div className="max-w-[680px] mx-auto">
-          <h1 className="font-display font-bold text-[32px] leading-[36px] tracking-[-0.025em] sm:text-[44px] sm:leading-[46px] text-[var(--text)] mb-14">
+          <h1 className="font-serif text-[48px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-[var(--text)] mb-14">
             Write the studio.
           </h1>
 
           <div className="space-y-10 mb-14">
             {BLOCKS.map(({ label, body }) => (
               <div key={label}>
-                <h2 className="font-display font-semibold text-[32px] leading-[36px] tracking-[-0.02em] text-[var(--text)] mb-2">
+                <h2 className="font-serif text-xl sm:text-2xl leading-[1.2] tracking-[-0.01em] text-[var(--text)] mb-2">
                   {label}
                 </h2>
                 <p className="text-base sm:text-lg text-[var(--text-2)] font-body leading-[1.7]">
@@ -33,7 +33,7 @@ export default function Contact() {
 
           <a
             href="mailto:studio@faajistudios.com"
-            className="font-body text-[19px] text-[var(--text)] underline underline-offset-4 hover:text-[var(--accent)] transition-colors"
+            className="font-body text-[24px] sm:text-[28px] text-[var(--text)] underline underline-offset-4 hover:text-[var(--accent)] transition-colors"
           >
             studio@faajistudios.com
           </a>

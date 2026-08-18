@@ -115,8 +115,23 @@ export default function AttorneyAvailabilityPage() {
   const disconnectCalendar = async (provider) => {
     const connection = connections[provider];
     if (!connection) return;
-    await supabase.from('attorney_calendar_connections').delete().eq('id', connection.id);
-    setConnections((prev) => ({ ...prev, [provider]: null }));
+    // Delete the row; if the delete is refused, write status 'disconnected'
+    // instead — api/availability.js skips disconnected rows, so either way
+    // the booking page truly stops consulting this calendar. Never show
+    // "disconnected" in the UI unless one of those writes actually landed.
+    const { error: deleteError } = await supabase.from('attorney_calendar_connections').delete().eq('id', connection.id);
+    if (deleteError) {
+      const { error: updateError } = await supabase
+        .from('attorney_calendar_connections')
+        .update({ status: 'disconnected' })
+        .eq('id', connection.id);
+      if (updateError) {
+        setCalendarMessage({ text: `Could not disconnect ${PROVIDER_LABEL[provider]} — try again.`, ok: false });
+        return;
+      }
+    }
+    setCalendarMessage({ text: `${PROVIDER_LABEL[provider]} disconnected.`, ok: true });
+    await loadConnections();
   };
 
   const saveRules = async (next) => {
@@ -195,9 +210,13 @@ export default function AttorneyAvailabilityPage() {
         <div className="space-y-4">
           {['google', 'microsoft'].map((provider, i) => {
             const connection = connections[provider];
+            // A row with status 'disconnected' is calendar-off, same as no
+            // row at all — the booking page runs on weekly hours + Brief
+            // bookings only. Show the connect state, not a live connection.
+            const active = connection && connection.status !== 'disconnected';
             return (
               <div key={provider} className={i > 0 ? 'pt-4 border-t border-[var(--line)]' : ''}>
-                {connection ? (
+                {active ? (
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: CONNECTION_STATUS_COLOR[connection.status] || 'var(--text-3)' }} />
@@ -206,6 +225,11 @@ export default function AttorneyAvailabilityPage() {
                     {connection.status === 'error' && connection.last_error && (
                       <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-2">{connection.last_error}</p>
                     )}
+                    {connection.status === 'error' && (
+                      <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-2">
+                        While this connection is failing, your booking page shows no open times — reconnect, or disconnect to fall back to your weekly hours.
+                      </p>
+                    )}
                     <p className="text-xs text-[var(--text-3)] ds-type-body-m mb-3">
                       {connection.last_synced_at ? `Last synced ${new Date(connection.last_synced_at).toLocaleString()}` : 'Not synced yet'}
                     </p>
@@ -213,6 +237,12 @@ export default function AttorneyAvailabilityPage() {
                   </div>
                 ) : (
                   <div>
+                    {connection && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: CONNECTION_STATUS_COLOR.disconnected }} />
+                        <span className="text-sm ds-type-body-m text-[var(--text)]">{PROVIDER_LABEL[provider]} is off — the booking page uses your weekly hours and Brief bookings only.</span>
+                      </div>
+                    )}
                     <p className="text-sm text-[var(--text-3)] ds-type-body-m mb-3 max-w-md">
                       Connect your {PROVIDER_LABEL[provider]} so busy time there also blocks your Brief booking page. Free/busy only — Brief never reads event details.
                     </p>

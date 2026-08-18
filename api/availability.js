@@ -9,12 +9,16 @@
 // there is no caching layer here, so an external event is reflected the
 // next time this endpoint is hit, satisfying the "removes a slot within a
 // defined sync SLA" gate without needing a separate sync job. A
-// refresh/free-busy failure degrades to booking-only availability (fail
-// open on the client-facing side) and records the error on the connection
-// row so the attorney's own health indicator shows it. An attorney can have
-// both providers connected at once (e.g. a personal Google calendar and a
-// firm Outlook calendar); busy ranges from every connected, non-erroring
-// provider are merged together.
+// refresh/free-busy failure FAILS CLOSED: a connected calendar whose busy
+// time cannot be read means the weekly hours cannot be verified as open,
+// so no slots are offered at all (reason 'calendar_unavailable') rather
+// than inventing hours the attorney may not have. The error is still
+// recorded on the connection row so the attorney's own health indicator
+// shows it. An attorney can have both providers connected at once (e.g. a
+// personal Google calendar and a firm Outlook calendar); busy ranges from
+// every connected provider are merged, and a failure on any one of them
+// closes the page the same way. Only free/busy ranges ever leave the
+// provider APIs -- no event titles in responses, rows, or logs.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js';
 import { computeAvailableSlots } from '../src/lib/availability.js';
 import { decryptRefreshToken, encryptRefreshToken } from './_lib/calendarCrypto.js';
@@ -30,7 +34,9 @@ const PROVIDERS = {
 
 async function loadOneConnectionBusy(admin, connection) {
   const provider = PROVIDERS[connection.provider];
-  if (!provider) return [];
+  // An unknown provider row can't be queried, and pretending it has no
+  // busy time would fail open -- treat it like a sync failure.
+  if (!provider) return { ok: false, busy: [] };
   try {
     const refreshToken = decryptRefreshToken(connection.refresh_token_encrypted);
     const refreshed = await provider.refresh(refreshToken);
@@ -47,26 +53,33 @@ async function loadOneConnectionBusy(admin, connection) {
     if (refreshed.refresh_token) update.refresh_token_encrypted = encryptRefreshToken(refreshed.refresh_token);
 
     await admin.from('attorney_calendar_connections').update(update).eq('id', connection.id);
-    return busy;
+    return { ok: true, busy };
   } catch (e) {
     await admin
       .from('attorney_calendar_connections')
       .update({ status: 'error', last_error: e.message || 'Calendar sync failed' })
       .eq('id', connection.id);
-    return [];
+    return { ok: false, busy: [] };
   }
 }
 
 async function loadCalendarBusyRanges(admin, attorneyId) {
-  const { data: connections } = await admin
+  const { data: connections, error } = await admin
     .from('attorney_calendar_connections')
     .select('*')
     .eq('attorney_id', attorneyId)
     .neq('status', 'disconnected');
 
-  if (!connections?.length) return [];
+  // Can't even tell whether a calendar is connected -- fail closed, same
+  // as a connected calendar that won't answer.
+  if (error) return { connected: true, failed: true, busy: [] };
+  if (!connections?.length) return { connected: false, failed: false, busy: [] };
   const results = await Promise.all(connections.map((c) => loadOneConnectionBusy(admin, c)));
-  return results.flat();
+  return {
+    connected: true,
+    failed: results.some((r) => !r.ok),
+    busy: results.flatMap((r) => r.busy),
+  };
 }
 
 export default async function handler(req, res) {
@@ -120,7 +133,21 @@ export default async function handler(req, res) {
     .in('status', ['pending', 'confirmed'])
     .not('slot_start', 'is', null);
 
-  const calendarBusy = await loadCalendarBusyRanges(admin, attorney.id);
+  const calendar = await loadCalendarBusyRanges(admin, attorney.id);
+
+  // Fail closed: a connected external calendar whose free/busy could not
+  // be applied means none of the weekly hours can honestly be offered as
+  // open. Empty slots with a reason, never invented hours.
+  if (calendar.failed) {
+    res.status(200).json({
+      attorneyId: attorney.id,
+      timezone: rules.timezone,
+      slots: [],
+      reason: 'calendar_unavailable',
+      calendarConnected: true,
+    });
+    return;
+  }
 
   const slots = computeAvailableSlots({
     workingHours: rules.working_hours,
@@ -131,9 +158,9 @@ export default async function handler(req, res) {
     daysAhead: DAYS_AHEAD,
     existingRanges: [
       ...(existing || []).map((b) => ({ start: b.slot_start, end: b.slot_end })),
-      ...calendarBusy,
+      ...calendar.busy,
     ],
   });
 
-  res.status(200).json({ attorneyId: attorney.id, timezone: rules.timezone, slots });
+  res.status(200).json({ attorneyId: attorney.id, timezone: rules.timezone, slots, calendarConnected: calendar.connected });
 }
